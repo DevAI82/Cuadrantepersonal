@@ -1196,7 +1196,7 @@ function renderReglas(){
           plantilla:[
             {grupo:'Mañanas Fijas',   miembros:['M. Cortés','Victoria','Pilar Soler'], nota:'Turno fijo de mañana L–S'},
             {grupo:'Rotativos 100%',  miembros:['Ramón','Javier','Ana Pilar'],          nota:'Turno A o B según semana · M 8:10–15:30 / T 15:00–22:00'},
-            {grupo:'Rotativos 92%',   miembros:['Irene','Inmaculada','Arancha'],        nota:'Turno A o B según semana · M 9:00–15:00 / T 16:00–22:00'},
+            {grupo:'Rotativos 92%',   miembros:['Irene','Inmaculada','Rosario'],        nota:'Turno A o B según semana · M 9:00–15:00 / T 16:00–22:00'},
             {grupo:'Rotativo 59%',    miembros:['Isabel'],                              nota:'M 9:00–13:00 / T 18:00–22:00'},
             {grupo:'Días Sueltos',    miembros:['Julio','Antonio','Juan Fran'],         nota:'Días concretos según contrato'},
             {grupo:'Sin cómputo',     miembros:['Eduardo (Lib. Sindical)','M. Aranzazu (Baja)'], nota:'No computan como trabajadores efectivos'}
@@ -1245,13 +1245,13 @@ function renderReglas(){
           ]
         },
         {
-          nombre:'ROTATIVOS — Turno B (Ramón, Irene, Arancha)',
-          miembros:['Ramón','Irene','Arancha'],
+          nombre:'ROTATIVOS — Turno B (Ramón, Irene, Rosario)',
+          miembros:['Ramón','Irene','Rosario'],
           color:'#558b2f',
           reglas:[
             'Ramón (100%): Mañana 8:10–15:30 · Tarde 15:00–22:00',
             'Irene (92%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
-            'Arancha (Interina 84%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
+            'Rosario (Interina 84%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
             'Este grupo rota en sentido opuesto al Turno A.',
             'En periodo pico se incorporan a este turno: Alba, Cecilia, Rocío y Juan (M 9:00–15:30 / T 15:30–22:00). Juan no trabaja sábados (trabaja en SAC).'
           ]
@@ -3819,7 +3819,7 @@ const OMNICANAL_PLANTILLA = [
   {nombre:'Serna Carrión, Julio',          tipo:'refuerzo',  pct:20,   nota:'Ampliación: +20% · +1 día/semana · 25 Jun – 15 Sep'},
   {nombre:'Fernández García, Antonio',     tipo:'refuerzo',  pct:20,   nota:'Ampliación: +20% · +1 día/semana · 25 Jun – 15 Sep'},
   {nombre:'López Nieto, Juan F.',          tipo:'refuerzo',  pct:60,   nota:'Ampliación: +60% · turno tarde L-S (antes sólo sábados)'},
-  {nombre:'Arancha (Interina)',            tipo:'refuerzo',  pct:84,   nota:'Interina · 15 Jun – 31 Dic · mismo turno que Ramón'},
+  {nombre:'Rosario (Interina)',            tipo:'refuerzo',  pct:84,   nota:'Interina · 15 Jun – 31 Dic · mismo turno que Ramón'},
   {nombre:'Refuerzo Tienda',               tipo:'refuerzo',  pct:100,  nota:'Refuerzo · 1 Jul – 15 Sep · mismo turno que Javi'},
   {nombre:'Rocío',                         tipo:'refuerzo',  pct:92,   nota:'Refuerzo · pendiente definir periodo'},
   {nombre:'Juan',                          tipo:'refuerzo',  pct:60,   nota:'Refuerzo 60% · L-V (sábado libre) · pendiente definir periodo'},
@@ -3982,7 +3982,7 @@ function renderEstudio(){
   function calcFTE(ds){
     const codes = DEPTS.omnicanal.raw[ds]||[];
     const EXCLUDE   = new Set(['SPS','--']);
-    const REFUERZO  = new Set([9,10,11,14,15,20,21]); // Julio,Antonio,JuanFran,Arancha,Refuerzo,Rocío,Juan
+    const REFUERZO  = new Set([9,10,11,14,15,20,21]); // Julio,Antonio,JuanFran,Rosario,Refuerzo,Rocío,Juan
     const DISCO_EMP = new Set([16,17,18,19]);           // Alba, Lucas, M.Pilar D., Cecilia
     let stable=0, refuerzo=0, disco=0;
     codes.forEach((c,i)=>{
@@ -4012,7 +4012,7 @@ function renderEstudio(){
   h+='<div style="font-size:1.05rem;font-weight:800;color:#1a237e">&#128202; Estudio de Dimensionamiento — Omnicanal</div>';
   h+='<div style="background:#e8eaf6;color:#283593;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700">15 Mayo → 30 Sept 2026</div>';
   h+='</div>';
-  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:18px">FTE Estable = plantilla base (excl. SPS) · <span style="color:#6a1b9a;font-weight:600">Refuerzo Extra: JuanFran, Antonio, Julio, Arancha, Refuerzo, Rocío, Juan</span> · <span style="color:#e65100;font-weight:600">FTE Discontinuos: Alba, Lucas, M.Pilar, Cecilia (1 Jul–15 Sep)</span></div>';
+  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:18px">FTE Estable = plantilla base (excl. SPS) · <span style="color:#6a1b9a;font-weight:600">Refuerzo Extra: JuanFran, Antonio, Julio, Rosario, Refuerzo, Rocío, Juan</span> · <span style="color:#e65100;font-weight:600">FTE Discontinuos: Alba, Lucas, M.Pilar, Cecilia (1 Jul–15 Sep)</span></div>';
 
   // Gráfico FTE Real vs FTE Óptimo (arriba del todo)
   h+='<div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px;margin-bottom:22px">';
@@ -4527,7 +4527,7 @@ const OMNI_H=[
   {fixed:[885,1320]},                // 11 Juan Fran  14:45-22:00
   {MAN:[490,930],  TAR:[900,1320]},  // 12 Ana Pilar  M 8:10-15:30 / T 15:00-22:00
   null,                              // 13 M.Aranzazu Baja larga
-  {MAN:[540,900],  TAR:[960,1320]},  // 14 Arancha    M 9:00-15:00 / T 16:00-22:00
+  {MAN:[540,900],  TAR:[960,1320]},  // 14 Rosario    M 9:00-15:00 / T 16:00-22:00
   {MAN:[570,930],  TAR:[930,1320]},  // 15 Refuerzo   M 9:30-15:30 / T 15:30-22:00
   {MAN:[540,930],  TAR:[930,1320]},  // 16 Alba       M 9:00-15:30 / T 15:30-22:00
   {MAN:[540,930],  TAR:[930,1320]},  // 17 Lucas      M 9:00-15:30 / T 15:30-22:00
