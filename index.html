@@ -5553,7 +5553,7 @@ function calcResumenTrabajador(dept){
   const jMaxArr=JORNADA_MAX_H[dept]||[];
   return emps.map(function(name,ei){
     var libPast=0,libFut=0,vacPast=0,vacFut=0,festPast=0,festFut=0,compPast=0,compFut=0,perPast=0,perFut=0;
-    var hAmplPast=0,hAmplFut=0,horasPast=0,horasFut=0,calPast=0,calFut=0,workDays=0;
+    var hAmplPast=0,hAmplFut=0,horasPast=0,horasFut=0,calPast=0,calFut=0,workDays=0,horasReal=0,horasEstim=0;
     var hAmplWeekMap={};  // weekKey(lunes) → nº días ampliados esa semana
     const jMax=jMaxArr[ei]||1770;
     Object.entries(raw).forEach(function(e2){
@@ -5580,7 +5580,7 @@ function calcResumenTrabajador(dept){
         const _wk=_mon.getFullYear()+'-'+String(_mon.getMonth()+1).padStart(2,'0')+'-'+String(_mon.getDate()).padStart(2,'0');
         hAmplWeekMap[_wk]=(hAmplWeekMap[_wk]||0)+1;
       }
-      if(!FESTIVOS_CIERRE[dsStr]){const _fr=isPast?fReal(dept,name,dsStr):null;const h=(_fr!==null)?_fr:calcHorasDia(dept,ei,code,dsStr);isPast?horasPast+=h:horasFut+=h;}
+      if(!FESTIVOS_CIERRE[dsStr]){const _fr=isPast?fReal(dept,name,dsStr):null;const _th=calcHorasDia(dept,ei,code,dsStr);const h=(_fr!==null)?_fr:_th;if(_fr!==null){horasReal+=_fr;}else{horasEstim+=_th;}isPast?horasPast+=h:horasFut+=h;}
       if(isSat&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')){isPast?calPast++:calFut++;}
     });
     // Semanas que superan el límite de 3 días ampliados
@@ -5600,7 +5600,7 @@ function calcResumenTrabajador(dept){
       comp:{past:compPast,fut:compFut,tot:compPast+compFut},
       hAmpl:{past:hAmplPast,fut:hAmplFut,tot:hAmplPast+hAmplFut,
              weeksKO:hAmplWeeksKO.length,maxWeek:hAmplMaxWeek,weekMap:hAmplWeekMap},
-      horas:{past:Math.round(horasPast*10)/10,fut:Math.round(horasFut*10)/10,tot:hTot,max:jMax,diff},
+      horas:{past:Math.round(horasPast*10)/10,fut:Math.round(horasFut*10)/10,tot:hTot,max:jMax,diff,real:Math.round(horasReal*10)/10,estim:Math.round(horasEstim*10)/10},
       cal:{past:calPast,fut:calFut,tot:calPast+calFut,obj:calObj}};
   });
 }
@@ -5668,7 +5668,9 @@ function renderResumenTrabajador(){
   h+=TH+'Compensad.</th>';
   h+=TH+'Fest.AP</th>';
   h+=TH+'Permisos</th>';
-  h+=TH+'Horas proy.</th>';
+  h+=TH+'H.Fichaje</th>';
+  h+=TH+'H.Estimadas</th>';
+  h+=TH+'H.Total proy.</th>';
   h+=TH+'Máx.h</th>';
   h+=TH+'Δ horas</th>';
   h+=TH+'H.Ampliado</th>';
@@ -5703,6 +5705,8 @@ function renderResumenTrabajador(){
     h+=(aC?tdAL(r.comp.tot,'Pendientes '+(r.fest.tot-r.comp.tot)+' comp.'):tdOK(r.comp.tot));
     h+=tdNE(r.fest.tot);
     h+=tdNE(r.per.tot);
+    h+=tdNE(r.horas.real+'h');
+    h+=tdNE(r.horas.estim+'h');
     h+=tdOK(r.horas.tot+'h');
     h+=tdNE(r.horas.max+'h');
     h+=(aH?tdAL(diffStr,'Exceso: debe compensar '+r.horas.diff+'h'):tdOK(diffStr));
@@ -6708,8 +6712,4 @@ if('serviceWorker' in navigator) {
     <div id="em-codes" style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:14px"></div>
     <div id="em-hours-section" style="display:none;border-top:1px solid #eee;margin:10px 0 14px;padding-top:12px">
       <div id="em-hours-label" style="font-size:.78rem;font-weight:700;margin-bottom:9px"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div>
-          <label style="font-size:.71rem;color:#546e7a;display:block;margin-bottom:3px;font-weight:600">⏰ Entrada</label>
-          <div style="display:flex;align-items:center;gap:4px">
-            <select id="em-hours-in-h" style="padding:7px 6px;border:1.5px solid #90caf9;border-radius:7px;font-size:.9rem;font-family:inherit;color:#1a237e;font-weight:700;background:#fff;cursor:pointer;flex:1"><option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</opti
+      <div style="display:grid;grid-template-colum
