@@ -2703,10 +2703,14 @@ function renderEmpleado(){
       // Horas para Jose
       let joseH='';
       if(isJose&&!isEmpty){
-        const num=parseFloat(code);
-        if(!isNaN(num)&&num>0){
-          joseH='<div style="font-size:.58rem;font-weight:800;color:#0d47a1;margin-top:1px;letter-spacing:-.2px">'+num.toFixed(1)+'h</div>';
-        } else if(['MAN','TAR','PAR','COM'].includes(lbl2)){
+        const _jFr=fReal(activeDept,EMPS()[ei],dsStr);
+        const _jNum=parseFloat(code);
+        const _jIsPast=dsStr<dsFromDate(new Date());
+        if(_jFr!==null){
+          joseH='<div style="font-size:.58rem;font-weight:800;color:#0d47a1;margin-top:1px;letter-spacing:-.2px">'+_jFr.toFixed(1)+'h ✓</div>';
+        } else if(!isNaN(_jNum)&&_jNum>0){
+          joseH='<div style="font-size:.58rem;font-weight:800;color:#1565c0;margin-top:1px;letter-spacing:-.2px">'+_jNum.toFixed(1)+'h</div>';
+        } else if(['MAN','TAR','PAR','COM'].includes(lbl2)&&!_jIsPast){
           const th=FESTIVOS_AP.some(f=>f.date===dsStr)?9:8;
           joseH='<div style="font-size:.58rem;font-weight:600;color:#546e7a;margin-top:1px">~'+th+'h</div>';
         }
