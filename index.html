@@ -2727,7 +2727,7 @@ function renderEmpleado(){
       // Celdas vacías editables: borde punteado
       const _emptyEditSt=(!_eCl&&isEmpty&&!isWknd)?'border:1.5px dashed #b0bec5;background:#fafafa;':'';
       const _title=_eCl?'' : (isEmpty?(isWknd?'':('A\u00f1adir turno — '+day+'/'+mo)):('Cambiar turno: '+lbl2+' \u2014 '+day+'/'+mo));
-      h+='<div class="'+(_eAmpl?'':(!isEmpty?cls2:(isWknd?'s-empty':'')))+(_eCl?'':' ed-cell')+'"'+(_eCl?'':' data-dept="'+activeDept+'" data-ds="'+dsStr+'" data-ei="'+ei+'"')+(_title&&!_eCl?' title="'+_title+'"':'')+' style="border-radius:6px;padding:5px 2px;text-align:center;min-height:'+(isJose?'52px':'44px')+';display:flex;flex-direction:column;align-items:center;justify-content:center;'+(isWknd&&isEmpty?'opacity:.35':'opacity:1')+(_eCl?'':'cursor:pointer')+';'+_eAmplSt+_emptyEditSt+'">';
+      h+='<div class="'+(_eAmpl?'':(!isEmpty?cls2:(isWknd?'s-empty':'')))+(_eCl?'':' ed-cell')+'"'+(_eCl?'':' data-dept="'+activeDept+'" data-ds="'+dsStr+'" data-ei="'+ei+'"')+(_title&&!_eCl?' title="'+_title+'"':'')+(_eCl?'':' onclick="openEditModal(\''+activeDept+'\',\''+dsStr+'\','+ei+')"')+' style="border-radius:6px;padding:5px 2px;text-align:center;min-height:'+(isJose?'52px':'44px')+';display:flex;flex-direction:column;align-items:center;justify-content:center;'+(isWknd&&isEmpty?'opacity:.35':'opacity:1')+(_eCl?'':'cursor:pointer')+';'+_eAmplSt+_emptyEditSt+'">';
       h+='<div style="font-size:.68rem;font-weight:700;opacity:.7">'+day+'</div>';
       if(isEmpty&&!isWknd&&!_eCl){
         h+='<div style="font-size:.9rem;color:#b0bec5;margin-top:1px;line-height:1">+</div>';

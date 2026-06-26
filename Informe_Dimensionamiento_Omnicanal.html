@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estudio Dimensionamiento Omnicanal 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0 }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f2f5; color:#212121; }
+
+  /* ── Portada ── */
+  .cover {
+    background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#3949ab 100%);
+    color:#fff; padding:60px 50px 50px; position:relative; overflow:hidden;
+    page-break-after:always;
+  }
+  .cover::after {
+    content:''; position:absolute; right:-80px; top:-80px;
+    width:400px; height:400px; border-radius:50%;
+    background:rgba(255,255,255,.05);
+  }
+  .cover-tag { background:rgba(255,255,255,.15); border-radius:20px;
+    padding:4px 14px; font-size:.8rem; font-weight:600;
+    display:inline-block; margin-bottom:20px; letter-spacing:.5px; }
+  .cover h1 { font-size:2.4rem; font-weight:800; line-height:1.2; margin-bottom:12px }
+  .cover h2 { font-size:1.1rem; font-weight:400; opacity:.8; margin-bottom:40px }
+  .cover-meta { display:flex; gap:40px; margin-top:40px; flex-wrap:wrap }
+  .cover-meta div { border-left:3px solid rgba(255,255,255,.4); padding-left:14px }
+  .cover-meta .val { font-size:1rem; font-weight:700 }
+  .cover-meta .lbl { font-size:.75rem; opacity:.7; margin-top:2px }
+
+  /* ── Secciones ── */
+  .section { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.08);
+    margin:24px; padding:30px; page-break-inside:avoid; }
+  .section-title { font-size:1rem; font-weight:800; color:#1a237e;
+    border-bottom:2px solid #e8eaf6; padding-bottom:10px; margin-bottom:20px;
+    text-transform:uppercase; letter-spacing:.5px; }
+
+  /* ── KPIs ── */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; }
+  .kpi { border-radius:10px; padding:18px 20px; }
+  .kpi .val { font-size:2rem; font-weight:800; line-height:1 }
+  .kpi .lbl { font-size:.75rem; font-weight:600; margin-top:6px; opacity:.8 }
+  .kpi-red   { background:#ffebee; color:#c62828 }
+  .kpi-amber { background:#fff3e0; color:#e65100 }
+  .kpi-blue  { background:#e3f2fd; color:#1565c0 }
+  .kpi-green { background:#e8f5e9; color:#2e7d32 }
+  .kpi-dark  { background:#ede7f6; color:#4527a0 }
+
+  /* ── Periodos ── */
+  .periods { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .period-card { border-radius:10px; padding:18px; border-left:4px solid }
+  .period-card h3 { font-size:.82rem; font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:.3px }
+  .period-card .big { font-size:1.8rem; font-weight:800 }
+  .period-card .row { display:flex; justify-content:space-between; font-size:.78rem; margin-top:6px; border-top:1px solid rgba(0,0,0,.06); padding-top:6px }
+  .p1 { background:#e8eaf6; border-color:#3949ab; color:#1a237e }
+  .p2 { background:#fff3e0; border-color:#e65100; color:#bf360c }
+  .p3 { background:#ffebee; border-color:#c62828; color:#b71c1c }
+
+  /* ── Propuestas ── */
+  .propuestas { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px }
+  .prop { border-radius:10px; padding:20px; }
+  .prop-num { font-size:2rem; font-weight:900; opacity:.2; line-height:1 }
+  .prop h3 { font-size:.9rem; font-weight:800; margin:8px 0 10px }
+  .prop p { font-size:.8rem; line-height:1.6; opacity:.85 }
+  .prop .impact { display:inline-block; margin-top:12px; border-radius:20px;
+    padding:3px 12px; font-size:.75rem; font-weight:700; }
+  .prop1 { background:#e3f2fd; color:#0d47a1 }
+  .prop1 .impact { background:#1565c0; color:#fff }
+  .prop2 { background:#e8f5e9; color:#1b5e20 }
+  .prop2 .impact { background:#2e7d32; color:#fff }
+  .prop3 { background:#fff3e0; color:#bf360c }
+  .prop3 .impact { background:#e65100; color:#fff }
+
+  /* ── Charts ── */
+  .chart-wrap { position:relative; height:280px; margin-top:16px }
+  .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:20px }
+
+  /* ── Anexo ── */
+  .annex-table { width:100%; border-collapse:collapse; font-size:.78rem }
+  .annex-table th { background:#1a237e; color:#fff; padding:8px 10px;
+    text-align:center; white-space:nowrap; font-weight:700 }
+  .annex-table th:first-child { text-align:left }
+  .annex-table td { padding:6px 10px }
+  .annex-table td:first-child { padding-left:12px }
+  tr.mes-hdr td { background:#283593; color:#fff; padding:5px 12px;
+    font-size:.72rem; font-weight:700; letter-spacing:.5px }
+  .badge-ok { background:#e8f5e9; color:#2e7d32; border-radius:10px;
+    padding:2px 10px; font-size:.72rem; font-weight:700 }
+  .badge-ko { background:#ffebee; color:#c62828; border-radius:10px;
+    padding:2px 10px; font-size:.72rem; font-weight:700 }
+
+  /* ── Bloques ── */
+  .block-header { display:flex; align-items:center; gap:14px;
+    margin:32px 24px 4px; }
+  .block-badge { font-size:.65rem; font-weight:900; letter-spacing:1px;
+    padding:4px 12px; border-radius:20px; white-space:nowrap; }
+  .block-badge-1 { background:#1a237e; color:#fff }
+  .block-badge-2 { background:#e65100; color:#fff }
+  .block-badge-3 { background:#1b5e20; color:#fff }
+  .block-title { font-size:1.05rem; font-weight:800; color:#212121 }
+  .block-sub   { font-size:.8rem; color:#607d8b; margin-top:2px }
+
+  /* ── Botón exportar ── */
+  #btn-pdf {
+    position:fixed; bottom:28px; right:28px; z-index:999;
+    background:linear-gradient(135deg,#1a237e,#3949ab);
+    color:#fff; border:none; border-radius:30px;
+    padding:12px 22px; font-size:.85rem; font-weight:700;
+    cursor:pointer; box-shadow:0 4px 16px rgba(26,35,126,.35);
+    display:flex; align-items:center; gap:8px;
+    transition:transform .15s,box-shadow .15s;
+  }
+  #btn-pdf:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,35,126,.45) }
+  #btn-pdf:active { transform:translateY(0) }
+
+  /* ── Print ── */
+  @media print {
+    #btn-pdf { display:none !important }
+    .block-header { margin:16px 0 4px }
+    body { background:#fff }
+    .section { margin:10px 0; box-shadow:none; border:1px solid #e0e0e0; page-break-inside:avoid }
+    .chart-row { grid-template-columns:1fr 1fr }
+    .kpis { grid-template-columns:repeat(5,1fr) }
+    .periods { grid-template-columns:repeat(3,1fr) }
+    .propuestas { grid-template-columns:repeat(3,1fr) }
+    .cover { -webkit-print-color-adjust:exact; print-color-adjust:exact }
+    .kpi,.prop,.period-card,.block-badge { -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+
+<button id="btn-pdf" onclick="window.print()">📄 Exportar a PDF</button>
+
+<!-- PORTADA -->
+<div class="cover">
+  <div class="cover-tag">📊 ESTUDIO INTERNO — CONFIDENCIAL</div>
+  <h1>Propuesta de Refuerzo<br>de Plantilla Omnicanal</h1>
+  <h2>Análisis de dimensionamiento óptimo vs. capacidad real<br>Mayo – Septiembre 2026</h2>
+  <div class="cover-meta">
+    <div><div class="val">Omnicanal</div><div class="lbl">Departamento</div></div>
+    <div><div class="val">15 May → 30 Sep 2026</div><div class="lbl">Período analizado</div></div>
+    <div><div class="val">117 días</div><div class="lbl">Días laborables</div></div>
+    <div><div class="val">Mayo 2026</div><div class="lbl">Fecha del informe</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ BLOQUE 1 -->
+<div class="block-header">
+  <div class="block-badge block-badge-1">BLOQUE 1 · SITUACIÓN ACTUAL</div>
+  <div>
+    <div class="block-title">¿Cómo estamos hoy con los medios actuales?</div>
+    <div class="block-sub">Análisis del período May 15 – Sep 30 de 2026 sin medidas adicionales</div>
+  </div>
+</div>
+
+<!-- KPIs RESUMEN -->
+<div class="section">
+  <div class="section-title">📌 Resumen ejecutivo — Situación actual</div>
+  <div class="kpis">
+    <div class="kpi kpi-red">
+      <div class="val">85.8%</div>
+      <div class="lbl">Cobertura media real<br>(objetivo: 90%)</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="val">69</div>
+      <div class="lbl">Días con déficit de personal<br>de 117 analizados</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="val">2.91</div>
+      <div class="lbl">FTE de déficit<br>medio diario</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div class="val">48</div>
+      <div class="lbl">Días con cobertura<br>suficiente (≥90%)</div>
+    </div>
+    <div class="kpi kpi-dark">
+      <div class="val">17.2</div>
+      <div class="lbl">FTE óptimo<br>medio diario</div>
+    </div>
+  </div>
+</div>
+
+<!-- ANÁLISIS POR PERÍODO -->
+<div class="section">
+  <div class="section-title">📅 Análisis por período</div>
+  <div class="periods">
+    <div class="period-card p1">
+      <h3>Período 1 · Solo Plantilla Estable<br>15 May – 25 Jun</h3>
+      <div class="big">83.9%</div>
+      <div style="font-size:.78rem;margin-top:4px">cobertura media</div>
+      <div class="row"><span>Días OK (≥90%)</span><span><b>10/34</b></span></div>
+      <div class="row"><span>FTE real medio</span><span><b>9.53</b></span></div>
+      <div class="row"><span>FTE óptimo medio</span><span><b>11.97</b></span></div>
+      <div class="row"><span>Déficit medio</span><span><b>2.45 FTE</b></span></div>
+    </div>
+    <div class="period-card p2">
+      <h3>Período 2 · Con Fijos Discontinuos<br>26 Jun – 15 Sep</h3>
+      <div class="big">90.0%</div>
+      <div style="font-size:.78rem;margin-top:4px">cobertura media</div>
+      <div class="row"><span>Días OK (≥90%)</span><span><b>37/70</b></span></div>
+      <div class="row"><span>FTE real medio</span><span><b>17.58</b></span></div>
+      <div class="row"><span>FTE óptimo medio</span><span><b>20.25</b></span></div>
+      <div class="row"><span>Déficit medio</span><span><b>2.67 FTE</b></span></div>
+    </div>
+    <div class="period-card p3">
+      <h3>Período 3 · Solo Estable (crítico)<br>16 Sep – 30 Sep</h3>
+      <div class="big">67.9%</div>
+      <div style="font-size:.78rem;margin-top:4px">cobertura media</div>
+      <div class="row"><span>Días OK (≥90%)</span><span><b>1/13</b></span></div>
+      <div class="row"><span>FTE real medio</span><span><b>9.17</b></span></div>
+      <div class="row"><span>FTE óptimo medio</span><span><b>14.60</b></span></div>
+      <div class="row"><span>Déficit medio</span><span><b>5.43 FTE</b></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- GRÁFICAS BLOQUE 1 -->
+<div class="section">
+  <div class="chart-row">
+    <div>
+      <div class="section-title">📊 Cobertura diaria actual (%)</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chartBar"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">📋 Días con cobertura suficiente por período</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chartPeriod"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ BLOQUE 2 -->
+<div class="block-header">
+  <div class="block-badge block-badge-2">BLOQUE 2 · PROPUESTAS</div>
+  <div>
+    <div class="block-title">¿Qué medidas proponemos?</div>
+    <div class="block-sub">3 acciones complementarias para mejorar la cobertura del departamento</div>
+  </div>
+</div>
+
+<!-- PROPUESTAS -->
+<div class="section">
+  <div class="section-title">💡 Propuestas para Recursos Humanos</div>
+  <div class="propuestas">
+    <div class="prop prop1">
+      <div class="prop-num">01</div>
+      <h3>Ampliar jornada de la plantilla actual mediante horas complementarias</h3>
+      <p>Esta medida no requiere nuevas contrataciones y puede activarse de forma inmediata. Se propone actuar sobre tres personas de la plantilla estable:<br><br>
+      • <b>Irene</b>: ampliar del <b>60% al 92%</b> de jornada (+0,32 FTE en sus días de trabajo).<br>
+      • <b>Juan Fran</b>: incorporar hasta <b>4 turnos de tarde adicionales por semana</b> en sus días SPS, aprovechando que puede trabajar hasta 5 días semanales (~+0,30 FTE medio).<br>
+      • <b>Julio</b>: añadir <b>1 día extra a la semana</b> en sus días SPS, cubriendo turno de tarde (~+0,14 FTE medio).<br><br>
+      El impacto combinado estimado es de <b>+0,75 FTE</b> de refuerzo estable sin coste de nueva contratación.</p>
+      <span class="impact">+0,75 FTE estable · Sin nueva contratación</span>
+    </div>
+    <div class="prop prop2">
+      <div class="prop-num">02</div>
+      <h3>Ampliar el período de los fijos discontinuos: del 1 de junio al 30 de septiembre</h3>
+      <p>El análisis muestra déficit de cobertura tanto al inicio como al final del período. Los discontinuos entran actualmente el <b>26 de junio</b> y salen el <b>15 de septiembre</b>. Proponemos adelantar la incorporación al <b>1 de junio</b> (ganando 25 días de cobertura reforzada en temporada alta) y ampliar la salida hasta el <b>30 de septiembre</b> (añadiendo +8,1 FTE durante los 10 últimos días laborables, cuando la cobertura cae al 67,9%). Ambas medidas suponen un coste marginal sobre contratos ya existentes y tienen un impacto directo e inmediato en la cobertura.</p>
+      <span class="impact">+35 días de cobertura reforzada · Jun 1 – Sep 30</span>
+    </div>
+    <div class="prop prop3">
+      <div class="prop-num">03</div>
+      <h3>Contratar 1 persona adicional a jornada parcial (~60-70%)</h3>
+      <p>El déficit medio durante el período de solo plantilla estable es de <b>2.45 FTE</b>. Una contratación estable de 60-70% de jornada (turno de tarde rotativo) cubriría prácticamente este déficit durante los meses de mayo y junio, y también durante la segunda quincena de septiembre. Esta medida complementa las anteriores y garantiza cobertura estructural a largo plazo.</p>
+      <span class="impact">+0,65 FTE estable anual</span>
+    </div>
+  </div>
+  <div style="margin-top:20px;background:#f5f5f5;border-radius:8px;padding:14px 16px;font-size:.78rem;color:#607d8b;line-height:1.6">
+    <b>Nota metodológica:</b> FTE real = suma de jornadas contratadas disponibles (excluye empleados en SPS).
+    Fijos discontinuos: 9 personas × 90% jornada = 8,1 FTE (período 26 Jun – 15 Sep).
+    Fuente del dimensionamiento óptimo: <i>DIMENSIONAMIENTO ÓPTIMO.xlsx</i> — Servicios Centrales.
+    Umbral de cobertura satisfactoria: ≥ 90%.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ BLOQUE 3 -->
+<div class="block-header">
+  <div class="block-badge block-badge-3">BLOQUE 3 · IMPACTO DE LAS PROPUESTAS</div>
+  <div>
+    <div class="block-title">¿Cómo quedaríamos si aplicamos las 3 medidas?</div>
+    <div class="block-sub">Escenario estimado con horas complementarias + ampliación discontinuos + nueva contratación</div>
+  </div>
+</div>
+
+<!-- KPIs PROPUESTOS -->
+<div class="section">
+  <div class="section-title">📌 Resumen ejecutivo — Comparativa situación actual vs. escenario propuesto</div>
+  <div class="kpis">
+    <div class="kpi kpi-green">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.6;margin-bottom:1px">ACTUAL</div>
+          <div style="font-size:1.2rem;font-weight:800;opacity:.45;text-decoration:line-through">48</div>
+        </div>
+        <div style="font-size:.9rem;opacity:.3;padding:0 4px">→</div>
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.7;margin-bottom:1px">PROPUESTO</div>
+          <div class="val">91</div>
+        </div>
+      </div>
+      <div class="lbl">Días con cobertura OK<br><b style="color:#2e7d32">▲ +43 días (+90%)</b></div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.6;margin-bottom:1px">ACTUAL</div>
+          <div style="font-size:1.2rem;font-weight:800;opacity:.45;text-decoration:line-through">69</div>
+        </div>
+        <div style="font-size:.9rem;opacity:.3;padding:0 4px">→</div>
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.7;margin-bottom:1px">PROPUESTO</div>
+          <div class="val">26</div>
+        </div>
+      </div>
+      <div class="lbl">Días en déficit de personal<br><b style="color:#1565c0">▼ −43 días (−62%)</b></div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.6;margin-bottom:1px">ACTUAL</div>
+          <div style="font-size:1.2rem;font-weight:800;opacity:.45;text-decoration:line-through">3,22</div>
+        </div>
+        <div style="font-size:.9rem;opacity:.3;padding:0 4px">→</div>
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.7;margin-bottom:1px">PROPUESTO</div>
+          <div class="val">1,54</div>
+        </div>
+      </div>
+      <div class="lbl">FTE gap medio en días de déficit<br><b style="color:#e65100">▼ −52% de brecha</b></div>
+    </div>
+    <div class="kpi kpi-red">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.6;margin-bottom:1px">ACTUAL</div>
+          <div style="font-size:1.2rem;font-weight:800;opacity:.45;text-decoration:line-through">1/13</div>
+        </div>
+        <div style="font-size:.9rem;opacity:.3;padding:0 4px">→</div>
+        <div style="text-align:center">
+          <div style="font-size:.65rem;opacity:.7;margin-bottom:1px">PROPUESTO</div>
+          <div class="val">12/13</div>
+        </div>
+      </div>
+      <div class="lbl">Días OK en Sep. 16–30 (período crítico)<br><b style="color:#c62828">▲ +11 días rescatados</b></div>
+    </div>
+    <div class="kpi kpi-dark">
+      <div class="val">+3,68</div>
+      <div class="lbl">FTE extra medio diario aplicado<br>con las 3 medidas combinadas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ANÁLISIS POR PERÍODO PROPUESTO -->
+<div class="section">
+  <div class="section-title">📅 Análisis por período — Escenario propuesto</div>
+  <div class="periods">
+
+    <div class="period-card p1">
+      <h3>Período 1 · May 15 – Jun 25 <small style="font-weight:400;opacity:.7">(34 días)</small></h3>
+      <div style="font-size:.72rem;background:rgba(255,255,255,.5);border-radius:6px;padding:3px 8px;margin:4px 0 10px">
+        Horas comp. + nueva contratación + <b>disco adelantado al 1 Jun</b>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:1.4rem;font-weight:900;opacity:.4;text-decoration:line-through">10/34</div>
+          <div style="font-size:.68rem;opacity:.6">días OK (actual)</div>
+        </div>
+        <div style="font-size:1.2rem;opacity:.35">→</div>
+        <div>
+          <div class="big" style="font-size:1.7rem">29/34</div>
+          <div style="font-size:.68rem;opacity:.8">días OK (propuesto)</div>
+        </div>
+      </div>
+      <div class="row"><span>Mejora neta</span><span><b style="color:#1a237e">+19 días OK</b></span></div>
+      <div class="row"><span>Mayo (solo estable)</span><span>6/14 → <b>10/14</b> OK · Cob. 86% → 99%</span></div>
+      <div class="row"><span>Jun 1–25 (con disco)</span><span>4/20 → <b>19/20</b> OK</span></div>
+      <div class="row"><span>Días aún en déficit</span><span><b>5</b> (días de opt. muy elevado)</span></div>
+    </div>
+
+    <div class="period-card p2">
+      <h3>Período 2 · Jun 26 – Sep 15 <small style="font-weight:400;opacity:.7">(70 días)</small></h3>
+      <div style="font-size:.72rem;background:rgba(255,255,255,.5);border-radius:6px;padding:3px 8px;margin:4px 0 10px">
+        Disco actual (sin cambios) + horas complementarias + nueva contratación
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:1.4rem;font-weight:900;opacity:.4;text-decoration:line-through">37/70</div>
+          <div style="font-size:.68rem;opacity:.6">días OK (actual)</div>
+        </div>
+        <div style="font-size:1.2rem;opacity:.35">→</div>
+        <div>
+          <div class="big" style="font-size:1.7rem">50/70</div>
+          <div style="font-size:.68rem;opacity:.8">días OK (propuesto)</div>
+        </div>
+      </div>
+      <div class="row"><span>Mejora neta</span><span><b style="color:#bf360c">+13 días OK</b></span></div>
+      <div class="row"><span>Cobertura media</span><span>90,0% → <b>97,2%</b></span></div>
+      <div class="row"><span>FTE real → propuesto</span><span>17,58 → <b>18,98</b> (óptimo: 20,25)</span></div>
+      <div class="row"><span>Días aún en déficit</span><span><b>20</b> (picos de demanda altos)</span></div>
+    </div>
+
+    <div class="period-card p3">
+      <h3>⚠️ Período 3 · Sep 16 – Sep 30 <small style="font-weight:400;opacity:.7">(13 días)</small></h3>
+      <div style="font-size:.72rem;background:rgba(255,255,255,.5);border-radius:6px;padding:3px 8px;margin:4px 0 10px">
+        <b>Disco extendido hasta Sep 30</b> + horas complementarias + nueva contratación
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:1.4rem;font-weight:900;opacity:.4;text-decoration:line-through">1/13</div>
+          <div style="font-size:.68rem;opacity:.6">días OK (actual)</div>
+        </div>
+        <div style="font-size:1.2rem;opacity:.35">→</div>
+        <div>
+          <div class="big" style="font-size:1.7rem">12/13</div>
+          <div style="font-size:.68rem;opacity:.8">días OK (propuesto)</div>
+        </div>
+      </div>
+      <div class="row"><span>Mejora neta</span><span><b style="color:#b71c1c">+11 días OK</b></span></div>
+      <div class="row"><span>Cobertura media</span><span>67,9% → <b>>100%</b> (plantilla sobredimensionada)</span></div>
+      <div class="row"><span>FTE real → propuesto</span><span>9,17 → <b>18,67</b> (con disco ext.)</span></div>
+      <div class="row"><span>FTE óptimo medio</span><span><b>14,60</b> FTE (cubierto con margen)</span></div>
+      <div class="row"><span>Día aún en déficit</span><span>Sáb 26 Sep (opt. 26,09 FTE)</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GRÁFICAS BLOQUE 3 -->
+<div class="section">
+  <div class="section-title">📈 Evolución FTE — Situación actual vs. Escenario propuesto</div>
+  <div class="chart-wrap" style="height:320px">
+    <canvas id="chartLine"></canvas>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">📊 Comparativa de días con cobertura suficiente por período</div>
+  <div class="chart-wrap" style="height:280px">
+    <canvas id="chartCompare"></canvas>
+  </div>
+</div>
+
+<!-- ANEXO DÍA A DÍA -->
+<div class="section">
+  <div class="section-title">📋 Anexo — Detalle día a día (situación actual vs. escenario propuesto)</div>
+  <div style="overflow-x:auto;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.1)">
+    <table class="annex-table">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding-left:12px">Fecha</th>
+          <th>Período actual</th>
+          <th>FTE Estable</th>
+          <th>FTE Disco.</th>
+          <th>FTE Real</th>
+          <th>FTE Óptimo</th>
+          <th>Dif. Actual</th>
+          <th>Estado Actual</th>
+          <th style="background:#1b5e20">FTE Disco. Prop.</th>
+          <th style="background:#1b5e20">FTE Propuesto</th>
+          <th style="background:#1b5e20">Dif. Propuesto</th>
+          <th style="background:#1b5e20">Estado Prop.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="mes-hdr"><td colspan="12">MAYO 2026</td></tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 15 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,95</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,88</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-3,55</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Sáb 16 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,39</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">11,38</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-4,99</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 18 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,76</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,18</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,36</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 19 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">9,57</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,49</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,91</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 20 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">9,57</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,49</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,91</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 21 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,41</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,01</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 22 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,76</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">11,18</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,64</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 23 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,76</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">11,18</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,64</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 25 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">11,52</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,44</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,04</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mar 26 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,41</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,01</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 27 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,46</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,06</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 28 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center;color:#546e7a">11,52</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,24</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">10,68</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,84</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 29 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center;color:#546e7a">8,60</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,18</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">11,18</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,58</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 30 May</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center;color:#546e7a">8,60</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,68</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">11,68</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,08</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr class="mes-hdr"><td colspan="12">JUNIO 2026</td></tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 1 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">8,60</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,88</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+10,38</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 2 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">9,57</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,09</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+9,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 3 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">11,52</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,04</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+7,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 5 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,45</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,05</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Sáb 6 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,09</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Lun 8 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-12,73</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-3,23</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 9 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">11,52</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,04</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+7,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 10 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,06</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+8,44</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 11 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center;color:#546e7a">11,52</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,54</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+7,96</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 12 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,01</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,49</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Sáb 13 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,15</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,35</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 15 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,01</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,49</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 16 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,01</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,49</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 17 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,01</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,49</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 18 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,39</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,11</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 19 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,95</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+4,55</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 20 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center;color:#546e7a">6,66</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+3,32</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+12,82</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 22 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">8,60</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,18</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+9,68</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 23 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,06</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+8,44</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 25 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,21</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,29</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 26 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,51</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,11</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 27 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+2,01</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 29 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">17,35</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,47</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,93</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 30 Jun</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,68</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,28</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr class="mes-hdr"><td colspan="12">JULIO 2026</td></tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 1 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,44</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,04</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Jue 2 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">15,40</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,98</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,38</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 3 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,74</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,66</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 4 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,06</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 6 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,08</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,68</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 7 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,44</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,96</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 8 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,81</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,21</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 9 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,58</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,68</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,58</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,08</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,18</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 10 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,51</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,91</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 11 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,51</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,91</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Lun 13 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">24,15</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,97</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-5,57</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mar 14 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">24,15</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,27</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-4,87</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mié 15 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-5,03</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-3,63</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 16 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,58</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,68</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,41</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,08</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,01</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 17 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,21</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-6,81</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 18 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,06</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Lun 20 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">24,15</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,97</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-5,57</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mar 21 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">24,15</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,27</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-4,87</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mié 22 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,08</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,18</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,91</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,58</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,51</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 23 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,58</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,68</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,58</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,08</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,18</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 24 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,33</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,93</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 25 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,88</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,48</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 27 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,44</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,04</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 28 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,21</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,61</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 29 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 30 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">37,76</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-20,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-18,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 31 Jul</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">28,04</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-10,46</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-9,06</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr class="mes-hdr"><td colspan="12">AGOSTO 2026</td></tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Sáb 1 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,83</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,43</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 3 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,44</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,96</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 4 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,68</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,28</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 5 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 6 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">31,92</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-14,54</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-13,14</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Vie 7 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,13</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,73</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Sáb 8 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-7,71</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-6,31</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 10 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,88</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 11 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,68</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,28</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 12 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,51</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,91</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 13 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,71</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,31</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 14 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,24</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,16</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 15 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,04</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,14</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,18</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,54</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,22</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 17 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,06</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 18 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,24</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,16</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 19 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,94</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Jue 20 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,71</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,31</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 21 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,18</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,78</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Sáb 22 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">22,21</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,83</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-2,43</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Lun 24 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+2,01</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 25 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+3,65</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,05</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 26 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,01</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Jue 27 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,94</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 28 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,24</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,16</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 29 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,88</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,48</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 31 Ago</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,58</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,68</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-2,58</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,08</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,18</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr class="mes-hdr"><td colspan="12">SEPTIEMBRE 2026</td></tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 1 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+3,65</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,05</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 2 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,01</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,41</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Jue 3 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,94</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 4 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,98</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,08</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,24</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,48</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,16</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 5 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,88</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,48</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 7 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Mar 8 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">3,86</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">11,96</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-8,30</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">13,36</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-6,90</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mié 9 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,44</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-0,04</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Jue 10 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,38</td>
+      <td style="text-align:center;color:#546e7a">15,40</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+1,98</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,38</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Vie 11 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-0,74</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+0,66</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Sáb 12 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">18,38</td>
+      <td style="text-align:center;color:#546e7a">18,32</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,06</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+1,46</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 14 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">16,88</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,38</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 15 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Con Disco (actual)</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#e65100">8,10</span></td>
+      <td style="text-align:center;font-weight:700">17,58</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+5,09</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,49</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 16 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,71</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,79</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 17 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,21</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+6,29</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 18 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,89</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,61</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Sáb 19 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">10,28</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-4,15</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">19,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,35</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 21 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">14,43</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-5,65</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,85</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#f1f8e9;border-bottom:1px solid #c5e1a5">
+      <td style="font-weight:600;white-space:nowrap">Mar 22 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">8,60</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32">+0,88</td>
+      <td style="text-align:center"><span class="badge-ok">✔ OK</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+10,38</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 23 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,76</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+7,74</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Jue 24 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center;color:#546e7a">10,54</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-1,26</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+8,24</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Vie 25 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">12,49</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-3,71</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+5,79</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#fff8f8;border-bottom:1px solid #ffcdd2">
+      <td style="font-weight:600;white-space:nowrap">Sáb 26 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,28</td>
+      <td style="text-align:center;color:#546e7a">26,09</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-16,81</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,78</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-7,31</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ko">⚠ Déficit</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Lun 28 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">20,26</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-11,48</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#c62828;background:rgba(27,94,32,.06)">-1,98</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mar 29 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">9,48</td>
+      <td style="text-align:center;color:#546e7a">16,37</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-6,89</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,98</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+2,61</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+<tr style="background:#e8f5e9;border-bottom:1px solid #a5d6a7">
+      <td style="font-weight:600;white-space:nowrap">Mié 30 Sep</td>
+      <td style="text-align:center;font-size:.75rem">Solo Estable</td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center"><span style="color:#b0bec5">0,00</span></td>
+      <td style="text-align:center;font-weight:700">8,78</td>
+      <td style="text-align:center;color:#546e7a">14,71</td>
+      <td style="text-align:center;font-weight:700;color:#c62828">-5,93</td>
+      <td style="text-align:center"><span class="badge-ko">⚠ Déficit</span></td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><b style="color:#e65100">8,10</b></td>
+      <td style="text-align:center;font-weight:700;background:rgba(27,94,32,.06)">18,28</td>
+      <td style="text-align:center;font-weight:700;color:#2e7d32;background:rgba(27,94,32,.06)">+3,57</td>
+      <td style="text-align:center;background:rgba(27,94,32,.06)"><span class="badge-ok">✔ OK</span></td>
+    </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const labels  = ["Vie 15 May", "Sáb 16 May", "Lun 18 May", "Mar 19 May", "Mié 20 May", "Jue 21 May", "Vie 22 May", "Sáb 23 May", "Lun 25 May", "Mar 26 May", "Mié 27 May", "Jue 28 May", "Vie 29 May", "Sáb 30 May", "Lun 1 Jun", "Mar 2 Jun", "Mié 3 Jun", "Vie 5 Jun", "Sáb 6 Jun", "Lun 8 Jun", "Mar 9 Jun", "Mié 10 Jun", "Jue 11 Jun", "Vie 12 Jun", "Sáb 13 Jun", "Lun 15 Jun", "Mar 16 Jun", "Mié 17 Jun", "Jue 18 Jun", "Vie 19 Jun", "Sáb 20 Jun", "Lun 22 Jun", "Mar 23 Jun", "Jue 25 Jun", "Vie 26 Jun", "Sáb 27 Jun", "Lun 29 Jun", "Mar 30 Jun", "Mié 1 Jul", "Jue 2 Jul", "Vie 3 Jul", "Sáb 4 Jul", "Lun 6 Jul", "Mar 7 Jul", "Mié 8 Jul", "Jue 9 Jul", "Vie 10 Jul", "Sáb 11 Jul", "Lun 13 Jul", "Mar 14 Jul", "Mié 15 Jul", "Jue 16 Jul", "Vie 17 Jul", "Sáb 18 Jul", "Lun 20 Jul", "Mar 21 Jul", "Mié 22 Jul", "Jue 23 Jul", "Vie 24 Jul", "Sáb 25 Jul", "Lun 27 Jul", "Mar 28 Jul", "Mié 29 Jul", "Jue 30 Jul", "Vie 31 Jul", "Sáb 1 Ago", "Lun 3 Ago", "Mar 4 Ago", "Mié 5 Ago", "Jue 6 Ago", "Vie 7 Ago", "Sáb 8 Ago", "Lun 10 Ago", "Mar 11 Ago", "Mié 12 Ago", "Jue 13 Ago", "Vie 14 Ago", "Sáb 15 Ago", "Lun 17 Ago", "Mar 18 Ago", "Mié 19 Ago", "Jue 20 Ago", "Vie 21 Ago", "Sáb 22 Ago", "Lun 24 Ago", "Mar 25 Ago", "Mié 26 Ago", "Jue 27 Ago", "Vie 28 Ago", "Sáb 29 Ago", "Lun 31 Ago", "Mar 1 Sep", "Mié 2 Sep", "Jue 3 Sep", "Vie 4 Sep", "Sáb 5 Sep", "Lun 7 Sep", "Mar 8 Sep", "Mié 9 Sep", "Jue 10 Sep", "Vie 11 Sep", "Sáb 12 Sep", "Lun 14 Sep", "Mar 15 Sep", "Mié 16 Sep", "Jue 17 Sep", "Vie 18 Sep", "Sáb 19 Sep", "Lun 21 Sep", "Mar 22 Sep", "Mié 23 Sep", "Jue 24 Sep", "Vie 25 Sep", "Sáb 26 Sep", "Lun 28 Sep", "Mar 29 Sep", "Mié 30 Sep"];
+const stable  = [9.48, 9.98, 8.78, 9.08, 9.08, 9.08, 9.78, 9.78, 9.08, 9.08, 9.08, 9.28, 9.78, 10.28, 9.48, 9.48, 9.48, 9.98, 10.28, 9.48, 9.48, 9.48, 9.98, 9.48, 10.28, 9.48, 9.48, 9.48, 9.98, 9.48, 9.98, 8.78, 9.48, 9.28, 9.48, 10.28, 8.78, 9.48, 8.78, 9.28, 9.48, 10.28, 9.08, 9.78, 9.08, 9.58, 9.78, 9.78, 9.08, 9.78, 9.08, 9.58, 9.78, 10.28, 9.08, 9.78, 9.08, 9.58, 9.78, 10.28, 8.78, 9.48, 8.78, 9.28, 9.48, 10.28, 9.78, 9.48, 8.78, 9.28, 9.98, 10.28, 9.78, 9.48, 8.78, 9.28, 9.98, 9.04, 10.28, 9.98, 9.28, 9.28, 9.98, 10.28, 10.28, 9.98, 9.28, 9.28, 9.98, 10.28, 9.58, 9.98, 9.28, 9.28, 9.98, 10.28, 8.78, 3.86, 8.78, 9.28, 9.48, 10.28, 8.78, 9.48, 8.78, 9.28, 9.48, 10.28, 8.78, 9.48, 8.78, 9.28, 8.78, 9.28, 8.78, 9.48, 8.78];
+const disco   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 8.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const total   = [9.48, 9.98, 8.78, 9.08, 9.08, 9.08, 9.78, 9.78, 9.08, 9.08, 9.08, 9.28, 9.78, 10.28, 9.48, 9.48, 9.48, 9.98, 10.28, 9.48, 9.48, 9.48, 9.98, 9.48, 10.28, 9.48, 9.48, 9.48, 9.98, 9.48, 9.98, 8.78, 9.48, 9.28, 17.58, 18.38, 16.88, 17.58, 16.88, 17.38, 17.58, 18.38, 17.18, 17.88, 17.18, 17.68, 17.88, 17.88, 17.18, 17.88, 17.18, 17.68, 17.88, 18.38, 17.18, 17.88, 17.18, 17.68, 17.88, 18.38, 16.88, 17.58, 16.88, 17.38, 17.58, 18.38, 17.88, 17.58, 16.88, 17.38, 18.08, 18.38, 17.88, 17.58, 16.88, 17.38, 18.08, 17.14, 18.38, 18.08, 17.38, 17.38, 18.08, 18.38, 18.38, 18.08, 17.38, 17.38, 18.08, 18.38, 17.68, 18.08, 17.38, 17.38, 18.08, 18.38, 16.88, 11.96, 16.88, 17.38, 17.58, 18.38, 16.88, 17.58, 8.78, 9.28, 9.48, 10.28, 8.78, 9.48, 8.78, 9.28, 8.78, 9.28, 8.78, 9.48, 8.78];
+const optArr  = [14.43, 16.37, 10.54, 9.57, 9.57, 12.49, 10.54, 10.54, 11.52, 12.49, 10.54, 11.52, 8.6, 8.6, 8.6, 9.57, 11.52, 14.43, 16.37, 22.21, 11.52, 10.54, 11.52, 12.49, 14.43, 12.49, 12.49, 12.49, 16.37, 14.43, 6.66, 8.6, 10.54, 12.49, 26.09, 16.37, 17.35, 20.26, 18.32, 15.4, 18.32, 18.32, 20.26, 18.32, 16.37, 20.26, 16.37, 16.37, 24.15, 24.15, 22.21, 26.09, 26.09, 18.32, 24.15, 24.15, 26.09, 20.26, 22.21, 20.26, 18.32, 16.37, 20.26, 37.76, 28.04, 22.21, 18.32, 20.26, 20.26, 31.92, 22.21, 26.09, 20.26, 20.26, 16.37, 26.09, 18.32, 18.32, 18.32, 18.32, 18.32, 26.09, 20.26, 22.21, 16.37, 14.43, 16.37, 18.32, 18.32, 20.26, 20.26, 14.43, 16.37, 18.32, 18.32, 20.26, 20.26, 20.26, 18.32, 15.4, 18.32, 18.32, 20.26, 12.49, 12.49, 12.49, 16.37, 14.43, 14.43, 8.6, 10.54, 10.54, 12.49, 26.09, 20.26, 16.37, 14.71];
+const pctArr  = [65.7, 60.9, 83.3, 94.9, 94.9, 72.7, 92.8, 92.8, 78.9, 72.7, 86.1, 80.6, 113.7, 119.5, 110.2, 99.0, 82.3, 69.2, 62.8, 42.7, 82.3, 89.9, 86.7, 75.9, 71.2, 75.9, 75.9, 75.9, 60.9, 65.7, 149.9, 102.1, 89.9, 74.3, 67.4, 112.2, 97.3, 86.8, 92.1, 112.8, 96.0, 100.3, 84.8, 97.6, 104.9, 87.3, 109.2, 109.2, 71.1, 74.0, 77.4, 67.8, 68.5, 100.3, 71.1, 74.0, 65.8, 87.3, 80.5, 90.7, 92.1, 107.4, 83.3, 46.0, 62.7, 82.8, 97.6, 86.8, 83.3, 54.4, 81.4, 70.4, 88.2, 86.8, 103.1, 66.6, 98.7, 93.6, 100.3, 98.7, 94.9, 66.6, 89.2, 82.8, 112.2, 125.3, 106.1, 94.9, 98.7, 90.7, 87.3, 125.3, 106.1, 94.9, 98.7, 90.7, 83.3, 59.0, 92.1, 112.8, 96.0, 100.3, 83.3, 140.8, 70.3, 74.3, 57.9, 71.2, 60.8, 110.2, 83.3, 88.0, 70.3, 35.6, 43.3, 57.9, 59.7];
+const barColors = ["#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#ef5350", "#4caf50", "#4caf50", "#4caf50", "#4caf50", "#ef5350", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#4caf50", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350", "#ef5350"];
+
+// ── Escenario propuesto (3 medidas) ─────────────────────────────────────
+// P1: +0.75 FTE horas complementarias (Irene +0.32, JuanFran ~+0.30, Julio ~+0.14)
+// P2: extender disco a Jun1–Sep30 (+8.1 FTE en días 14-33 y 104-116)
+// P3: nueva contratación +0.65 FTE
+const discoExt = labels.map((_,i) => ((i>=14 && i<=33) || i>=104) ? 8.1 : 0);
+const proposed = total.map((t,i) => +((t + 0.75 + discoExt[i] + 0.65)).toFixed(2));
+
+// ── Chart 1: Line FTE ────────────────────────────────────────────────────
+new Chart(document.getElementById('chartLine'), {
+  type:'line',
+  data:{
+    labels,
+    datasets:[
+      { label:'FTE Real (situación actual)', data:total, borderColor:'#1565c0',
+         backgroundColor:'rgba(21,101,192,.1)', fill:true,
+         tension:.3, pointRadius:2, pointHoverRadius:5, borderWidth:2 },
+      { label:'FTE Estable', data:stable, borderColor:'#3949ab',
+         backgroundColor:'transparent', borderDash:[4,3],
+         tension:.3, pointRadius:0, borderWidth:1.5 },
+      { label:'FTE Discontinuos', data:disco, borderColor:'#e65100',
+         backgroundColor:'rgba(230,81,0,.08)', fill:true,
+         tension:.3, pointRadius:0, borderWidth:1.5 },
+      { label:'FTE Óptimo', data:optArr, borderColor:'#c62828',
+         backgroundColor:'transparent', borderDash:[6,3],
+         tension:.3, pointRadius:0, borderWidth:2 },
+      { label:'FTE Propuesto (3 medidas)', data:proposed, borderColor:'#2e7d32',
+         backgroundColor:'rgba(46,125,50,.07)', fill:true,
+         tension:.3, pointRadius:0, pointHoverRadius:4, borderWidth:2.5, borderDash:[8,3] }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{ position:'top', labels:{ font:{size:11}, boxWidth:20 } },
+      annotation:{ }
+    },
+    scales:{
+      x:{ ticks:{ maxTicksLimit:20, font:{size:9}, maxRotation:45 } },
+      y:{ beginAtZero:true, title:{display:true,text:'FTE',font:{size:11}} }
+    }
+  }
+});
+
+// ── Chart 2: Bar cobertura ───────────────────────────────────────────────
+new Chart(document.getElementById('chartBar'), {
+  type:'bar',
+  data:{
+    labels,
+    datasets:[{
+      label:'Cobertura (%)',
+      data:pctArr,
+      backgroundColor:barColors,
+      borderRadius:2,
+      barPercentage:.9
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      annotation:{ }
+    },
+    scales:{
+      x:{ ticks:{ maxTicksLimit:15, font:{size:8}, maxRotation:60 } },
+      y:{ beginAtZero:true, max:120,
+           title:{display:true,text:'Cobertura (%)',font:{size:11}},
+           ticks:{ callback:v=>v+'%' } }
+    }
+  }
+});
+
+// ── Chart 3: % días OK por período (situación actual) ───────────────────
+new Chart(document.getElementById('chartPeriod'), {
+  type:'bar',
+  data:{
+    labels:['May 15–Jun 25\n(Solo Estable)','Jun 26–Sep 15\n(+Discontinuos)','Sep 16–Sep 30\n(Crítico)'],
+    datasets:[
+      { label:'% días con cobertura OK (actual)', data:[29.4, 52.9, 7.7],
+         backgroundColor:['rgba(92,107,192,.8)','rgba(239,108,0,.8)','rgba(229,57,53,.8)'],
+         borderRadius:6 },
+      { label:'Objetivo (90% días OK)', data:[90,90,90],
+         type:'line', borderColor:'#1b5e20', borderDash:[6,3],
+         pointRadius:0, borderWidth:2, fill:false }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', labels:{ font:{size:10}, boxWidth:16 } } },
+    scales:{
+      y:{ beginAtZero:true, max:100,
+           title:{display:true,text:'% días OK',font:{size:10}},
+           ticks:{ callback:v=>v+'%' } }
+    }
+  }
+});
+
+// ── Chart 4: Comparativa antes/después por período ───────────────────────
+new Chart(document.getElementById('chartCompare'), {
+  type:'bar',
+  data:{
+    labels:['May 15–Jun 25\n(P1: Solo Estable)','Jun 26–Sep 15\n(P2: +Discontinuos)','Sep 16–Sep 30\n(P3: Crítico)'],
+    datasets:[
+      { label:'Situación actual (% días OK)', data:[29.4, 52.9, 7.7],
+         backgroundColor:'rgba(198,40,40,.75)', borderRadius:4 },
+      { label:'Con las 3 medidas (% días OK)', data:[85.3, 71.4, 92.3],
+         backgroundColor:'rgba(46,125,50,.8)', borderRadius:4 },
+      { label:'Objetivo (90% días OK)', data:[90,90,90],
+         type:'line', borderColor:'#e65100', borderDash:[6,3],
+         pointRadius:0, borderWidth:2.5, fill:false }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{ position:'top', labels:{ font:{size:11}, boxWidth:18 } },
+      tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` } }
+    },
+    scales:{
+      x:{ ticks:{ font:{size:10} } },
+      y:{ beginAtZero:true, max:100,
+           title:{display:true,text:'% días con cobertura suficiente',font:{size:10}},
+           ticks:{ callback:v=>v+'%' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

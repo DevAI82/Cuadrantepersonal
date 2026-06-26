@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tutorial — Cuadrante de Personal 2026</title>
+<style>
+  :root { --navy:#1a237e; --green:#1b5e20; --red:#c62828; --orange:#e65100; --teal:#00695c; --brown:#4e342e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f4f6fb; color:#1a1a2e; line-height:1.6; }
+
+  /* ── PORTADA ── */
+  .cover { background:linear-gradient(135deg,#1a237e,#283593,#3949ab); color:#fff; padding:60px 40px; text-align:center; }
+  .cover h1 { font-size:2.4rem; font-weight:800; margin-bottom:10px; }
+  .cover .sub { font-size:1.1rem; opacity:.8; margin-bottom:30px; }
+  .cover .version { background:rgba(255,255,255,.15); display:inline-block; border-radius:20px; padding:6px 20px; font-size:.85rem; }
+
+  /* ── CONTENIDO ── */
+  .container { max-width:900px; margin:0 auto; padding:30px 20px; }
+  .toc { background:#fff; border-radius:12px; padding:24px 28px; margin-bottom:30px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+  .toc h2 { color:var(--navy); margin-bottom:14px; font-size:1.1rem; }
+  .toc ol { padding-left:20px; }
+  .toc li { margin:5px 0; font-size:.9rem; }
+  .toc a { color:var(--navy); text-decoration:none; }
+  .toc a:hover { text-decoration:underline; }
+
+  /* ── SECCIÓN ── */
+  .section { background:#fff; border-radius:12px; padding:28px 32px; margin-bottom:24px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+  .section-hdr { display:flex; align-items:center; gap:14px; margin-bottom:20px; padding-bottom:14px; border-bottom:2px solid #e8eaf6; }
+  .section-num { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; color:#fff; flex-shrink:0; }
+  .section-hdr h2 { font-size:1.25rem; color:var(--navy); }
+  .section-hdr .sec-sub { font-size:.8rem; color:#90a4ae; margin-top:2px; }
+
+  h3 { font-size:1rem; color:var(--navy); margin:20px 0 10px; }
+  p { font-size:.9rem; color:#444; margin-bottom:12px; }
+  ul, ol { font-size:.9rem; color:#444; padding-left:20px; margin-bottom:12px; }
+  li { margin-bottom:5px; }
+
+  /* ── TIPS & NOTAS ── */
+  .tip { background:#e8f5e9; border-left:4px solid #43a047; border-radius:0 8px 8px 0; padding:10px 14px; margin:12px 0; font-size:.85rem; color:#1b5e20; }
+  .note { background:#fff8e1; border-left:4px solid #ffa726; border-radius:0 8px 8px 0; padding:10px 14px; margin:12px 0; font-size:.85rem; color:#795548; }
+  .warn { background:#ffebee; border-left:4px solid #ef5350; border-radius:0 8px 8px 0; padding:10px 14px; margin:12px 0; font-size:.85rem; color:#c62828; }
+
+  /* ── MOCKUPS UI ── */
+  .mockup { background:#f0f2f5; border-radius:10px; padding:14px; margin:16px 0; border:1px solid #e0e0e0; }
+  .mockup-label { font-size:.72rem; color:#90a4ae; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; font-weight:700; }
+
+  /* Cabecera app */
+  .app-hdr-mock { background:linear-gradient(135deg,#1a237e,#3949ab); border-radius:8px; padding:10px 16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .dept-btn-mock { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 14px; font-size:.78rem; color:#fff; cursor:default; }
+  .dept-btn-mock.active { background:#fff; color:#1a237e; font-weight:700; }
+  .tab-bar-mock { background:#fff; border-bottom:2px solid #e8eaf6; padding:8px 12px; display:flex; gap:6px; flex-wrap:wrap; }
+  .tab-mock { background:#f5f5f5; border:1px solid #e0e0e0; border-radius:6px; padding:5px 12px; font-size:.78rem; color:#546e7a; cursor:default; }
+  .tab-mock.active { background:#1a237e; color:#fff; font-weight:700; }
+
+  /* Tabla semanal */
+  .weekly-mock { overflow-x:auto; }
+  .weekly-mock table { border-collapse:collapse; width:100%; font-size:.78rem; }
+  .weekly-mock th { background:#1a237e; color:#fff; padding:6px 10px; text-align:center; }
+  .weekly-mock th.emp { text-align:left; min-width:100px; }
+  .weekly-mock td { padding:5px 8px; text-align:center; border:1px solid #e8eaf6; }
+  .s-MAN { background:#1565c0; color:#fff; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .s-TAR { background:#388e3c; color:#fff; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .s-LIB { background:#fff176; color:#827717; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .s-VAC { background:#ff9800; color:#fff; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .s-COM { background:#7b1fa2; color:#fff; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .s-PAR { background:#00838f; color:#fff; border-radius:5px; padding:2px 7px; font-size:.72rem; font-weight:700; }
+  .al-2 { background:#ffcdd2; color:#c62828; font-size:.7rem; font-weight:700; padding:3px 6px; border-radius:4px; }
+  .al-1 { background:#fff3e0; color:#e65100; font-size:.7rem; font-weight:700; padding:3px 6px; border-radius:4px; }
+
+  /* Modal */
+  .modal-mock { background:#fff; border-radius:12px; padding:18px; box-shadow:0 4px 20px rgba(0,0,0,.2); max-width:320px; }
+  .modal-mock .title { font-weight:800; color:#1a237e; margin-bottom:4px; }
+  .modal-mock .sub { font-size:.75rem; color:#546e7a; margin-bottom:12px; }
+  .turno-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:12px; }
+  .turno-btn { border-radius:6px; padding:8px 4px; font-size:.75rem; font-weight:800; border:2px solid transparent; text-align:center; cursor:default; }
+
+  /* Tarjeta trabajador */
+  .worker-card { border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+  .worker-card .wc-hdr { padding:10px 14px; display:flex; align-items:center; gap:10px; }
+  .worker-card .wc-avatar { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; color:#fff; }
+  .worker-card .wc-body { padding:10px 14px; }
+  .metric-grid { display:grid; grid-template-columns:repeat(4,1fr); }
+  .metric-cell { padding:8px 10px; border-right:1px solid #f0f0f0; border-bottom:1px solid #f0f0f0; }
+  .metric-cell .mc-lbl { font-size:.62rem; color:#90a4ae; margin-bottom:2px; }
+  .metric-cell .mc-val { font-size:1.1rem; font-weight:600; }
+  .metric-cell .mc-bar { height:3px; background:#f0f0f0; border-radius:2px; margin:3px 0; }
+  .metric-cell .mc-fill { height:100%; border-radius:2px; }
+
+  /* Informe bloques */
+  .bloque-hdr { border-radius:6px; padding:8px 14px; color:#fff; font-weight:800; font-size:.85rem; margin-bottom:10px; }
+
+  /* Regla badge */
+  .rule-badge { display:inline-flex; align-items:center; gap:6px; background:#ffebee; border-radius:6px; padding:4px 10px; font-size:.78rem; font-weight:700; color:#c62828; margin:3px; }
+  .rule-ok { background:#e8f5e9; color:#2e7d32; }
+
+  /* Paso a paso */
+  .steps { counter-reset:step; }
+  .step { display:flex; gap:14px; margin-bottom:16px; align-items:flex-start; }
+  .step-num { width:28px; height:28px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.82rem; font-weight:800; flex-shrink:0; margin-top:2px; }
+  .step-body { flex:1; }
+  .step-body b { color:var(--navy); }
+
+  /* Leyenda */
+  .legend { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:.78rem; }
+
+  /* Atajos de teclado */
+  .kbd { background:#e8eaf6; border-radius:4px; padding:2px 7px; font-family:monospace; font-size:.82rem; color:#1a237e; font-weight:700; }
+
+  /* Footer */
+  .footer { text-align:center; padding:30px; font-size:.8rem; color:#90a4ae; }
+
+  /* Separador de sección */
+  .divider { height:2px; background:linear-gradient(90deg,#1a237e,#3949ab,transparent); border-radius:2px; margin:8px 0 18px; }
+
+  @media (max-width:600px) {
+    .cover h1 { font-size:1.6rem; }
+    .section { padding:18px 16px; }
+    .metric-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <div style="font-size:2.5rem;margin-bottom:12px">📋</div>
+  <h1>Cuadrante de Personal 2026</h1>
+  <p class="sub">Manual de usuario — Guía completa para gestionar turnos, informes y cumplimiento laboral</p>
+  <div class="version">Versión 2026 · Documento interno</div>
+</div>
+
+<div class="container">
+
+<!-- ÍNDICE -->
+<div class="toc">
+  <h2>📑 Índice de contenidos</h2>
+  <ol>
+    <li><a href="#s1">Primeros pasos — abrir la herramienta</a></li>
+    <li><a href="#s2">Navegación por departamentos</a></li>
+    <li><a href="#s3">Vista Semanal — la pantalla principal</a></li>
+    <li><a href="#s4">Cambiar un turno o modificar horario</a></li>
+    <li><a href="#s5">Vista Mensual — planificación a 3 meses</a></li>
+    <li><a href="#s6">Cobertura diaria — botón 📊</a></li>
+    <li><a href="#s7">Pestaña Informe — los 4 bloques</a></li>
+    <li><a href="#s8">Resumen Trabajador — alertas individuales</a></li>
+    <li><a href="#s9">Pestaña Empleado — calendario individual</a></li>
+    <li><a href="#s10">Pestaña Reglas — cumplimiento normativo</a></li>
+    <li><a href="#s11">Leyenda de códigos de turno</a></li>
+    <li><a href="#s12">Automatización semanal — envío por email</a></li>
+    <li><a href="#s13">Preguntas frecuentes</a></li>
+  </ol>
+</div>
+
+<!-- S1: PRIMEROS PASOS -->
+<div class="section" id="s1">
+  <div class="section-hdr">
+    <div class="section-num" style="background:var(--navy)">1</div>
+    <div><h2>Primeros pasos — abrir la herramienta</h2><div class="sec-sub">Requisitos y acceso</div></div>
+  </div>
+  <p>El Cuadrante de Personal es una <strong>aplicación web autocontenida</strong> — todo el código está en un único fichero <code>.html</code>. No requiere instalación ni conexión a internet.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><b>Localiza el fichero</b> <code>Cuadrante_Personal_2026.html</code> en tu carpeta compartida o en el correo donde lo hayas recibido.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><b>Haz doble clic</b> sobre él. Se abrirá automáticamente en tu navegador predeterminado (Chrome, Edge o Firefox).</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><b>Verás la pantalla principal</b> con la cabecera azul oscuro, los botones de departamento y las pestañas de navegación.</div></div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-label">Aspecto de la cabecera al abrir</div>
+    <div class="app-hdr-mock">
+      <div style="color:#fff;font-weight:800;font-size:1rem">Cuadrante de Personal 2026</div>
+      <div style="flex:1"></div>
+      <div class="dept-btn-mock active">OPERACIONES</div>
+      <div class="dept-btn-mock">OMNICANAL</div>
+      <div class="dept-btn-mock">CAJA-SAC</div>
+      <div class="dept-btn-mock">MUELLE</div>
+      <div class="dept-btn-mock">🌐 GLOBAL</div>
+      <div class="dept-btn-mock" style="border-color:rgba(255,200,150,.5);color:rgba(255,220,180,.9)">⟳ Restablecer</div>
+    </div>
+    <div class="tab-bar-mock" style="margin-top:4px">
+      <div class="tab-mock">📌 REGLAS</div>
+      <div class="tab-mock">⚠️ Informe</div>
+      <div class="tab-mock active">📅 Semanal</div>
+      <div class="tab-mock">3 Mensual</div>
+      <div class="tab-mock">🏖 Vacaciones</div>
+      <div class="tab-mock">👤 Resumen Trabajador</div>
+      <div class="tab-mock">👤 Empleado</div>
+      <div class="tab-mock">⏰ Horas</div>
+      <div class="tab-mock">🎉 Festivos</div>
+    </div>
+  </div>
+
+  <div class="tip">💡 Los cambios que hagas (modificar turnos, horarios personalizados) se guardan automáticamente en tu navegador. Si abres el fichero en otro ordenador o navegador, esos cambios no estarán — el cuadrante base sí, pero no las modificaciones locales.</div>
+</div>
+
+<!-- S2: DEPARTAMENTOS -->
+<div class="section" id="s2">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#37474f">2</div>
+    <div><h2>Navegación por departamentos</h2><div class="sec-sub">4 departamentos + vista Global</div></div>
+  </div>
+  <p>En la parte superior tienes los <strong>5 botones de departamento</strong>. El seleccionado activo aparece en blanco. Todas las pestañas cambian de contenido según el departamento activo.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:14px 0">
+    <div style="background:#e8eaf6;border-radius:8px;padding:12px;border-left:4px solid #3949ab">
+      <div style="font-weight:800;color:#1a237e">🏢 Operaciones</div>
+      <div style="font-size:.78rem;color:#546e7a;margin-top:4px">Vicente, Elena, Carlos, Mirella, Jose. Turnos M/T, gestión de horas con fichaje real de Jose.</div>
+    </div>
+    <div style="background:#e8f5e9;border-radius:8px;padding:12px;border-left:4px solid #00897b">
+      <div style="font-weight:800;color:#1b5e20">🛒 Omnicanal</div>
+      <div style="font-size:.78rem;color:#546e7a;margin-top:4px">22 empleados. Fijos de mañana, rotativos A/B, días sueltos, fijos discontinuos y refuerzos.</div>
+    </div>
+    <div style="background:#ffebee;border-radius:8px;padding:12px;border-left:4px solid #e53935">
+      <div style="font-weight:800;color:#c62828">💳 Caja-SAC</div>
+      <div style="font-size:.78rem;color:#546e7a;margin-top:4px">Carla, Mercedes, Pedro Luis, Lina María, Isabel, Victoria, M.José, Juan, Andrea.</div>
+    </div>
+    <div style="background:#efebe9;border-radius:8px;padding:12px;border-left:4px solid #6d4c41">
+      <div style="font-weight:800;color:#4e342e">📦 Muelle</div>
+      <div style="font-size:.78rem;color:#546e7a;margin-top:4px">Miguel A., Arturo, Pilar, J.Pascual, Rafael, Antonio F., Jose Luis, Eva María. Mañanas.</div>
+    </div>
+    <div style="background:#e8eaf6;border-radius:8px;padding:12px;border-left:4px solid #1a237e;grid-column:span 1">
+      <div style="font-weight:800;color:#1a237e">🌐 Global</div>
+      <div style="font-size:.78rem;color:#546e7a;margin-top:4px">Vista conjunta de los 4 departamentos. Exportable a PDF. Se activa con el botón 🌐 GLOBAL.</div>
+    </div>
+  </div>
+
+  <div class="note">📌 La pestaña <strong>Plantilla Efectiva</strong> y <strong>Est. Dimensionamiento</strong> solo aparecen cuando estás en Omnicanal.</div>
+</div>
+
+<!-- S3: VISTA SEMANAL -->
+<div class="section" id="s3">
+  <div class="section-hdr">
+    <div class="section-num" style="background:var(--navy)">3</div>
+    <div><h2>Vista Semanal — pantalla principal</h2><div class="sec-sub">El corazón del cuadrante</div></div>
+  </div>
+  <p>Es la vista que aparece por defecto. Muestra la semana actual con <strong>una fila por trabajador</strong> y <strong>una columna por día</strong>.</p>
+
+  <div class="mockup">
+    <div class="mockup-label">Ejemplo — semana semanal</div>
+    <div class="weekly-mock">
+      <table>
+        <thead>
+          <tr>
+            <th style="background:#c62828;font-size:.68rem;padding:4px">ALERTA</th>
+            <th class="al-2">2 ausentes</th><th class="al-1" style="background:#fff3e0;color:#e65100;padding:4px 6px">1 ausente</th>
+            <th style="background:#e8f5e9;color:#2e7d32;font-size:.7rem;padding:4px">OK</th>
+            <th style="background:#e8f5e9;color:#2e7d32;font-size:.7rem;padding:4px">OK</th>
+            <th class="al-2">2 ausentes</th>
+            <th style="background:#78909c;color:#eceff1;font-size:.68rem;padding:4px"></th>
+          </tr>
+          <tr>
+            <th class="emp">EMPLEADO</th>
+            <th>LUN 25/05<br><button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:.65rem;padding:1px 5px;cursor:default">📊</button></th>
+            <th>MAR 26/05<br><button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:.65rem;padding:1px 5px;cursor:default">📊</button></th>
+            <th>MIE 27/05<br><button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:.65rem;padding:1px 5px;cursor:default">📊</button></th>
+            <th>JUE 28/05<br><button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:.65rem;padding:1px 5px;cursor:default">📊</button></th>
+            <th>VIE 29/05<br><button style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:.65rem;padding:1px 5px;cursor:default">📊</button></th>
+            <th style="background:#78909c">SAB 30/05</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-weight:700;color:#1a237e">VICENTE</td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-TAR">TAR</span></td><td><span class="s-TAR">TAR</span></td><td><span class="s-MAN">MAN</span></td><td style="background:#f5f5f5;color:#bdbdbd">--</td></tr>
+          <tr style="background:#fafafa"><td style="font-weight:700;color:#1a237e">ELENA</td><td><span class="s-LIB">LIB</span></td><td><span class="s-TAR">TAR</span></td><td><span class="s-TAR">TAR</span></td><td><span class="s-LIB">LIB</span></td><td><span class="s-TAR">TAR</span></td><td style="background:#f5f5f5;color:#bdbdbd">--</td></tr>
+          <tr><td style="font-weight:700;color:#1a237e">CARLOS</td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td style="background:#f5f5f5;color:#bdbdbd">--</td></tr>
+          <tr style="background:#fafafa"><td style="font-weight:700;color:#1a237e">MIRELLA</td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-MAN">MAN</span></td><td><span class="s-VAC">VAC</span></td><td><span class="s-VAC">VAC</span></td><td style="background:#f5f5f5;color:#bdbdbd">--</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Elementos clave de la vista semanal</h3>
+  <ul>
+    <li><strong>Fila ALERTA</strong> (primera fila): muestra en rojo/naranja si hay 2 o más ausentes ese día.</li>
+    <li><strong>Botón 📊</strong> en cada día: abre un panel con la cobertura por franjas horarias.</li>
+    <li><strong>Filas de resumen</strong> al final: MAÑANA / TARDE / TRABAJAN muestran el total de personas por turno.</li>
+    <li><strong>Celdas en morado</strong>: ese día el trabajador tiene un horario personalizado que excede en más de 50 min su jornada base (H.Ampliado).</li>
+  </ul>
+
+  <div class="tip">💡 Usa los botones <strong>← Anterior / Siguiente →</strong> para navegar semana a semana.</div>
+</div>
+
+<!-- S4: CAMBIAR TURNO -->
+<div class="section" id="s4">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#00695c">4</div>
+    <div><h2>Cambiar un turno o modificar horario</h2><div class="sec-sub">Edición de días individuales</div></div>
+  </div>
+  <p>Haz <strong>clic en cualquier celda</strong> de la vista semanal o mensual para abrir el panel de edición de ese día y trabajador.</p>
+
+  <div class="mockup" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+    <div>
+      <div class="mockup-label">Panel de edición de turno</div>
+      <div class="modal-mock">
+        <div class="title">ELENA · 27/05/2026</div>
+        <div class="sub">Turno actual: TAR (T(TC))</div>
+        <div class="turno-grid">
+          <div class="turno-btn s-MAN">MAN</div>
+          <div class="turno-btn s-TAR" style="border-color:#1a237e">TAR</div>
+          <div class="turno-btn s-PAR">PAR</div>
+          <div class="turno-btn s-COM">COM</div>
+          <div class="turno-btn" style="background:#e65100;color:#fff;border-radius:6px">FOR</div>
+          <div class="turno-btn s-LIB">LIB</div>
+          <div class="turno-btn s-VAC">VAC</div>
+          <div class="turno-btn" style="background:#c62828;color:#fff;border-radius:6px">BAJ</div>
+          <div class="turno-btn" style="background:#37474f;color:#fff;border-radius:6px">SPS</div>
+          <div class="turno-btn" style="background:#e8eaf6;color:#3949ab;border:1px solid #9fa8da;border-radius:6px">PER</div>
+        </div>
+        <div style="border-top:1px solid #eee;padding-top:10px;margin-top:4px">
+          <div style="font-size:.72rem;color:#e65100;font-weight:700;margin-bottom:6px">⏰ Horario estándar <span style="color:#90a4ae">(def: 15:00–22:00)</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <div style="font-size:.68rem;color:#546e7a;margin-bottom:3px;font-weight:600">⏰ Entrada</div>
+              <div style="display:flex;gap:3px">
+                <select style="flex:1;padding:5px;border:1.5px solid #90caf9;border-radius:6px;font-size:.85rem;color:#1a237e;font-weight:700"><option>15</option></select>
+                <span style="font-weight:700;padding-top:4px">:</span>
+                <select style="flex:1;padding:5px;border:1.5px solid #90caf9;border-radius:6px;font-size:.85rem;color:#1a237e;font-weight:700"><option>00</option></select>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.68rem;color:#546e7a;margin-bottom:3px;font-weight:600">🏁 Salida</div>
+              <div style="display:flex;gap:3px">
+                <select style="flex:1;padding:5px;border:1.5px solid #90caf9;border-radius:6px;font-size:.85rem;color:#1a237e;font-weight:700"><option>22</option></select>
+                <span style="font-weight:700;padding-top:4px">:</span>
+                <select style="flex:1;padding:5px;border:1.5px solid #90caf9;border-radius:6px;font-size:.85rem;color:#1a237e;font-weight:700"><option>00</option></select>
+              </div>
+            </div>
+          </div>
+          <button style="width:100%;background:#1565c0;color:#fff;border:none;border-radius:7px;padding:8px;font-weight:700;font-size:.8rem">💾 Guardar horario</button>
+        </div>
+        <button style="width:100%;background:#f5f5f5;border:1px solid #ddd;border-radius:7px;padding:7px;color:#546e7a;margin-top:6px;font-size:.82rem">✕ Cancelar</button>
+      </div>
+    </div>
+    <div style="flex:1;min-width:220px">
+      <h3>Cómo funciona</h3>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body">Haz clic en la celda del trabajador y día que quieras cambiar.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body">Elige el nuevo turno haciendo clic en uno de los botones de color (MAN, TAR, LIB, VAC…).<br>El cambio se guarda inmediatamente.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><b>Opcionalmente</b>, ajusta la hora de entrada y salida con los selectores de debajo (van de 5 en 5 min) y pulsa <b>💾 Guardar horario</b>.</div></div>
+      </div>
+      <div class="tip">💡 Los horarios personalizados se muestran en naranja en la celda y se tienen en cuenta en todos los cálculos de horas anuales.</div>
+      <div class="warn">⚠️ El botón <b>⟳ Restablecer</b> (cabecera superior) elimina TODOS los cambios guardados y vuelve al cuadrante original.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: VISTA MENSUAL -->
+<div class="section" id="s5">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#4a148c">5</div>
+    <div><h2>Vista Mensual — planificación a 3 meses</h2><div class="sec-sub">Visión de medio plazo</div></div>
+  </div>
+  <p>Muestra <strong>3 meses consecutivos</strong> en una tabla compacta. Ideal para planificar vacaciones, detectar períodos críticos y ver el patrón de turnos de un vistazo.</p>
+  <ul>
+    <li>Las columnas son los días del mes (1–31), las filas son los trabajadores.</li>
+    <li>Los días con <strong>incidencia de cobertura</strong> se marcan en rojo en la cabecera de columna.</li>
+    <li>También puedes hacer clic en cualquier celda para modificar el turno.</li>
+    <li>El botón <strong>📊</strong> en cada día sigue disponible para ver la cobertura horaria.</li>
+  </ul>
+  <div class="tip">💡 Navega entre períodos con los botones <b>← −3 meses</b> / <b>+3 meses →</b>. Útil para planificar vacaciones de verano desde enero.</div>
+</div>
+
+<!-- S6: BOTÓN 📊 -->
+<div class="section" id="s6">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#00695c">6</div>
+    <div><h2>Cobertura diaria — botón 📊</h2><div class="sec-sub">Ver quién trabaja en cada franja horaria</div></div>
+  </div>
+  <p>Cada cabecera de día en la vista semanal y mensual tiene un pequeño botón <strong>📊</strong>. Al hacer clic aparece un panel flotante con:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap">
+    <div>
+      <ul>
+        <li><strong>Tarjetas del equipo</strong>: cada trabajador con su turno y horario real ese día.</li>
+        <li><strong>Gráfico de barras</strong> (Omnicanal, Caja-SAC, Muelle): cobertura en franjas de 30 minutos. Barras verdes = OK, naranjas = mínimo justo, rojas = por debajo del mínimo.</li>
+        <li><strong>Tooltip</strong>: al pasar el cursor sobre una barra, aparecen los nombres exactos de las personas presentes en esa franja.</li>
+      </ul>
+    </div>
+    <div style="background:#f0f2f5;border-radius:8px;padding:12px">
+      <div style="font-size:.72rem;color:#90a4ae;margin-bottom:6px;font-weight:700;text-transform:uppercase">Ejemplo cobertura Omnicanal</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:60px">
+        <div style="flex:1;background:#66bb6a;border-radius:3px 3px 0 0;height:80%"></div>
+        <div style="flex:1;background:#66bb6a;height:100%;border-radius:3px 3px 0 0"></div>
+        <div style="flex:1;background:#ffa726;height:60%;border-radius:3px 3px 0 0"></div>
+        <div style="flex:1;background:#ef5350;height:30%;border-radius:3px 3px 0 0"></div>
+        <div style="flex:1;background:#66bb6a;height:90%;border-radius:3px 3px 0 0"></div>
+        <div style="flex:1;background:#66bb6a;height:100%;border-radius:3px 3px 0 0"></div>
+        <div style="flex:1;background:#66bb6a;height:95%;border-radius:3px 3px 0 0"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:.65rem">
+        <span>🟩 OK</span><span>🟧 Mínimo</span><span>🟥 Insuficiente</span>
+      </div>
+    </div>
+  </div>
+  <div class="tip">💡 Este panel es la forma más rápida de responder a la pregunta <em>"¿cuánta gente tengo en caja a las 16:30?"</em> sin cambiar de vista.</div>
+</div>
+
+<!-- S7: INFORME -->
+<div class="section" id="s7">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#b71c1c">7</div>
+    <div><h2>Pestaña Informe — los 4 bloques</h2><div class="sec-sub">Centro de mando para gestores</div></div>
+  </div>
+  <p>La pestaña <strong>⚠️ Informe</strong> es el lugar más importante de la herramienta. Agrupa todas las incidencias en <strong>4 bloques accionables</strong> que se calculan automáticamente.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0">
+    <div>
+      <div class="bloque-hdr" style="background:linear-gradient(135deg,#1a237e,#283593)">① BLOQUE I — Cobertura mínima</div>
+      <p style="font-size:.82rem">Lista los días del período (3 meses) donde hay franjas horarias sin el mínimo de personal. Muestra fecha, turno afectado y trabajadores presentes.</p>
+    </div>
+    <div>
+      <div class="bloque-hdr" style="background:linear-gradient(135deg,#37474f,#546e7a)">② BLOQUE II — Mínimo Descansos</div>
+      <p style="font-size:.82rem">Detecta casos donde la jornada de un trabajador termina y la siguiente empieza con menos de 12 horas de descanso. Muestra la hora de salida, entrada y el descanso real.</p>
+    </div>
+    <div>
+      <div class="bloque-hdr" style="background:linear-gradient(135deg,#1a237e,#283593)">③ BLOQUE III — Incidencias por trabajador</div>
+      <p style="font-size:.82rem">Listado de trabajadores con algún incumplimiento: exceso de horas, vacaciones insuficientes, compensatorios pendientes, calidad sábados, jornada ampliada excedida o descanso 12h. Botón <b>📅 Ver</b> para ir directamente a su calendario.</p>
+    </div>
+    <div>
+      <div class="bloque-hdr" style="background:linear-gradient(135deg,#004d40,#00695c)">④ BLOQUE IV — Recomendaciones</div>
+      <p style="font-size:.82rem">Genera automáticamente las acciones correctivas necesarias para subsanar cada tipo de incidencia, con los trabajadores afectados y qué hay que hacer exactamente.</p>
+    </div>
+  </div>
+
+  <h3>Exportar a Excel</h3>
+  <p>El botón <strong>📄 Excel</strong> en la cabecera del informe descarga un fichero <code>.csv</code> con los Bloques III y IV, listo para abrir en Excel. El nombre incluye el departamento y la fecha.</p>
+  <div class="tip">💡 El informe se <strong>envía automáticamente por email todos los lunes</strong> a jmolmeda@gmail.com como PDF adjunto con la cobertura semanal.</div>
+</div>
+
+<!-- S8: RESUMEN TRABAJADOR -->
+<div class="section" id="s8">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#6a1b9a">8</div>
+    <div><h2>Resumen Trabajador — alertas individuales</h2><div class="sec-sub">Control de cumplimiento por persona</div></div>
+  </div>
+  <p>La pestaña <strong>👤 Resumen Trabajador</strong> tiene dos bloques: una <strong>tabla resumen rápido</strong> arriba y <strong>tarjetas visuales</strong> abajo.</p>
+
+  <div class="mockup">
+    <div class="mockup-label">Ejemplo de tarjeta — trabajador con alertas</div>
+    <div class="worker-card" style="max-width:380px">
+      <div class="wc-hdr" style="background:#6d4c41">
+        <div class="wc-avatar">JL</div>
+        <div style="flex:1">
+          <div style="font-weight:700;color:#fff;font-size:.88rem">JOSE LUIS</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.65)">1.770h/año · 100% jornada</div>
+        </div>
+        <div style="background:rgba(239,83,80,.28);border:0.5px solid rgba(239,83,80,.5);border-radius:10px;padding:3px 9px;font-size:.7rem;color:#fff;font-weight:700">⚠ 2 alertas</div>
+      </div>
+      <div class="wc-body">
+        <div style="margin-bottom:8px">
+          <div style="font-size:.68rem;color:#90a4ae;text-transform:uppercase;margin-bottom:5px">Horas proyectadas</div>
+          <div style="height:10px;border-radius:5px;background:#f0f0f0;overflow:hidden;display:flex">
+            <div style="width:40%;background:#1565c0"></div>
+            <div style="width:55%;background:#81d4fa"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.7rem">
+            <span><b style="color:#1565c0">712h</b> past. + <b style="color:#0288d1">1050h</b> fut.</span>
+            <span style="color:#2e7d32;font-weight:700">1762h / 1770h &nbsp;−8h</span>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-cell"><div class="mc-lbl">Días libres</div><div class="mc-val">24</div><div class="mc-bar"><div class="mc-fill" style="width:80%;background:#1565c0"></div></div><div style="font-size:.6rem;color:#b0bec5">8 past. · 16 pend.</div></div>
+          <div class="metric-cell" style="background:#fff5f5;border-left:3px solid #ef5350"><div class="mc-lbl">Vacaciones</div><div class="mc-val" style="color:#c62828">27/31 ⚠</div><div class="mc-bar"><div class="mc-fill" style="width:87%;background:#ef5350"></div></div><div style="font-size:.6rem;color:#c62828;font-weight:600">Faltan 4 días</div></div>
+          <div class="metric-cell"><div class="mc-lbl">Compensados</div><div class="mc-val">0</div><div class="mc-bar"><div class="mc-fill" style="width:0%;background:#43a047"></div></div><div style="font-size:.6rem;color:#b0bec5">0 past. · 0 pend.</div></div>
+          <div class="metric-cell"><div class="mc-lbl">Calidad sáb.</div><div class="mc-val" style="color:#43a047">8/9</div><div class="mc-bar"><div class="mc-fill" style="width:89%;background:#43a047"></div></div><div style="font-size:.6rem;color:#b0bec5">1 para objetivo</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Qué indica cada color de alerta</h3>
+  <div>
+    <span class="rule-badge">⚠ Fondo rojo + ⚠</span> Incumplimiento de regla (acción necesaria)
+    <span class="rule-badge" style="background:#fffbf0;color:#e65100;border:1px solid #ffa726">⚠ Fondo naranja</span> Aviso (revisar)
+    <span class="rule-badge rule-ok">✓ Verde</span> Todo en orden
+  </div>
+
+  <h3>Indicadores monitorizados</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:10px">
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>⚠ Exceso horas</b> — proyección anual &gt; máximo contractual</div>
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>🏖 Vacaciones</b> — menos de 31 días asignados (prorrateable)</div>
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>⭐ Compensados</b> — festivos AP trabajados sin compensar</div>
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>😊 Calidad sáb.</b> — menos de 9 sábados libres (prorrateable)</div>
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>🕐 H.Ampliado</b> — más de 4 días con jornada &gt;50 min extra</div>
+    <div style="background:#f8f9ff;border-radius:7px;padding:8px 12px;font-size:.8rem"><b>😴 Descanso 12h</b> — jornadas consecutivas con menos de 12h entre ellas</div>
+  </div>
+
+  <div class="tip">💡 Los trabajadores con más alertas aparecen <strong>primero automáticamente</strong>. Haz clic en el nombre o en <b>📅 Ver</b> para ir al calendario individual de ese empleado.</div>
+</div>
+
+<!-- S9: PESTAÑA EMPLEADO -->
+<div class="section" id="s9">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#1b5e20">9</div>
+    <div><h2>Pestaña Empleado — calendario individual</h2><div class="sec-sub">Vista completa de un trabajador</div></div>
+  </div>
+  <p>Muestra el <strong>calendario anual completo</strong> de un trabajador con todos sus turnos mes a mes, más un <strong>panel de incidencias específicas</strong> en la parte superior.</p>
+
+  <h3>Panel de incidencias personalizadas</h3>
+  <p>Justo encima del calendario aparece automáticamente un resumen de los problemas detectados para esa persona:</p>
+
+  <div style="margin:10px 0">
+    <div style="display:flex;gap:12px;padding:10px 14px;background:#fff5f5;border-left:4px solid #ef5350;border-radius:0 8px 8px 0;margin-bottom:6px">
+      <div style="font-size:1.2rem">🏖</div>
+      <div><div style="font-weight:700;font-size:.82rem;color:#c62828">Vacaciones insuficientes: 27/31 días asignados</div><div style="font-size:.78rem;color:#546e7a">Faltan 4 días de vacaciones (V) por asignar en el cuadrante antes del 31 de diciembre.</div></div>
+    </div>
+    <div style="display:flex;gap:12px;padding:10px 14px;background:#fffbf0;border-left:4px solid #ffa726;border-radius:0 8px 8px 0">
+      <div style="font-size:1.2rem">😊</div>
+      <div><div style="font-weight:700;font-size:.82rem;color:#e65100">Calidad sábados: 8/9 sábados libres</div><div style="font-size:.78rem;color:#546e7a">Falta 1 sábado libre (L o C) para cumplir el compromiso de calidad de descanso.</div></div>
+    </div>
+  </div>
+
+  <h3>Cambiar de empleado</h3>
+  <p>Usa el <strong>desplegable</strong> en la parte superior para seleccionar cualquier trabajador del departamento activo. También puedes llegar aquí directamente desde la tarjeta del Resumen Trabajador.</p>
+</div>
+
+<!-- S10: REGLAS -->
+<div class="section" id="s10">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#37474f">10</div>
+    <div><h2>Pestaña Reglas — cumplimiento normativo</h2><div class="sec-sub">Marco legal y compromisos del departamento</div></div>
+  </div>
+  <p>La pestaña <strong>📌 REGLAS</strong> tiene dos partes: las <strong>reglas específicas del departamento</strong> (turnos, horarios, mínimos de cobertura) y las <strong>Reglas Laborales Generales</strong> con cumplimiento en tiempo real.</p>
+
+  <div style="margin:12px 0">
+    <div style="font-weight:800;color:#263238;margin-bottom:8px">⚖️ Reglas Laborales Generales (verificadas automáticamente)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+      <div style="background:#e0f2f1;border-radius:7px;padding:9px 12px;font-size:.8rem"><b style="color:#004d40">Regla 0:</b> Descanso de 30 min en jornadas &gt;6h (Art. 34.4 ET). Descuento automático del cómputo de horas.</div>
+      <div style="background:#e8eaf6;border-radius:7px;padding:9px 12px;font-size:.8rem"><b style="color:#1a237e">Regla 1:</b> Mínimo 9 sábados libres/año para jornadas ≥50%. Prorrateable por días trabajados.</div>
+      <div style="background:#f3e5f5;border-radius:7px;padding:9px 12px;font-size:.8rem"><b style="color:#4a148c">Regla 2:</b> Máximo 4 días con jornada ampliada (&gt;50 min sobre la base) al año.</div>
+      <div style="background:#fff3e0;border-radius:7px;padding:9px 12px;font-size:.8rem"><b style="color:#e65100">Regla 3:</b> Mínimo 12h de descanso entre jornadas. Si sale a las 22:00, no puede entrar antes de las 10:00.</div>
+      <div style="background:#ffebee;border-radius:7px;padding:9px 12px;font-size:.8rem"><b style="color:#c62828">Regla 4:</b> Máximo 1770h anuales (proporcional al % jornada). El exceso se compensa en días libres.</div>
+    </div>
+  </div>
+  <div class="tip">💡 Las reglas muestran el estado real de cumplimiento de cada trabajador con tarjetas verdes (OK) o rojas (incumple).</div>
+</div>
+
+<!-- S11: LEYENDA -->
+<div class="section" id="s11">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#546e7a">11</div>
+    <div><h2>Leyenda de códigos de turno</h2><div class="sec-sub">Qué significa cada color y código</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:10px 0">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-MAN">MAN</span><div><b>Mañana</b> — código M(AM)<br><span style="font-size:.75rem;color:#546e7a">Turno de mañana según horario del trabajador</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-TAR">TAR</span><div><b>Tarde</b> — código T(TC)<br><span style="font-size:.75rem;color:#546e7a">Turno de tarde según horario del trabajador</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-PAR">PAR</span><div><b>Partido</b> — código P<br><span style="font-size:.75rem;color:#546e7a">Jornada con mañana y tarde</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-LIB">LIB</span><div><b>Libre</b> — código L<br><span style="font-size:.75rem;color:#546e7a">Día de libranza / descanso</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-VAC">VAC</span><div><b>Vacaciones</b> — código V<br><span style="font-size:.75rem;color:#546e7a">Día de vacaciones reglamentarias</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span class="s-COM">COM</span><div><b>Compensado</b> — código C<br><span style="font-size:.75rem;color:#546e7a">Día compensatorio por festivo trabajado</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span style="background:#c62828;color:#fff;border-radius:5px;padding:2px 7px;font-size:.72rem;font-weight:700;white-space:nowrap">BAJ</span><div><b>Baja</b> — código E<br><span style="font-size:.75rem;color:#546e7a">Baja médica / incapacidad temporal</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span style="background:#e65100;color:#fff;border-radius:5px;padding:2px 7px;font-size:.72rem;font-weight:700;white-space:nowrap">FOR</span><div><b>Formación</b> — código FOR<br><span style="font-size:.75rem;color:#546e7a">Día de formación / curso</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span style="background:#e8eaf6;color:#3949ab;border:1px solid #9fa8da;border-radius:5px;padding:2px 7px;font-size:.72rem;font-weight:700;white-space:nowrap">PER</span><div><b>Permiso</b> — código PER<br><span style="font-size:.75rem;color:#546e7a">Permiso sin cómputo de horas (0h ese día)</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span style="background:#37474f;color:#fff;border-radius:5px;padding:2px 7px;font-size:.72rem;font-weight:700;white-space:nowrap">SPS</span><div><b>Sin contrato</b> — código SPS<br><span style="font-size:.75rem;color:#546e7a">Trabajador sin contrato activo ese período</span></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:7px"><span style="background:#8e24aa;color:#fff;border-radius:5px;padding:2px 7px;font-size:.72rem;font-weight:700;white-space:nowrap">★AP</span><div><b>Festivo apertura</b><br><span style="font-size:.75rem;color:#546e7a">El trabajador trabaja en un festivo de apertura autorizada</span></div></div>
+  </div>
+
+  <h3>Festivos</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+    <div style="background:#ffebee;border-radius:7px;padding:10px 14px;font-size:.82rem"><b style="color:#c62828">CIERRE</b> (fondo gris): La tienda no abre. No se genera alerta. Días: Año Nuevo, Reyes, Viernes Santo, 1 Mayo, Corpus Christi, San Juan, Virgen de los Llanos, Inmaculada, Navidad.</div>
+    <div style="background:#fff3e0;border-radius:7px;padding:10px 14px;font-size:.82rem"><b style="color:#e65100">★ AP</b> (apertura autorizada): La tienda abre. Quien trabaja ese día debe recibir un día compensatorio. Se muestran en la cabecera de columna.</div>
+  </div>
+</div>
+
+<!-- S12: AUTOMATIZACIÓN -->
+<div class="section" id="s12">
+  <div class="section-hdr">
+    <div class="section-num" style="background:var(--teal)">12</div>
+    <div><h2>Automatización semanal — envío por email</h2><div class="sec-sub">Informe automático cada lunes</div></div>
+  </div>
+  <p>El cuadrante genera y envía automáticamente cada <strong>lunes</strong> un informe PDF al email del responsable con un resumen de la cobertura de las dos semanas siguientes.</p>
+
+  <div style="display:flex;gap:14px;align-items:center;margin:14px 0;flex-wrap:wrap">
+    <div style="background:#e8f5e9;border-radius:8px;padding:12px 16px;flex:1;min-width:180px;text-align:center">
+      <div style="font-size:1.5rem">📊</div>
+      <div style="font-weight:700;color:#1b5e20;font-size:.85rem">Genera PDF</div>
+      <div style="font-size:.75rem;color:#546e7a">Vista Global del cuadrante convertida a PDF A4 apaisado</div>
+    </div>
+    <div style="font-size:1.5rem;color:#90a4ae">→</div>
+    <div style="background:#e8f5e9;border-radius:8px;padding:12px 16px;flex:1;min-width:180px;text-align:center">
+      <div style="font-size:1.5rem">📧</div>
+      <div style="font-weight:700;color:#1b5e20;font-size:.85rem">Envía por Gmail</div>
+      <div style="font-size:.75rem;color:#546e7a">Adjunta el PDF y lo envía vía SMTP a jmolmeda@gmail.com</div>
+    </div>
+    <div style="font-size:1.5rem;color:#90a4ae">→</div>
+    <div style="background:#e8f5e9;border-radius:8px;padding:12px 16px;flex:1;min-width:180px;text-align:center">
+      <div style="font-size:1.5rem">🗓</div>
+      <div style="font-weight:700;color:#1b5e20;font-size:.85rem">Cada lunes</div>
+      <div style="font-size:.75rem;color:#546e7a">Tarea programada automáticamente al arrancar el ordenador</div>
+    </div>
+  </div>
+
+  <div class="note">📌 También puedes enviar el informe manualmente desde la vista <strong>🌐 GLOBAL</strong> usando el botón <b>✉ Enviar email</b>.</div>
+</div>
+
+<!-- S13: FAQ -->
+<div class="section" id="s13">
+  <div class="section-hdr">
+    <div class="section-num" style="background:#546e7a">13</div>
+    <div><h2>Preguntas frecuentes</h2><div class="sec-sub">Dudas habituales</div></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88rem">¿Cómo puedo deshacer un cambio que hice por error?</summary>
+      <p style="margin-top:8px;font-size:.85rem">Vuelve a hacer clic en la celda modificada y selecciona el turno correcto. Si quieres deshacer TODOS los cambios de una vez, usa el botón <b>⟳ Restablecer</b> en la cabecera — pero ten en cuenta que esto elimina todos los cambios del período actual.</p>
+    </details>
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88rem">¿Por qué un trabajador aparece con exceso de horas si su turno parece normal?</summary>
+      <p style="margin-top:8px;font-size:.85rem">El cálculo tiene en cuenta las horas reales (descontando 30 min si trabaja más de 6h). Si tienes configurados horarios personalizados (entrada/salida), esas horas son las que se computan. Revisa si hay días con horario ampliado (celdas moradas) o jornadas muy largas.</p>
+    </details>
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88rem">¿Cómo se calculan el mínimo de vacaciones y sábados de calidad?</summary>
+      <p style="margin-top:8px;font-size:.85rem">Son proporcionales a los días trabajados: si trabaja <b>≥150 días</b> → 31 días de vacaciones y 9 sábados libres. Si trabaja <b>menos de 150 días</b> → los mínimos se prorratean: vacaciones = ⌈31 × días / 200⌉; sábados = ⌈9 × horas_proyectadas / 1770⌉.</p>
+    </details>
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88áfrica">¿Qué significan las celdas moradas en la vista semanal?</summary>
+      <p style="margin-top:8px;font-size:.85rem">Una celda morada indica que ese día ese trabajador tiene un horario personalizado que supera en más de 50 minutos su jornada base precargada (H.Ampliado). El máximo permitido es 4 días así al año.</p>
+    </details>
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88rem">¿Puedo compartir este fichero con otra persona?</summary>
+      <p style="margin-top:8px;font-size:.85rem">Sí, simplemente comparte el fichero <code>.html</code>. La otra persona lo abre directamente en su navegador. Los cambios que haga quedarán guardados solo en su ordenador — no se sincronizan entre usuarios.</p>
+    </details>
+    <details style="background:#f8f9ff;border-radius:8px;padding:12px 16px;cursor:pointer">
+      <summary style="font-weight:700;color:#1a237e;font-size:.88rem">¿Cómo veo la cobertura de todos los departamentos a la vez?</summary>
+      <p style="margin-top:8px;font-size:.85rem">Haz clic en el botón <b>🌐 GLOBAL</b> en la barra de departamentos. Esta vista muestra el informe de incidencias de los 4 departamentos lado a lado, más la cobertura semanal. Puedes exportarla a PDF con el botón <b>📄 Exportar PDF</b>.</p>
+    </details>
+  </div>
+</div>
+
+</div><!-- fin container -->
+
+<div class="footer">
+  Cuadrante de Personal 2026 · Documento interno · Generado automáticamente
+</div>
+
+</body>
+</html>
