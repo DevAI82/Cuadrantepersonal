@@ -52,7 +52,7 @@ th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
 .s-MAN{background:#b3e5fc;color:#01579b}
 .s-TAR{background:#2e7d32;color:#fff}
 .s-VAC{background:#ff9800;color:#fff}
-.s-LIB{background:#fff176;color:#827717}
+.s-LIB{background:#fff176;color:#827717}.s-J{background:#fdd835;color:#5d4000}.s-JA{background:#f9a825;color:#4e2d00}
 .s-PAR{background:#ce93d8;color:#4a148c}
 .s-COM{background:#ffd700;color:#bf360c}
 .s-ENF{background:#ef9a9a;color:#b71c1c}
@@ -300,7 +300,7 @@ const EQ = {
   'E':['BAJ','s-ENF'],
   'FOR':['FOR','s-FOR'],
   'SPS':['SPS','s-SPS'],
-  'JA':['JA','s-empty'],'Z':['--','s-empty'],'J':['--','s-empty'],
+  'JA':['JA','s-JA'],'Z':['--','s-empty'],'J':['J','s-J'],
   'PER':['PER','s-PER']
 };
 function eq(c){
@@ -640,7 +640,7 @@ function openEditModal(dept,dsStr,empIdx){
   const OPTS=[
     ['M(AM)','MAN','s-MAN'],['T(TC)','TAR','s-TAR'],
     ['P(TC)','PAR','s-PAR'],['C','COM','s-COM'],
-    ['FOR','FOR','s-FOR'],['L','LIB','s-LIB'],
+    ['FOR','FOR','s-FOR'],['L','LIB','s-LIB'],['J','J','s-J'],['JA','JA','s-JA'],
     ['V','VAC','s-VAC'],['E','BAJ','s-ENF'],
     ['SPS','SPS','s-SPS'],['PER','PER','s-PER'],['0','--','s-empty']
   ];
@@ -933,7 +933,7 @@ function absentWorking(y,m,d){
   for(let i=0;i<N();i++){
     if(activeDept==='omnicanal'&&i===2) continue; // Eduardo: liberado sindical, no computa
     const l=eq(codes[i]||'0')[0];
-    if(l==='LIB'||l==='VAC'||l==='BAJ') ab++;
+    if(l==='LIB'||l==='VAC'||l==='BAJ'||l==='J'||l==='JA') ab++;
     else if(l==='MAN'||l==='TAR'||l==='PAR'||l==='COM') wk++;
   }
   return [ab,wk];
@@ -5508,7 +5508,7 @@ function calcHorasDia(dept,ei,code,dsStr){
   const num=parseFloat(code);
   if(!isNaN(num)&&num>0) return num;
   const lbl=eq(code)[0];
-  if(!lbl||['LIB','VAC','BAJ','SPS','JA','--','?','FOR','PER','COM'].includes(lbl)) return 0;
+  if(!lbl||['LIB','VAC','BAJ','SPS','JA','J','--','?','FOR','PER','COM'].includes(lbl)) return 0;
   if(!['MAN','TAR','PAR'].includes(lbl)) return 0;
   let rawH=0, applyBreak=true;
   if(dsStr&&_hoHas(dept,ei,dsStr)){
