@@ -588,6 +588,11 @@ function _hoKey(dept,ei,ds){return dept+'|'+ei+'|'+ds;}
 function _hoGet(dept,ei,ds,lbl){
   const saved=_hours[_hoKey(dept,ei,ds)];
   if(saved) return saved;
+  // Carlos (operaciones|2): horario especial del 12 ene al 18 abr 2026
+  if(dept==='operaciones'&&ei===2&&ds>='2026-01-12'&&ds<='2026-04-18'){
+    if(lbl==='MAN'||lbl==='PAR') return {in:'08:30',out:'14:45',break:15};
+    if(lbl==='TAR') return {in:'16:00',out:'22:00',break:0};
+  }
   const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
   return def?{in:def[0],out:def[1]}:null;
 }
@@ -1068,12 +1073,12 @@ function renderWeekly(){
     const _dBtn=!isClosedDay(_dsW,dw)?'<button onclick="event.stopPropagation();showDiaPreview(\''+_dsW+'\',\''+activeDept+'\')" title="Ver cobertura del día" style="display:block;margin:3px auto 0;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:5px;padding:1px 6px;cursor:pointer;font-size:.68rem;color:#fff;font-weight:700">&#128202;</button>':'';
     h+='<th class="th-day'+(isClosedDay(_dsW,dw)?' wk':'')+'" style="min-width:88px"><div class="dn">'+DAYS_ES[dw]+'</div><div class="dd">'+fmtDate(dd)+'</div>'+_apBadge+_ciBadge+_dBtn+'</th>';
   }
-  h+='</tr>';
+  h+='<th class="th-day" style="min-width:52px;background:#1565c0;color:#fff;font-size:.62rem;font-weight:800">HRS<br>REAL</th></tr>';
   const LM={'MAN':'Manana','TAR':'Tarde','VAC':'Vacaciones','LIB':'Libre','PAR':'Partido','COM':'Compensado','BAJ':'BAJA','SPS':'Sin Cto.','PER':'Permiso','--':'--'};
   const dispOrder=getDispOrder();let prevSG=undefined;
   for(const ei of dispOrder){
     const sg=getSubgroup(ei);
-    if(sg!==prevSG){if(sg)h+='<tr><td colspan="8" style="background:'+sg.border+';color:#fff;font-size:.62rem;font-weight:800;padding:2px 8px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSG=sg;}
+    if(sg!==prevSG){if(sg)h+='<tr><td colspan="9" style="background:'+sg.border+';color:#fff;font-size:.62rem;font-weight:800;padding:2px 8px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSG=sg;}
     const rs=sg?'style="background:'+sg.bg+'"':'';
     h+='<tr '+rs+'><td class="td-emp">'+EMPS()[ei]+'</td>';
     for(let i=0;i<7;i++){
@@ -1094,6 +1099,8 @@ function renderWeekly(){
     const _amplSt=_isAmpl?'background:#f3e5f5;border:2px solid #8e24aa;color:#4a148c':'';
     h+='<td class="wshift '+(_isAmpl?'':cls)+' ed-cell" data-dept="'+activeDept+'" data-ds="'+_hoDs+'" data-ei="'+ei+'" style="'+_amplSt+'"><div>'+(LM[lbl]||lbl)+'</div><div class="code">'+(code&&code!=='0'?'('+code+')':'')+'</div>'+_hoInd+'</td>';
     }
+    const _fRWk=fRealWeek(activeDept,EMPS()[ei],ws);
+    h+='<td style="text-align:center;padding:3px 2px;font-size:.78rem;font-weight:800;min-width:52px;border-left:2px solid #90caf9;'+(_fRWk!==null?'color:#0d47a1;background:#e3f2fd':'color:#bdbdbd;background:#fafafa')+'">'+(_fRWk!==null?_fRWk+'h':'—')+'</td>';
     h+='</tr>';
     // Inyectar Carlos (Operaciones) dentro de RECEPCIÓN de Muelle, después de Miguel A. (idx 0)
     if(activeDept==='muelle'&&ei===0) h+=_crossIntRowW(ws);
@@ -1131,7 +1138,7 @@ function renderWeekly(){
     for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='MAN'||l==='PAR')man++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e3f2fd;font-size:.8rem;font-weight:800;color:#01579b">'+man+'</td>';
   }
-  h+='</tr>';
+  h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
   h+='<tr><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.68rem">TARDE</td>';
   for(let i=0;i<7;i++){
     const dd=new Date(ws.getTime()+i*86400000),dw=dd.getDay()===0?6:dd.getDay()-1;
@@ -1141,7 +1148,7 @@ function renderWeekly(){
     for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='TAR'||l==='PAR')tar++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e8f5e9;font-size:.8rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
   }
-  h+='</tr>';
+  h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
   h+='<tr><td class="summary-lbl">TRABAJAN</td>';
   for(let i=0;i<7;i++){
     const dd=new Date(ws.getTime()+i*86400000),dw=dd.getDay()===0?6:dd.getDay()-1;
@@ -1149,7 +1156,7 @@ function renderWeekly(){
     const [,wk]=absentWorking(dd.getFullYear(),dd.getMonth()+1,dd.getDate());
     h+='<td class="sum-ok">'+wk+'</td>';
   }
-  h+='</tr></table></div>';
+  h+='<td style="text-align:center;padding:3px 2px;background:#e8f5e9;font-size:.75rem;font-weight:700;color:#2e7d32;border-left:2px solid #90caf9"></td></tr></table></div>';
 }
   h+=_crossDeptWeek(ws);
   let alerts=[];
@@ -1191,7 +1198,7 @@ function renderReglas(){
           plantilla:[
             {grupo:'Mañanas Fijas',   miembros:['M. Cortés','Victoria','Pilar Soler'], nota:'Turno fijo de mañana L–S'},
             {grupo:'Rotativos 100%',  miembros:['Ramón','Javier','Ana Pilar'],          nota:'Turno A o B según semana · M 8:10–15:30 / T 15:00–22:00'},
-            {grupo:'Rotativos 92%',   miembros:['Irene','Inmaculada','Arancha'],        nota:'Turno A o B según semana · M 9:00–15:00 / T 16:00–22:00'},
+            {grupo:'Rotativos 92%',   miembros:['Irene','Inmaculada','Rosario'],        nota:'Turno A o B según semana · M 9:00–15:00 / T 16:00–22:00'},
             {grupo:'Rotativo 59%',    miembros:['Isabel'],                              nota:'M 9:00–13:00 / T 18:00–22:00'},
             {grupo:'Días Sueltos',    miembros:['Julio','Antonio','Juan Fran'],         nota:'Días concretos según contrato'},
             {grupo:'Sin cómputo',     miembros:['Eduardo (Lib. Sindical)','M. Aranzazu (Baja)'], nota:'No computan como trabajadores efectivos'}
@@ -1240,13 +1247,13 @@ function renderReglas(){
           ]
         },
         {
-          nombre:'ROTATIVOS — Turno B (Ramón, Irene, Arancha)',
-          miembros:['Ramón','Irene','Arancha'],
+          nombre:'ROTATIVOS — Turno B (Ramón, Irene, Rosario)',
+          miembros:['Ramón','Irene','Rosario'],
           color:'#558b2f',
           reglas:[
             'Ramón (100%): Mañana 8:10–15:30 · Tarde 15:00–22:00',
             'Irene (92%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
-            'Arancha (Interina 84%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
+            'Rosario (Interina 84%): Mañana 9:00–15:00 · Tarde 16:00–22:00',
             'Este grupo rota en sentido opuesto al Turno A.',
             'En periodo pico se incorporan a este turno: Alba, Cecilia, Rocío y Juan (M 9:00–15:30 / T 15:30–22:00). Juan no trabaja sábados (trabaja en SAC).'
           ]
@@ -1641,25 +1648,25 @@ function renderReglas(){
   h += `</div></div></div>`;
 
   // ── Regla 2: Máximo 4 días con H-Ampliado ───────────────────────────────
-  const _r2KO = _rData.filter(r => r.hAmpl.tot > 4);
-  const _r2OK = _rData.filter(r => r.hAmpl.tot <= 4).length;
+  const _r2KO = _rData.filter(r => r.hAmpl.weeksKO > 0);
+  const _r2OK = _rData.filter(r => r.hAmpl.weeksKO === 0).length;
   h += `<div style="border-bottom:1px solid #eceff1;padding:16px 20px">`;
   h += `<div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">`;
   h += `<div style="flex:0 0 32px;height:32px;background:#6a1b9a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">2</div>`;
   h += `<div style="flex:1;min-width:220px">`;
-  h += `<div style="font-weight:800;color:#6a1b9a;font-size:.88rem;margin-bottom:3px">Máximo 4 días con horario ampliado (H)</div>`;
-  h += `<div style="font-size:.78rem;color:#546e7a;margin-bottom:10px">Un día cuenta como H-Ampliado cuando el horario personalizado supera en más de 50 minutos la jornada base precargada. Se muestran en morado en la vista semanal.</div>`;
+  h += `<div style="font-weight:800;color:#6a1b9a;font-size:.88rem;margin-bottom:3px">Máximo 3 días con horario ampliado por semana</div>`;
+  h += `<div style="font-size:.78rem;color:#546e7a;margin-bottom:10px">Un día cuenta como H-Ampliado cuando el horario personalizado supera en más de 50 minutos la jornada base precargada. Máximo 3 días ampliados en la misma semana. Se muestran en morado en la vista semanal.</div>`;
   if(_r2KO.length){
     h += `<div style="display:flex;gap:6px;flex-wrap:wrap">`;
     _r2KO.forEach(r => {
       h += `<div style="background:#fce4ec;border:1px solid #f48fb1;border-radius:8px;padding:5px 10px">`;
       h += `<div style="font-size:.7rem;font-weight:700;color:#880e4f">${r.name}</div>`;
-      h += `<div style="font-size:.75rem;color:#c62828;font-weight:800">${r.hAmpl.tot} días ⚠</div>`;
+      h += `<div style="font-size:.75rem;color:#c62828;font-weight:800">${r.hAmpl.weeksKO} semana${r.hAmpl.weeksKO!==1?'s':''} con >3 días ⚠</div>`;
       h += `</div>`;
     });
     h += `</div>`;
   } else {
-    h += `<div style="font-size:.78rem;color:#2e7d32;font-weight:700">✓ Todos los trabajadores dentro del límite</div>`;
+    h += `<div style="font-size:.78rem;color:#2e7d32;font-weight:700">✓ Todos los trabajadores dentro del límite semanal</div>`;
   }
   h += `</div>`;
   h += `<div style="flex:0 0 auto;text-align:center;background:${_r2KO.length>0?'#ffebee':'#e8f5e9'};border-radius:10px;padding:8px 16px">`;
@@ -1960,12 +1967,12 @@ function renderMonthBlock(y,m){
     const _dBtnT=!_clT?'<button onclick="event.stopPropagation();showDiaPreview(\''+_dsT+'\',\''+activeDept+'\')" title="Ver cobertura" style="display:block;margin:1px auto 0;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:3px;padding:0 3px;cursor:pointer;font-size:.58rem;color:inherit">&#128202;</button>':'';
     h+='<th class="th-day'+(_clT?' wk':'')+'" style="min-width:24px'+(inc?';background:#c62828;color:#fff':'')+'">'+(inc?'<div class="dn" style="opacity:.9">':' <div class="dn">')+DAYS_ES[dw].slice(0,2)+'</div><div class="dd">'+d+'</div>'+_dBtnT+'</th>';
   }
-  h+='</tr>';
+  h+='<th style="min-width:48px;background:#1565c0;color:#fff;font-size:.58rem;font-weight:800;padding:3px;text-align:center;position:sticky;right:0">HRS</th></tr>';
   // Filas empleados
   const dispOrderM=getDispOrder();let prevSGM=undefined;
   for(const ei of dispOrderM){
     const sg=getSubgroup(ei);
-    if(sg!==prevSGM){if(sg)h+='<tr><td colspan="'+(days+1)+'" style="background:'+sg.border+';color:#fff;font-size:.58rem;font-weight:800;padding:1px 6px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSGM=sg;}
+    if(sg!==prevSGM){if(sg)h+='<tr><td colspan="'+(days+2)+'" style="background:'+sg.border+';color:#fff;font-size:.58rem;font-weight:800;padding:1px 6px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSGM=sg;}
     const rs=sg?'style="background:'+sg.bg+'"':'';
     h+='<tr '+rs+'><td class="td-emp">'+EMPS()[ei]+'</td>';
     for(let d=1;d<=days;d++){
@@ -1976,6 +1983,8 @@ function renderMonthBlock(y,m){
       const _mAmplSt=_mAmpl?'background:#f3e5f5;border:1px solid #8e24aa;color:#4a148c':'';
       h+='<td class="shift '+(_mCl?'wknd':(!_mAmpl?cls:'')+((!_mCl)?' ed-cell':''))+'"'+(!_mCl?' data-dept="'+activeDept+'" data-ds="'+ds(y,m,d)+'" data-ei="'+ei+'"':'')+' style="'+_mAmplSt+'">'+(_mCl?'':lbl)+'</td>';
     }
+    const _fRMon=fRealMonth(activeDept,EMPS()[ei],y,m);
+    h+='<td style="text-align:center;padding:2px;font-size:.72rem;font-weight:800;min-width:48px;position:sticky;right:0;border-left:2px solid #90caf9;'+(_fRMon!==null?'color:#0d47a1;background:#e3f2fd':'color:#bdbdbd;background:#fafafa')+'">'+(_fRMon!==null?_fRMon+'h':'—')+'</td>';
     h+='</tr>';
     // Inyectar Carlos (Operaciones) en RECEPCIÓN de Muelle, después de Miguel A. (idx 0)
     if(activeDept==='muelle'&&ei===0) h+=_crossIntRowM(y,m);
@@ -1993,7 +2002,7 @@ function renderMonthBlock(y,m){
         if(sg.l==='REC'&&_carlosWorking(ds(y,m,d))) cnt++;
         h+='<td style="text-align:center;padding:1px;background:'+sg.bg+';font-size:.65rem;font-weight:800;color:'+sg.co+'">'+cnt+'</td>';
       }
-      h+='</tr>';
+      h+='<td style="background:'+sg.bg+';border-left:2px solid #90caf9;min-width:48px"></td></tr>';
     }
     h+='<tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
     for(let d=1;d<=days;d++){
@@ -2002,7 +2011,7 @@ function renderMonthBlock(y,m){
       const [,wk]=absentWorking(y,m,d);
       h+='<td class="sum-ok">'+wk+'</td>';
     }
-    h+='</tr></table></div>';
+    h+='<td style="background:#f5f5f5;border-left:2px solid #90caf9"></td></tr></table></div>';
   } else {
     h+='<tr class="trim-sum-row"><td class="summary-lbl" style="background:#e3f2fd;color:#01579b;font-size:.62rem">M</td>';
     for(let d=1;d<=days;d++){
@@ -2012,7 +2021,7 @@ function renderMonthBlock(y,m){
       for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(c2[ei]||'0')[0];if(l==='MAN'||l==='PAR')man++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e3f2fd;font-size:.68rem;font-weight:800;color:#01579b">'+man+'</td>';
     }
-    h+='</tr><tr class="trim-sum-row"><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.62rem">T</td>';
+    h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.62rem">T</td>';
     for(let d=1;d<=days;d++){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
@@ -2020,14 +2029,14 @@ function renderMonthBlock(y,m){
       for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(c2[ei]||'0')[0];if(l==='TAR'||l==='PAR')tar++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e8f5e9;font-size:.68rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
     }
-    h+='</tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
+    h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
     for(let d=1;d<=days;d++){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const [,wk]=absentWorking(y,m,d);
       h+='<td class="sum-ok">'+wk+'</td>';
     }
-    h+='</tr></table></div>';
+    h+='<td style="background:#e0e0e0;border-left:2px solid #90caf9;min-width:48px"></td></tr></table></div>';
   }
   h+=_crossDeptMonth(y,m);
   // Alertas del mes
@@ -2355,6 +2364,128 @@ function renderEmpleado(){
   for(const ch of chips){if(!ch[1]) continue; h+='<div class="'+ch[2]+'" style="padding:8px 14px;border-radius:8px;font-size:.82rem;font-weight:700">'+ch[0]+': <span style="font-size:1.1rem">'+ch[1]+'</span></div>';}
   h+='</div>';
 
+  // ── PANEL HORAS REALES vs TEÓRICAS ──────────────────────────────────────
+  (function(){
+    const _empName = EMPS()[ei];
+    const _dept = activeDept;
+    const FR = (FICHAJE_REAL[_dept] && FICHAJE_REAL[_dept][_empName]) ? FICHAJE_REAL[_dept][_empName] : null;
+    if(!FR) {
+      h+='<div style="margin-bottom:16px;padding:10px 14px;background:#f5f5f5;border-radius:8px;font-size:.78rem;color:#9e9e9e">📋 Sin datos de fichaje para este empleado (1-Mar al 24-Jun)</div>';
+    } else {
+      // Compute real hours per month
+      const MONTHS_DATA = [
+        {y:2026,m:3,label:'Marzo'},
+        {y:2026,m:4,label:'Abril'},
+        {y:2026,m:5,label:'Mayo'},
+        {y:2026,m:6,label:'Junio'}
+      ];
+      // Real hours per month from fichaje
+      const realByMonth = {};
+      Object.entries(FR).forEach(function(e){
+        const ym = e[0].slice(0,7);
+        realByMonth[ym] = (realByMonth[ym]||0) + e[1];
+      });
+      // Theoretical hours per month from shift data
+      function theoForMonth(y,m){
+        const days = daysInMonth(y,m);
+        let tot = 0;
+        for(let d=1;d<=days;d++){
+          const dsStr = ds(y,m,d);
+          const code = (RAW()[dsStr]||[])[ei]||'0';
+          tot += calcHorasDia(_dept, ei, code, dsStr);
+        }
+        return Math.round(tot*10)/10;
+      }
+      // Theoretical rest of year (Jun25-Dec31)
+      function theoRest(){
+        let tot = 0;
+        for(let m2=7;m2<=12;m2++){
+          const days2 = daysInMonth(2026,m2);
+          for(let d=1;d<=days2;d++){
+            const code2 = (RAW()[ds(2026,m2,d)]||[])[ei]||'0';
+            tot += calcHorasDia(_dept, ei, code2, ds(2026,m2,d));
+          }
+        }
+        // Jun 25-30
+        for(let d=25;d<=30;d++){
+          const code3 = (RAW()[ds(2026,6,d)]||[])[ei]||'0';
+          tot += calcHorasDia(_dept, ei, code3, ds(2026,6,d));
+        }
+        return Math.round(tot*10)/10;
+      }
+
+      let totalReal=0, totalTheo=0;
+      MONTHS_DATA.forEach(function(md){
+        const ym = md.y+'-'+String(md.m).padStart(2,'0');
+        const real = Math.round((realByMonth[ym]||0)*10)/10;
+        const theo = theoForMonth(md.y, md.m);
+        totalReal += real; totalTheo += theo;
+      });
+      totalReal = Math.round(totalReal*10)/10;
+      totalTheo = Math.round(totalTheo*10)/10;
+      const diffTotal = Math.round((totalReal-totalTheo)*10)/10;
+      const theoRestVal = theoRest();
+      const projAnual = Math.round((totalReal + theoRestVal)*10)/10;
+
+      h+='<div style="margin-bottom:16px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1)">';
+      h+='<div style="background:#1565c0;color:#fff;padding:9px 14px;font-size:.82rem;font-weight:800">&#9203; Horas Reales vs Teóricas — Fichaje 1-Mar al 24-Jun 2026</div>';
+      h+='<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:.78rem">';
+      h+='<thead><tr style="background:#e3f2fd">';
+      h+='<th style="padding:7px 12px;text-align:left;color:#1565c0;font-size:.72rem">Mes</th>';
+      h+='<th style="padding:7px 10px;text-align:center;color:#546e7a;font-size:.72rem">Teóricas<br><span style="font-weight:400;font-size:.65rem">(según cuadrante)</span></th>';
+      h+='<th style="padding:7px 10px;text-align:center;color:#1565c0;font-size:.72rem">Reales<br><span style="font-weight:400;font-size:.65rem">(fichaje)</span></th>';
+      h+='<th style="padding:7px 10px;text-align:center;font-size:.72rem">Diferencia</th>';
+      h+='<th style="padding:7px 10px;text-align:left;font-size:.72rem">Progreso</th>';
+      h+='</tr></thead><tbody>';
+
+      MONTHS_DATA.forEach(function(md,idx2){
+        const ym = md.y+'-'+String(md.m).padStart(2,'0');
+        const real = Math.round((realByMonth[ym]||0)*10)/10;
+        const theo = theoForMonth(md.y, md.m);
+        const diff = Math.round((real-theo)*10)/10;
+        const pct = theo>0 ? Math.min(120, Math.round(real/theo*100)) : 0;
+        const diffStr = (diff>=0?'+':'')+diff+'h';
+        const diffColor = diff < -5 ? '#c62828' : diff > 5 ? '#2e7d32' : '#546e7a';
+        const barColor = diff < -10 ? '#ef5350' : diff < -3 ? '#ffa726' : '#4caf50';
+        const bg = idx2%2===0 ? '#fff' : '#fafafa';
+        h+='<tr style="background:'+bg+';border-bottom:1px solid #f0f0f0">';
+        h+='<td style="padding:7px 12px;font-weight:700;color:#1a237e">'+md.label+'</td>';
+        h+='<td style="padding:7px 10px;text-align:center;color:#546e7a">'+theo+'h</td>';
+        h+='<td style="padding:7px 10px;text-align:center;font-weight:700;color:#1565c0">'+real+'h</td>';
+        h+='<td style="padding:7px 10px;text-align:center;font-weight:700;color:'+diffColor+'">'+diffStr+'</td>';
+        h+='<td style="padding:7px 12px;min-width:100px"><div style="background:#e0e0e0;border-radius:4px;height:8px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+barColor+';border-radius:4px"></div></div><div style="font-size:.6rem;color:#90a4ae;margin-top:1px">'+pct+'%</div></td>';
+        h+='</tr>';
+      });
+
+      // Totals row
+      const totalDiff = Math.round((totalReal-totalTheo)*10)/10;
+      const totalDiffStr = (totalDiff>=0?'+':'')+totalDiff+'h';
+      const totalDiffColor = totalDiff < -10 ? '#c62828' : totalDiff > 10 ? '#2e7d32' : '#546e7a';
+      const totalPct = totalTheo>0 ? Math.round(totalReal/totalTheo*100) : 0;
+      h+='<tr style="background:#e3f2fd;font-weight:800;border-top:2px solid #1565c0">';
+      h+='<td style="padding:8px 12px;color:#1565c0">TOTAL período</td>';
+      h+='<td style="padding:8px 10px;text-align:center;color:#546e7a">'+totalTheo+'h</td>';
+      h+='<td style="padding:8px 10px;text-align:center;color:#1565c0">'+totalReal+'h</td>';
+      h+='<td style="padding:8px 10px;text-align:center;color:'+totalDiffColor+'">'+totalDiffStr+'</td>';
+      h+='<td style="padding:8px 12px;font-size:.75rem;color:#1565c0">'+totalPct+'% cumplimiento</td>';
+      h+='</tr></tbody></table></div>';
+
+      // Projection section
+      const projColor = projAnual > 1700 ? '#2e7d32' : projAnual > 1400 ? '#f57f17' : '#c62828';
+      h+='<div style="background:#e8f5e9;padding:10px 16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">';
+      h+='<div style="flex:1;min-width:200px">';
+      h+='<div style="font-size:.7rem;color:#546e7a;margin-bottom:2px">Proyección anual (real + cuadrante pendiente)</div>';
+      h+='<div style="font-size:1.4rem;font-weight:800;color:'+projColor+'">'+projAnual+' h</div>';
+      h+='</div>';
+      h+='<div style="display:flex;gap:16px;flex-wrap:wrap">';
+      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Real (mar-jun)</div><div style="font-size:1rem;font-weight:700;color:#1565c0">'+totalReal+'h</div></div>';
+      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Pendiente (jul-dic)</div><div style="font-size:1rem;font-weight:700;color:#2e7d32">'+theoRestVal+'h</div></div>';
+      h+='</div>';
+      h+='</div>';
+      h+='</div>';
+    }
+  })();
+
   // ── PANEL DE INCIDENCIAS ─────────────────────────────────────────────────
   (function(){
     const _name=EMPS()[ei], _raw=RAW(), _jMax=(JORNADA_MAX_H[activeDept]||[])[ei]||1770;
@@ -2371,7 +2502,7 @@ function renderEmpleado(){
       if(lbl==='VAC') _vac++;
       if(lbl==='COM') _comp++;
       if(lbl==='PER') _per++;
-      if(['MAN','TAR','PAR','COM'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})) _fest++;
+      if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})) _fest++;
       if(['MAN','TAR','PAR','COM'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
       if(isHoraAmpliada(activeDept,ei,code,dsStr)) _hAmpl++;
       if(dw===6&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')) _cal++;
@@ -3526,7 +3657,7 @@ function buildInformeHTML(dk){
       if(r.vac.tot<r.vacMin) tags.push({t:'Vacaciones: '+r.vac.tot+'/'+r.vacMin,s:'error'});
       if(r.fest.tot>0&&r.comp.tot<r.fest.tot) tags.push({t:'Comp. pendientes: '+(r.fest.tot-r.comp.tot),s:'error'});
       if(r.cal.obj>0&&r.cal.tot<r.cal.obj) tags.push({t:'Calidad sáb: '+r.cal.tot+'/'+r.cal.obj,s:'warn'});
-      if(r.hAmpl.tot>4) tags.push({t:'H.Ampliado: '+r.hAmpl.tot+'/4',s:'warn'});
+      if(r.hAmpl.weeksKO>0) tags.push({t:'H.Ampliado: '+r.hAmpl.weeksKO+' sem.',s:'warn'});
       if(d12>0) tags.push({t:'Descanso 12h: '+d12+' caso'+(d12!==1?'s':''),s:'error'});
       if(tags.length) _issues.push({name:r.name,tags});
     });
@@ -3569,7 +3700,7 @@ function buildInformeHTML(dk){
     const _rVacEx=_rsum4.filter(function(r){return r.vac.tot<r.vacMin;});
     const _rCompEx=_rsum4.filter(function(r){return r.fest.tot>0&&r.comp.tot<r.fest.tot;});
     const _rCalEx=_rsum4.filter(function(r){return r.cal.obj>0&&r.cal.tot<r.cal.obj;});
-    const _rAmplEx=_rsum4.filter(function(r){return r.hAmpl.tot>4;});
+    const _rAmplEx=_rsum4.filter(function(r){return r.hAmpl.weeksKO>0;});
     const _rDesc12=_rsum4.filter(function(r){return (_vByEmpC[r.name]||0)>0;});
     if(_rHorasEx.length) _recs.push({ico:'&#9200;',color:'#c62828',bg:'#fff5f5',
       tit:'Compensar exceso de horas trabajadas',
@@ -3584,8 +3715,8 @@ function buildInformeHTML(dk){
       tit:'Garantizar mínimo de sábados libres (objetivo calidad)',
       det:'<b>'+_rCalEx.map(function(r){return r.name+' ('+r.cal.tot+'/'+r.cal.obj+')';}).join(', ')+'</b> necesitan m&aacute;s s&aacute;bados libres. Revisar la rotaci&oacute;n de libranzas para alcanzar el m&iacute;nimo de 9 s&aacute;bados con c&oacute;digo L o C.'});
     if(_rAmplEx.length) _recs.push({ico:'&#128274;',color:'#e65100',bg:'#fffbf0',
-      tit:'Revisar días con jornada ampliada (máx. 4 por año)',
-      det:'<b>'+_rAmplEx.map(function(r){return r.name+' ('+r.hAmpl.tot+' días)';}).join(', ')+'</b> superan el l&iacute;mite de 4 d&iacute;as con jornada ampliada. Revisar los horarios personalizados y restablecer los excedentes.'});
+      tit:'Revisar semanas con jornada ampliada excesiva (máx. 3 días/semana)',
+      det:'<b>'+_rAmplEx.map(function(r){return r.name+' ('+r.hAmpl.weeksKO+' sem.)';}).join(', ')+'</b> tienen semanas con m&aacute;s de 3 d&iacute;as de jornada ampliada. Revisar los horarios personalizados de esas semanas y restablecer los excedentes.'});
     if(_rDesc12.length) _recs.push({ico:'&#128564;',color:'#c62828',bg:'#fff5f5',
       tit:'Corregir violaciones del descanso mínimo de 12 horas',
       det:'<b>'+_rDesc12.map(function(r){return r.name+' ('+(_vByEmpC[r.name]||0)+' caso'+((_vByEmpC[r.name]||0)!==1?'s':'')+')';}).join(', ')+'</b> tienen jornadas consecutivas con menos de 12h de descanso. Ajustar horarios de entrada/salida o redistribuir turnos.'});
@@ -3814,11 +3945,53 @@ const OMNICANAL_PLANTILLA = [
   {nombre:'Serna Carrión, Julio',          tipo:'refuerzo',  pct:20,   nota:'Ampliación: +20% · +1 día/semana · 25 Jun – 15 Sep'},
   {nombre:'Fernández García, Antonio',     tipo:'refuerzo',  pct:20,   nota:'Ampliación: +20% · +1 día/semana · 25 Jun – 15 Sep'},
   {nombre:'López Nieto, Juan F.',          tipo:'refuerzo',  pct:60,   nota:'Ampliación: +60% · turno tarde L-S (antes sólo sábados)'},
-  {nombre:'Arancha (Interina)',            tipo:'refuerzo',  pct:84,   nota:'Interina · 15 Jun – 31 Dic · mismo turno que Ramón'},
+  {nombre:'Rosario (Interina)',            tipo:'refuerzo',  pct:84,   nota:'Interina · 15 Jun – 31 Dic · mismo turno que Ramón'},
   {nombre:'Refuerzo Tienda',               tipo:'refuerzo',  pct:100,  nota:'Refuerzo · 1 Jul – 15 Sep · mismo turno que Javi'},
   {nombre:'Rocío',                         tipo:'refuerzo',  pct:92,   nota:'Refuerzo · pendiente definir periodo'},
   {nombre:'Juan',                          tipo:'refuerzo',  pct:60,   nota:'Refuerzo 60% · L-V (sábado libre) · pendiente definir periodo'},
 ];
+
+// ===== DATOS REALES DE FICHAJE (1-Mar-2026 al 24-Jun-2026) =====
+// Fuente: Registro_de_Fichaje 1.03 al 24.06.xlsx
+// Estructura: FICHAJE_REAL[dept][nombreApp][fecha] = horas reales trabajadas
+const FICHAJE_REAL = {"cajasac":{"ANDREA":{"2026-03-02":5.15,"2026-03-03":5.15,"2026-03-04":5.166667,"2026-03-05":5.116667,"2026-03-06":5.016667,"2026-03-11":5.05,"2026-03-31":4.983333,"2026-04-01":5.233333,"2026-04-02":11.066667,"2026-04-04":5.316667,"2026-04-13":5.45,"2026-04-14":5.0,"2026-04-15":5.083333,"2026-04-16":5.116667,"2026-04-17":5.15,"2026-04-18":5.033333,"2026-04-21":5.366667,"2026-04-27":4.966667,"2026-04-28":4.966667,"2026-04-29":4.0,"2026-05-04":5.1,"2026-05-05":5.083333,"2026-05-06":5.2,"2026-05-07":5.066667,"2026-05-08":5.083333,"2026-05-09":5.2,"2026-05-11":5.016667,"2026-05-12":5.266667,"2026-05-13":5.283333,"2026-05-14":5.316667,"2026-05-15":5.316667,"2026-05-16":5.266667,"2026-05-18":5.133333,"2026-05-19":5.35,"2026-05-20":5.3,"2026-05-21":5.233333,"2026-05-22":5.066667,"2026-05-23":5.1,"2026-05-26":5.35,"2026-05-27":5.116667,"2026-05-28":5.133333,"2026-05-30":5.333333,"2026-06-09":5.633333,"2026-06-11":5.366667,"2026-06-12":5.483333,"2026-06-13":5.5,"2026-06-15":5.033333,"2026-06-16":5.166667,"2026-06-17":5.1,"2026-06-18":5.216667,"2026-06-19":5.35,"2026-06-20":5.383333,"2026-06-22":5.416667,"2026-06-23":5.283333},"CARLA":{"2026-03-02":6.1,"2026-03-03":6.066667,"2026-03-04":6.0,"2026-03-05":6.0,"2026-03-06":6.0,"2026-03-09":6.066667,"2026-03-10":6.066667,"2026-03-11":6.166667,"2026-03-12":6.033333,"2026-03-13":6.216667,"2026-03-14":6.033333,"2026-03-23":6.116667,"2026-03-24":6.0,"2026-03-25":6.05,"2026-03-26":6.1,"2026-03-27":6.066667,"2026-03-31":6.083333,"2026-04-01":6.033333,"2026-04-04":4.833333,"2026-04-06":6.216667,"2026-04-07":6.116667,"2026-04-08":6.066667,"2026-04-09":6.1,"2026-04-10":6.133333,"2026-04-11":6.366667,"2026-04-13":6.083333,"2026-04-14":6.033333,"2026-04-15":4.633333,"2026-04-16":6.016667,"2026-04-17":6.083333,"2026-04-18":6.35,"2026-04-20":6.016667,"2026-04-21":6.016667,"2026-04-22":6.033333,"2026-04-23":6.05,"2026-04-24":6.1,"2026-04-25":6.283333,"2026-04-27":6.05,"2026-04-28":6.033333,"2026-04-29":6.05,"2026-04-30":6.033333,"2026-05-04":6.25,"2026-05-05":3.283333,"2026-05-06":6.05,"2026-05-07":6.15,"2026-05-08":6.116667,"2026-05-09":6.116667,"2026-05-11":6.016667,"2026-05-12":6.033333,"2026-05-13":6.05,"2026-05-14":6.066667,"2026-05-15":6.016667,"2026-05-16":6.116667,"2026-05-26":6.066667,"2026-05-28":6.133333,"2026-05-29":6.033333,"2026-05-30":6.1,"2026-06-01":6.283333,"2026-06-02":6.116667,"2026-06-03":6.8},"ISABEL":{"2026-03-09":6.7,"2026-03-23":7.716667,"2026-03-24":7.516667,"2026-03-25":7.583333,"2026-03-26":7.55,"2026-03-27":7.666667,"2026-03-28":7.616667,"2026-04-02":11.016667,"2026-04-08":7.716667,"2026-04-09":7.533333,"2026-04-10":7.633333,"2026-04-11":7.533333,"2026-04-20":7.583333,"2026-04-21":7.566667,"2026-04-22":7.533333,"2026-04-23":7.683333,"2026-04-24":7.733333,"2026-04-25":7.65,"2026-05-02":7.6,"2026-05-04":7.73,"2026-05-05":7.363333,"2026-05-18":7.066667,"2026-05-19":7.283333,"2026-05-20":7.266667,"2026-05-21":6.9,"2026-05-22":7.266667,"2026-05-23":7.266667,"2026-05-27":7.663333,"2026-06-22":7.016667,"2026-06-23":7.35},"JUAN":{"2026-03-07":9.2,"2026-04-02":11.316667,"2026-04-04":10.083333,"2026-04-06":11.316667,"2026-05-23":9.05},"M. JOSE":{"2026-03-02":4.6,"2026-03-03":4.533333,"2026-03-04":5.033333,"2026-03-05":5.066667,"2026-03-07":5.1,"2026-03-10":5.0,"2026-03-12":5.016667,"2026-03-13":5.05,"2026-03-14":5.033333,"2026-03-23":5.05,"2026-03-24":5.083333,"2026-03-25":5.066667,"2026-03-26":5.066667,"2026-03-27":4.533333,"2026-03-28":5.133334,"2026-03-31":5.05,"2026-04-01":5.116667,"2026-04-04":5.016667,"2026-04-06":5.8,"2026-04-07":5.066667,"2026-04-08":5.05,"2026-04-09":5.05,"2026-04-10":5.083333,"2026-04-20":5.333333,"2026-04-22":5.3,"2026-04-23":5.283333,"2026-04-24":5.416667,"2026-04-25":6.65,"2026-05-05":5.283333,"2026-05-06":5.283333,"2026-05-07":5.116667,"2026-05-08":5.25,"2026-05-09":6.316667,"2026-05-13":5.266667,"2026-05-18":5.333333,"2026-05-19":5.266667,"2026-05-21":5.333333,"2026-05-22":5.3,"2026-05-23":6.3,"2026-05-27":5.25,"2026-05-28":5.25,"2026-05-29":5.266667,"2026-06-01":5.3,"2026-06-02":5.4,"2026-06-03":5.25,"2026-06-05":5.05,"2026-06-10":4.933333,"2026-06-16":4.533333,"2026-06-18":0.016667},"M. MERCEDES":{"2026-03-03":6.816667,"2026-03-04":6.6,"2026-03-10":6.75,"2026-03-11":6.616667,"2026-03-12":6.633333,"2026-03-13":6.683333,"2026-03-16":6.833333,"2026-03-17":6.55,"2026-03-18":6.566667,"2026-03-19":6.583333,"2026-03-20":6.55,"2026-03-30":6.683333,"2026-03-31":6.583333,"2026-04-01":6.566667,"2026-04-06":11.366667,"2026-04-13":6.583333,"2026-04-14":6.6,"2026-04-15":6.7,"2026-04-16":6.616667,"2026-04-17":6.616667,"2026-04-18":6.566667,"2026-05-11":6.95,"2026-05-12":6.866667,"2026-05-13":7.016667,"2026-05-14":6.933333,"2026-05-15":6.8,"2026-05-16":6.933333,"2026-05-18":6.183333,"2026-05-19":6.366667,"2026-05-20":6.2,"2026-05-21":6.6,"2026-05-22":6.633333,"2026-05-23":6.633333,"2026-05-26":6.8,"2026-06-01":6.166667,"2026-06-02":6.65,"2026-06-03":6.416667,"2026-06-05":6.133333,"2026-06-06":6.466667,"2026-06-08":6.6,"2026-06-09":6.6,"2026-06-10":6.116667,"2026-06-11":6.6,"2026-06-12":6.783333,"2026-06-13":6.65,"2026-06-15":6.55,"2026-06-16":6.466667,"2026-06-17":6.316667,"2026-06-18":6.366667,"2026-06-19":6.416667,"2026-06-20":6.45,"2026-06-22":6.716667},"PEDRO LUIS":{"2026-03-16":6.666667,"2026-03-17":6.616667,"2026-03-18":6.583333,"2026-03-30":6.85,"2026-03-31":6.6,"2026-04-01":6.583333,"2026-04-04":6.683333,"2026-04-06":9.1,"2026-04-27":6.516667,"2026-04-28":6.533333,"2026-04-29":6.55,"2026-04-30":6.533333,"2026-05-02":6.583333,"2026-05-06":6.566667,"2026-05-11":6.6,"2026-05-12":7.083333,"2026-05-13":6.55,"2026-05-14":6.916667,"2026-05-15":6.933333,"2026-05-25":6.666667,"2026-05-26":6.766667,"2026-05-27":6.583333,"2026-05-28":6.766667,"2026-06-08":6.716667,"2026-06-09":6.783333,"2026-06-10":6.516667,"2026-06-11":6.516667,"2026-06-12":6.533333,"2026-06-13":6.466667,"2026-06-15":6.65,"2026-06-16":6.533333,"2026-06-17":6.65,"2026-06-18":6.533333,"2026-06-19":6.516667,"2026-06-20":6.55,"2026-06-22":6.5,"2026-06-23":6.6},"VICTORIA":{"2026-03-02":7.183333,"2026-03-03":7.133333,"2026-03-04":7.05,"2026-03-05":6.933333,"2026-03-06":7.0,"2026-03-07":7.266667,"2026-03-09":7.683333,"2026-03-10":7.566667,"2026-03-11":7.633333,"2026-03-12":7.666667,"2026-03-13":7.7,"2026-03-14":7.65,"2026-03-20":7.75,"2026-03-21":7.85,"2026-03-24":7.666667,"2026-03-25":7.65,"2026-03-26":7.7,"2026-03-27":7.8,"2026-03-28":7.65,"2026-03-31":7.416667,"2026-04-02":11.466667,"2026-04-07":7.716667,"2026-04-08":7.833333,"2026-04-09":7.6,"2026-04-10":7.7,"2026-04-11":7.7,"2026-04-20":7.633333,"2026-04-21":7.666667,"2026-04-22":7.65,"2026-04-23":7.716667,"2026-04-24":7.7,"2026-05-04":7.466667,"2026-05-05":7.283333,"2026-05-06":7.2,"2026-05-07":7.25,"2026-05-08":7.216667,"2026-05-09":7.266667,"2026-05-11":7.8,"2026-05-19":7.233333,"2026-05-20":7.166667,"2026-06-01":7.3,"2026-06-02":7.25,"2026-06-03":7.433333,"2026-06-05":7.233333,"2026-06-06":7.216667,"2026-06-08":7.0,"2026-06-09":7.0,"2026-06-10":7.166667,"2026-06-11":7.05,"2026-06-12":7.016667,"2026-06-15":7.65,"2026-06-16":7.683333,"2026-06-17":7.7,"2026-06-18":7.683333,"2026-06-19":7.616667,"2026-06-22":7.2,"2026-06-23":7.133333}},"muelle":{"ANTONIO F.":{"2026-03-02":7.383333,"2026-03-03":7.466667,"2026-03-04":7.05,"2026-03-05":7.533333,"2026-03-06":7.45,"2026-03-09":7.85,"2026-03-10":7.9,"2026-03-11":8.016667,"2026-03-23":8.133333,"2026-03-24":7.8,"2026-03-25":8.1,"2026-03-28":7.816667,"2026-03-30":7.916667,"2026-03-31":7.966667,"2026-04-01":7.883333,"2026-04-07":7.933333,"2026-04-08":8.166667,"2026-04-09":7.966667,"2026-04-10":7.966667,"2026-04-11":8.016667},"ARTURO":{"2026-03-02":7.633333,"2026-03-03":7.616667,"2026-03-04":7.616667,"2026-03-05":7.683333,"2026-03-06":7.6,"2026-05-04":7.8,"2026-05-05":7.783333,"2026-05-06":7.8,"2026-05-07":7.8,"2026-05-08":7.816667,"2026-05-09":7.833333,"2026-05-18":7.783333,"2026-05-19":7.783333,"2026-05-20":7.766667,"2026-05-21":7.816667,"2026-05-22":7.916667,"2026-05-23":7.783333,"2026-06-01":7.8,"2026-06-02":7.716667,"2026-06-03":7.783333,"2026-06-05":7.816667,"2026-06-06":7.716667,"2026-06-15":7.8,"2026-06-16":7.766667,"2026-06-17":7.816667,"2026-06-18":7.783333,"2026-06-19":7.766667,"2026-06-20":7.716667,"2026-06-22":7.75,"2026-06-23":7.633333},"EVA MARIA":{"2026-03-02":8.583333,"2026-03-03":8.733333,"2026-03-04":8.616667,"2026-03-05":8.633333,"2026-03-17":9.266667,"2026-03-18":9.15,"2026-03-19":9.183333,"2026-03-20":9.166667,"2026-03-23":9.166667,"2026-03-24":9.233333,"2026-03-25":9.15,"2026-03-26":9.183333,"2026-03-27":9.2,"2026-03-30":9.166667,"2026-03-31":9.166667,"2026-04-01":9.2,"2026-04-07":9.083333,"2026-04-08":9.166667,"2026-04-09":9.133333,"2026-04-10":9.183333,"2026-04-13":9.133333,"2026-04-14":9.216667,"2026-04-15":9.133333,"2026-04-16":9.116667,"2026-04-17":9.166667,"2026-04-20":9.133333,"2026-04-21":9.183333,"2026-04-22":9.116667,"2026-04-23":9.133333,"2026-04-24":9.683333,"2026-04-27":9.183333,"2026-04-28":9.283333,"2026-04-29":9.566667,"2026-04-30":9.783333,"2026-05-04":8.75,"2026-05-05":8.766667,"2026-05-06":8.683333,"2026-05-07":8.65,"2026-05-08":8.633333,"2026-05-11":9.116667,"2026-05-12":9.166667,"2026-05-13":9.233333,"2026-05-14":9.116667,"2026-05-15":9.633333,"2026-05-18":9.016667,"2026-05-19":8.933333,"2026-05-20":9.0,"2026-05-21":8.7,"2026-05-22":8.85,"2026-05-25":9.233333,"2026-05-26":9.266667,"2026-05-27":9.25,"2026-05-28":9.366667,"2026-05-29":9.2,"2026-06-01":9.233333,"2026-06-02":9.333333,"2026-06-03":9.183333,"2026-06-05":9.233333,"2026-06-08":8.75,"2026-06-09":8.833333,"2026-06-10":8.766667,"2026-06-11":8.666667,"2026-06-12":8.733333,"2026-06-15":8.6,"2026-06-16":8.866667,"2026-06-17":8.616667,"2026-06-18":8.633333,"2026-06-19":8.933333,"2026-06-22":8.733333,"2026-06-23":8.75},"J. PASCUAL":{"2026-03-02":7.783333,"2026-03-03":7.766667,"2026-03-04":7.816667,"2026-03-05":7.833333,"2026-03-06":7.75,"2026-03-07":7.833333,"2026-05-05":7.85,"2026-05-06":7.883333,"2026-05-07":7.983333,"2026-05-08":7.9,"2026-05-09":7.883333,"2026-05-18":7.833333,"2026-05-19":7.883333,"2026-05-20":7.833333,"2026-06-02":7.816667,"2026-06-03":7.816667,"2026-06-05":7.9,"2026-06-06":7.916667,"2026-06-08":7.8,"2026-06-09":7.85,"2026-06-10":7.8,"2026-06-11":7.766667,"2026-06-12":7.883333,"2026-06-13":7.833333,"2026-06-15":7.9,"2026-06-16":7.783333,"2026-06-17":7.833333,"2026-06-18":7.8,"2026-06-19":7.8,"2026-06-22":7.75,"2026-06-23":7.85},"JOSE LUIS":{"2026-03-03":7.833333,"2026-03-04":7.783333,"2026-03-05":7.566667,"2026-03-06":7.583333,"2026-03-07":7.55,"2026-03-09":8.033333,"2026-03-10":7.983333,"2026-03-11":8.083333,"2026-03-12":8.433333,"2026-03-13":8.183333,"2026-03-14":7.966667,"2026-03-16":8.083333,"2026-03-17":8.083333,"2026-03-18":8.116667,"2026-03-19":8.133333,"2026-03-20":8.133333,"2026-03-23":8.116667,"2026-03-24":8.05,"2026-03-25":8.183333,"2026-03-26":8.066667,"2026-03-27":8.116667,"2026-03-28":7.966667,"2026-03-31":8.266667,"2026-04-01":8.05,"2026-04-02":8.033333,"2026-04-04":8.066667,"2026-04-09":8.083333,"2026-04-10":8.3,"2026-04-11":8.016667,"2026-04-15":8.233333,"2026-04-16":8.383333,"2026-04-17":8.216667,"2026-04-20":8.05,"2026-04-21":8.183333,"2026-04-22":8.05,"2026-04-28":8.483333,"2026-04-29":8.333333,"2026-04-30":8.633333,"2026-05-02":8.383333,"2026-05-04":7.95,"2026-05-05":7.95,"2026-05-06":7.816667,"2026-05-18":7.633333,"2026-05-19":7.583333,"2026-05-20":7.666667,"2026-05-21":7.8,"2026-05-22":7.85,"2026-05-23":7.6,"2026-05-26":8.133333,"2026-05-27":8.233333,"2026-05-28":8.2,"2026-05-29":8.283333,"2026-05-30":8.05,"2026-06-01":8.066667,"2026-06-08":7.683333,"2026-06-09":7.55,"2026-06-10":8.166667,"2026-06-11":7.566667,"2026-06-12":7.816667,"2026-06-15":7.633333,"2026-06-16":7.65,"2026-06-17":7.683333,"2026-06-18":7.7,"2026-06-19":7.566667,"2026-06-20":7.6},"MIGUEL A.":{"2026-03-02":7.666667,"2026-03-03":8.216667,"2026-03-04":7.75,"2026-03-05":7.783333,"2026-03-06":7.95,"2026-03-07":7.5,"2026-03-16":8.05,"2026-03-17":8.05,"2026-03-18":8.033333,"2026-03-19":8.083333,"2026-03-20":8.083333,"2026-03-21":9.05,"2026-03-24":8.466667,"2026-03-25":8.066667,"2026-04-06":7.75,"2026-04-07":8.25,"2026-04-08":8.833333,"2026-04-09":8.166667,"2026-04-10":8.283333,"2026-04-13":8.116667,"2026-04-14":8.083333,"2026-04-15":8.166667,"2026-04-16":8.383333,"2026-04-17":8.183333,"2026-04-18":8.183333,"2026-04-21":8.866667,"2026-04-22":8.25,"2026-04-23":8.133333,"2026-04-24":8.133333,"2026-04-25":8.516667,"2026-04-27":8.85,"2026-04-28":8.783333,"2026-04-29":8.3,"2026-04-30":8.333333,"2026-05-04":7.916667,"2026-05-05":7.666667,"2026-05-06":8.7,"2026-05-07":7.633333,"2026-05-08":7.966667,"2026-05-11":8.166667,"2026-05-12":8.866667,"2026-05-13":8.216667,"2026-05-14":8.416667,"2026-05-15":8.216667,"2026-05-16":8.5,"2026-05-19":7.883333,"2026-05-20":7.716667,"2026-05-21":7.766667,"2026-05-22":8.3,"2026-05-23":7.566667,"2026-05-25":8.133333,"2026-05-26":8.1,"2026-05-27":8.233333,"2026-05-28":8.133333,"2026-05-29":6.316667,"2026-05-30":7.816667,"2026-06-01":8.25,"2026-06-02":7.616667,"2026-06-03":7.733333,"2026-06-05":7.716667,"2026-06-08":7.633333,"2026-06-09":7.65,"2026-06-10":7.816667,"2026-06-11":8.166667,"2026-06-12":7.766667,"2026-06-13":7.783333,"2026-06-16":7.7,"2026-06-17":7.716667,"2026-06-18":7.65,"2026-06-19":7.566667,"2026-06-20":7.583333,"2026-06-22":7.716667,"2026-06-23":7.55},"PILAR":{"2026-03-02":4.116667,"2026-03-03":4.183333,"2026-03-04":4.2,"2026-03-05":4.133333,"2026-03-06":4.366667,"2026-03-09":4.3,"2026-03-10":4.183333,"2026-03-11":6.15,"2026-03-12":4.166667,"2026-03-13":6.183333,"2026-03-16":4.2,"2026-03-17":4.15,"2026-03-18":4.15,"2026-03-19":4.133333,"2026-03-20":4.133333,"2026-03-23":4.2,"2026-03-24":4.166667,"2026-03-25":4.15,"2026-03-26":4.1,"2026-03-27":4.2,"2026-03-30":4.216667,"2026-03-31":4.166667,"2026-04-01":4.183333,"2026-04-07":4.166667,"2026-04-08":4.2,"2026-04-09":4.183333,"2026-04-13":4.15,"2026-04-14":4.133333,"2026-04-15":4.116667,"2026-04-16":4.133333,"2026-04-17":4.283333,"2026-04-20":4.183333,"2026-04-21":4.2,"2026-04-22":4.1,"2026-04-23":4.216667,"2026-04-24":4.216667,"2026-04-27":4.183333,"2026-04-28":4.25,"2026-04-29":4.183333,"2026-04-30":4.066667,"2026-05-04":4.15,"2026-05-05":4.166667,"2026-05-06":4.233333,"2026-05-07":4.216667,"2026-05-08":4.05,"2026-05-11":3.666667,"2026-05-12":4.183333,"2026-05-13":4.15,"2026-05-14":4.15,"2026-05-15":4.2,"2026-05-18":4.1,"2026-05-19":4.233333,"2026-05-20":4.183333,"2026-06-01":4.183333,"2026-06-02":4.116667,"2026-06-03":4.183333,"2026-06-05":4.15,"2026-06-08":4.25,"2026-06-09":4.2,"2026-06-10":4.166667,"2026-06-11":4.183333,"2026-06-12":4.2,"2026-06-15":4.166667,"2026-06-16":4.116667,"2026-06-17":4.283333,"2026-06-18":4.116667,"2026-06-19":4.183333,"2026-06-22":4.183333,"2026-06-23":4.016667},"RAFAEL":{"2026-03-02":6.966667,"2026-03-03":7.05,"2026-03-04":7.05,"2026-03-05":7.05,"2026-03-06":7.15,"2026-03-07":7.066667,"2026-03-09":7.566667,"2026-03-10":7.566667,"2026-03-11":7.616667,"2026-03-12":11.05,"2026-03-13":7.55,"2026-03-14":7.683333,"2026-03-16":7.616667,"2026-03-17":7.55,"2026-03-18":7.616667,"2026-03-19":7.55,"2026-03-20":7.55,"2026-03-23":7.566667,"2026-03-24":7.616667,"2026-03-25":11.066667,"2026-03-26":7.583333,"2026-03-27":7.583333,"2026-03-28":7.566667,"2026-03-31":7.55,"2026-04-01":7.566667,"2026-04-04":7.533333,"2026-04-06":11.066667,"2026-04-07":7.533333,"2026-04-08":7.566667,"2026-04-09":11.083333,"2026-04-10":7.683333,"2026-04-15":7.533333,"2026-04-16":7.38,"2026-04-20":7.566667,"2026-04-21":7.566667,"2026-04-22":7.6,"2026-05-04":7.8,"2026-05-18":7.6,"2026-05-19":7.533333,"2026-05-20":7.6,"2026-05-21":7.616667,"2026-05-22":7.716667,"2026-05-26":7.866667,"2026-05-29":8.083333,"2026-06-02":7.583333,"2026-06-03":7.633333,"2026-06-05":7.633333,"2026-06-06":7.566667,"2026-06-08":7.566667,"2026-06-09":7.583333,"2026-06-10":7.55,"2026-06-11":7.533333,"2026-06-12":7.616667,"2026-06-13":7.55,"2026-06-22":7.516667,"2026-06-23":7.583333}},"omnicanal":{"ANA PILAR":{"2026-03-02":7.15,"2026-03-03":7.033333,"2026-03-04":7.066667,"2026-03-05":7.066667,"2026-03-06":7.066667,"2026-03-07":10.033333,"2026-03-09":7.566667,"2026-03-10":7.55,"2026-03-11":7.516667,"2026-03-12":7.566667,"2026-03-13":7.583333,"2026-03-14":7.55,"2026-03-17":7.533333,"2026-03-19":7.533333,"2026-03-20":7.533333,"2026-03-21":7.516667,"2026-03-23":7.566667,"2026-03-24":7.566667,"2026-03-25":7.6,"2026-03-26":7.533333,"2026-03-27":7.566667,"2026-03-31":7.533333,"2026-04-01":7.55,"2026-04-04":7.633333,"2026-04-07":7.55,"2026-04-08":7.55,"2026-04-09":7.533333,"2026-04-10":7.55,"2026-04-11":7.533333,"2026-04-14":7.566667,"2026-04-15":7.55,"2026-04-16":7.55,"2026-04-17":7.533333,"2026-04-18":7.55,"2026-04-20":7.616667,"2026-04-21":7.55,"2026-04-22":7.583333,"2026-04-23":7.633333,"2026-04-24":7.533333,"2026-04-25":7.533333,"2026-04-28":7.533333,"2026-04-29":7.566667,"2026-04-30":7.55,"2026-05-04":7.433333,"2026-05-12":6.116667,"2026-05-13":6.1,"2026-05-14":6.1,"2026-05-18":6.05,"2026-05-19":6.566667,"2026-05-20":6.583333,"2026-05-21":6.683333,"2026-05-22":7.433333,"2026-05-23":7.483333,"2026-05-26":7.566667,"2026-05-27":7.566667,"2026-05-28":7.583333,"2026-05-29":7.566667,"2026-06-15":7.266667,"2026-06-16":7.333333,"2026-06-17":7.233333,"2026-06-18":7.25,"2026-06-19":7.25,"2026-06-20":7.233333,"2026-06-22":7.066667,"2026-06-23":7.083333},"ANTONIO":{"2026-03-04":9.05,"2026-03-05":9.05,"2026-03-06":9.133333,"2026-03-07":9.016667,"2026-03-11":9.083333,"2026-03-12":10.1,"2026-03-13":9.066667,"2026-03-19":10.066667,"2026-03-20":9.166667,"2026-03-21":10.066667,"2026-03-28":10.1,"2026-04-02":11.25,"2026-04-04":4.233333,"2026-04-06":11.183333,"2026-04-08":9.016667,"2026-04-09":10.066667,"2026-04-16":10.05,"2026-04-18":10.066667,"2026-05-07":9.05,"2026-05-09":9.116667,"2026-05-16":10.083333,"2026-05-28":10.116667,"2026-06-05":9.05,"2026-06-06":9.216667,"2026-06-11":9.25,"2026-06-13":9.15,"2026-06-20":9.266667},"EDUARDO":{"2026-03-02":4.916667,"2026-03-03":5.566667,"2026-03-04":4.433333,"2026-03-05":5.433333,"2026-03-06":3.05,"2026-03-09":4.666667,"2026-03-11":3.2,"2026-03-12":4.916667,"2026-03-16":3.483333,"2026-03-17":1.9,"2026-03-18":3.25,"2026-03-19":2.866667,"2026-03-23":3.333333,"2026-03-24":2.816667,"2026-03-25":4.916667,"2026-03-26":2.683333,"2026-03-31":3.166667,"2026-04-06":6.1,"2026-04-07":5.05,"2026-04-08":3.85,"2026-04-09":3.316667,"2026-04-10":2.733333,"2026-04-14":4.083333,"2026-04-15":3.55,"2026-04-20":4.3,"2026-04-21":4.516667,"2026-04-22":5.266667,"2026-04-23":4.466667,"2026-05-04":4.933333,"2026-05-05":4.0,"2026-05-06":5.516667,"2026-05-07":3.633333,"2026-05-11":5.633333,"2026-05-12":3.0,"2026-05-13":2.316667,"2026-05-18":5.133333,"2026-06-01":5.65,"2026-06-02":3.0,"2026-06-03":3.9,"2026-06-05":4.033333,"2026-06-08":3.116667,"2026-06-09":3.25,"2026-06-10":2.85,"2026-06-11":4.483333,"2026-06-12":1.983333,"2026-06-22":3.05,"2026-06-23":1.183333},"INMACULADA":{"2026-03-02":9.116667,"2026-03-03":6.1,"2026-03-09":6.016667,"2026-03-10":6.216667,"2026-03-16":6.15,"2026-03-17":6.066667,"2026-03-18":6.033333,"2026-03-19":6.166667,"2026-03-20":6.016667,"2026-03-21":6.283333,"2026-03-23":6.116667,"2026-03-24":6.2,"2026-03-25":6.066667,"2026-03-27":6.15,"2026-03-28":11.033333,"2026-03-30":6.033333,"2026-03-31":6.133333,"2026-04-01":6.116667,"2026-04-04":6.033333,"2026-04-06":11.0,"2026-04-08":6.133333,"2026-04-11":6.116667,"2026-04-13":6.083333,"2026-04-14":6.066667,"2026-04-15":6.05,"2026-04-16":6.1,"2026-04-17":6.083333,"2026-04-18":6.166667,"2026-04-20":6.2,"2026-04-21":6.266667,"2026-04-23":6.166667,"2026-04-27":6.116667,"2026-04-28":6.116667,"2026-04-29":6.033333,"2026-04-30":6.25,"2026-05-18":6.15,"2026-05-19":6.116667,"2026-05-20":6.233333,"2026-05-21":6.166667,"2026-05-22":6.2,"2026-05-23":6.183333,"2026-05-25":6.896667,"2026-05-26":6.913333,"2026-05-27":6.863333,"2026-05-28":6.98,"2026-05-29":6.913333,"2026-05-30":6.913333,"2026-06-01":6.1,"2026-06-02":6.033333,"2026-06-03":6.2,"2026-06-05":6.216667,"2026-06-06":6.216667,"2026-06-08":6.2,"2026-06-09":6.15,"2026-06-10":6.716667,"2026-06-11":6.133333,"2026-06-12":6.15,"2026-06-15":6.216667,"2026-06-16":6.183333,"2026-06-17":6.266667,"2026-06-18":6.166667,"2026-06-19":6.433333,"2026-06-20":6.216667,"2026-06-22":6.0,"2026-06-23":6.133333},"IRENE":{"2026-03-09":6.233333,"2026-03-10":5.95,"2026-03-11":5.95,"2026-03-12":6.05,"2026-03-13":6.0,"2026-03-14":6.066667,"2026-03-20":6.5,"2026-04-07":4.1,"2026-04-08":4.2,"2026-04-09":4.216667,"2026-04-10":4.2,"2026-04-11":4.116667,"2026-04-15":3.95,"2026-04-18":3.766667,"2026-04-20":4.033333,"2026-04-21":4.016667,"2026-04-22":4.133333,"2026-05-04":6.916667,"2026-05-05":6.833333,"2026-05-06":6.9,"2026-05-07":6.833333,"2026-05-08":6.866667,"2026-05-09":6.45,"2026-05-11":1.916667,"2026-05-12":6.083333,"2026-05-13":5.983333,"2026-05-14":6.1,"2026-05-15":6.066667,"2026-05-16":6.033333,"2026-05-19":5.9,"2026-05-20":6.366667,"2026-05-21":6.416667,"2026-05-22":5.833333,"2026-05-23":5.916667,"2026-05-27":6.733333,"2026-05-28":6.65,"2026-05-30":6.0,"2026-06-01":6.133333,"2026-06-02":6.45,"2026-06-03":6.05,"2026-06-05":5.95,"2026-06-06":6.083333,"2026-06-08":6.066667,"2026-06-09":5.833333,"2026-06-10":5.9,"2026-06-11":5.933333,"2026-06-12":6.166667,"2026-06-13":6.05,"2026-06-15":6.0,"2026-06-16":6.016667,"2026-06-17":6.083333,"2026-06-18":6.266667,"2026-06-22":6.2,"2026-06-23":6.033333},"ISABEL":{"2026-03-02":4.25,"2026-03-03":4.183333,"2026-03-04":4.233333,"2026-03-05":4.0,"2026-03-06":4.133333,"2026-03-07":3.983333,"2026-03-10":4.083333,"2026-03-11":4.133333,"2026-03-12":4.166667,"2026-03-13":4.2,"2026-03-14":4.133333,"2026-03-16":4.15,"2026-03-17":4.116667,"2026-03-19":4.033333,"2026-03-20":4.1,"2026-03-21":4.116667,"2026-03-23":4.116667,"2026-03-24":4.15,"2026-03-25":4.183333,"2026-03-26":4.15,"2026-03-27":4.15,"2026-03-28":4.216667,"2026-03-31":4.15,"2026-04-02":10.166667,"2026-04-04":4.133333,"2026-04-07":4.15,"2026-04-08":4.15,"2026-04-09":4.133333,"2026-04-10":4.216667,"2026-04-13":4.133333,"2026-04-14":4.083333,"2026-04-15":4.083333,"2026-04-16":4.116667,"2026-04-17":4.15,"2026-04-18":4.166667,"2026-04-20":4.15,"2026-04-21":4.233333,"2026-04-22":4.166667,"2026-04-23":4.2,"2026-04-24":4.233333,"2026-04-25":4.116667,"2026-05-05":4.333333,"2026-05-06":4.15,"2026-05-07":4.216667,"2026-05-08":4.15,"2026-05-12":4.15,"2026-05-13":4.1,"2026-05-18":4.266667,"2026-05-19":4.266667,"2026-05-20":4.216667,"2026-05-21":4.166667,"2026-05-22":4.133333,"2026-05-23":4.183333,"2026-05-26":4.116667,"2026-05-27":4.116667,"2026-05-29":4.15,"2026-05-30":4.133333,"2026-06-01":4.166667,"2026-06-02":4.2,"2026-06-03":4.166667,"2026-06-05":4.183333,"2026-06-08":4.166667,"2026-06-09":4.183333,"2026-06-11":4.066667,"2026-06-12":4.166667,"2026-06-13":4.133333},"JAVIER":{"2026-03-03":7.566667,"2026-03-07":7.6,"2026-03-09":7.616667,"2026-03-10":7.55,"2026-03-11":7.55,"2026-03-12":7.516667,"2026-03-13":7.533333,"2026-03-16":7.566667,"2026-03-17":7.616667,"2026-03-19":7.583333,"2026-03-20":7.566667,"2026-03-21":7.616667,"2026-03-23":7.683333,"2026-03-24":7.55,"2026-03-25":7.716667,"2026-03-26":7.566667,"2026-03-27":7.6,"2026-03-28":7.533333,"2026-03-31":7.55,"2026-04-02":11.133333,"2026-04-04":7.55,"2026-04-08":7.533333,"2026-04-09":7.6,"2026-04-10":7.55,"2026-04-11":7.6,"2026-04-13":7.583333,"2026-04-14":7.6,"2026-04-16":7.6,"2026-04-17":7.566667,"2026-04-18":7.583333,"2026-04-20":7.583333,"2026-04-21":7.716667,"2026-04-22":7.633333,"2026-04-23":7.616667,"2026-04-24":7.533333,"2026-04-25":7.533333,"2026-04-27":7.7,"2026-04-28":7.616667,"2026-04-29":7.616667,"2026-04-30":7.533333,"2026-05-04":7.366667,"2026-05-05":7.466667,"2026-05-06":7.416667,"2026-05-07":7.45,"2026-05-08":7.4,"2026-05-12":7.583333,"2026-05-13":7.566667,"2026-05-16":7.6,"2026-05-18":7.433333,"2026-05-19":7.416667,"2026-05-20":7.45,"2026-06-02":7.833333,"2026-06-03":7.75,"2026-06-05":7.783333,"2026-06-06":7.783333,"2026-06-08":7.133333,"2026-06-09":7.083333,"2026-06-10":7.016667,"2026-06-11":7.05,"2026-06-12":7.016667,"2026-06-13":7.066667,"2026-06-15":7.25,"2026-06-16":7.383333,"2026-06-17":7.316667,"2026-06-18":7.3,"2026-06-19":7.316667,"2026-06-20":7.266667,"2026-06-22":7.166667,"2026-06-23":7.15},"JUAN F.":{"2026-03-02":9.066667,"2026-03-03":9.25,"2026-03-04":9.1,"2026-03-05":9.1,"2026-03-07":9.05,"2026-03-09":9.0,"2026-03-10":8.2,"2026-03-12":1.516667,"2026-03-13":8.016666,"2026-03-14":7.716667,"2026-03-16":9.033333,"2026-03-17":9.083333,"2026-03-18":8.983333,"2026-03-20":9.05,"2026-03-21":7.85,"2026-03-23":9.116667,"2026-03-24":9.05,"2026-03-25":9.133333,"2026-03-27":9.0,"2026-03-28":7.866667,"2026-03-30":9.033333,"2026-03-31":9.05,"2026-04-06":11.033333,"2026-04-08":9.333333,"2026-04-11":7.783333,"2026-04-25":8.166667,"2026-05-02":7.75,"2026-05-05":9.166667,"2026-05-06":9.083333,"2026-05-08":7.4,"2026-05-09":2.05,"2026-05-19":7.45,"2026-05-20":7.283333,"2026-05-22":7.183333,"2026-05-23":7.283333,"2026-05-25":7.333333,"2026-05-26":7.316667,"2026-05-27":7.316667,"2026-05-29":7.35,"2026-06-01":7.25,"2026-06-02":7.333333,"2026-06-03":7.283333,"2026-06-05":7.433333,"2026-06-06":7.266667,"2026-06-09":7.316667,"2026-06-15":4.116667,"2026-06-16":4.033333,"2026-06-17":4.033333,"2026-06-18":4.333333,"2026-06-19":4.166667,"2026-06-22":4.016667,"2026-06-23":4.0},"JULIO":{"2026-03-02":9.05,"2026-03-03":9.983333,"2026-03-04":9.266667,"2026-03-06":10.383333,"2026-03-07":10.266667,"2026-03-26":9.166667,"2026-03-30":9.133333,"2026-03-31":11.066667,"2026-04-01":9.0,"2026-04-02":11.183333,"2026-04-04":11.383333,"2026-04-06":11.35,"2026-04-28":11.016667,"2026-05-02":11.183333,"2026-05-16":11.2,"2026-05-22":10.766667,"2026-05-23":10.083333,"2026-05-29":11.1},"M. CORTES":{"2026-03-02":5.7,"2026-03-03":5.75,"2026-03-04":5.566667,"2026-03-05":5.5,"2026-03-06":5.566667,"2026-03-07":5.55,"2026-03-09":5.65,"2026-03-16":5.716667,"2026-03-17":5.633333,"2026-03-18":5.583333,"2026-03-19":5.583333,"2026-03-20":5.55,"2026-03-21":5.666667,"2026-03-23":5.583333,"2026-03-24":5.616667,"2026-04-07":5.583333,"2026-04-08":5.6,"2026-04-09":5.6,"2026-04-10":5.783333,"2026-04-11":5.5,"2026-04-13":5.533333,"2026-04-14":5.666667,"2026-04-15":5.583333,"2026-04-16":5.65,"2026-04-17":5.683333,"2026-04-18":5.533333,"2026-04-20":5.8,"2026-04-22":5.6,"2026-04-23":5.533333,"2026-04-24":5.7,"2026-04-27":5.683333,"2026-04-28":5.616667,"2026-04-29":5.616667,"2026-04-30":1.5,"2026-05-02":5.533333,"2026-05-04":5.616667,"2026-05-05":5.6,"2026-05-06":5.65,"2026-05-07":5.683333,"2026-05-08":5.633333,"2026-05-09":5.566667,"2026-05-11":5.566667,"2026-05-12":5.633333,"2026-05-13":5.666667,"2026-05-14":5.75,"2026-05-15":5.533333,"2026-05-16":5.583333,"2026-05-18":5.25,"2026-05-19":5.533333,"2026-05-20":5.566667,"2026-05-21":5.6,"2026-05-22":5.6,"2026-05-23":5.666667,"2026-05-25":5.7,"2026-05-26":5.566667,"2026-05-27":3.283333,"2026-05-28":5.766667,"2026-05-29":5.766667,"2026-05-30":5.516667,"2026-06-02":5.6,"2026-06-03":5.65,"2026-06-05":5.633333,"2026-06-06":5.533333,"2026-06-08":5.716667,"2026-06-09":5.55,"2026-06-10":5.633333,"2026-06-11":5.616667,"2026-06-12":5.633333,"2026-06-13":5.566667,"2026-06-15":5.666667,"2026-06-16":5.616667,"2026-06-17":5.533333,"2026-06-18":5.483333,"2026-06-19":5.566667},"M. VICTORIA":{"2026-03-02":4.65,"2026-03-03":4.666667,"2026-03-04":4.616667,"2026-03-05":4.65,"2026-03-06":4.633333,"2026-03-07":4.45,"2026-03-09":4.683333,"2026-03-10":4.733333,"2026-03-11":4.7,"2026-03-12":4.633333,"2026-03-13":4.55,"2026-03-14":4.65,"2026-03-16":4.633333,"2026-03-17":4.583333,"2026-03-18":4.65,"2026-03-19":4.533333,"2026-03-20":4.6,"2026-03-21":4.716667,"2026-03-23":4.65,"2026-03-24":4.666667,"2026-03-25":4.666667,"2026-03-26":4.65,"2026-03-27":4.65,"2026-03-30":4.566667,"2026-03-31":4.483333,"2026-04-01":4.516667,"2026-04-02":4.616667,"2026-04-04":4.55,"2026-04-06":4.583333,"2026-04-07":4.583333,"2026-04-08":4.616667,"2026-04-09":4.516667,"2026-04-10":4.65,"2026-04-13":4.65,"2026-04-14":4.516667,"2026-04-21":4.65,"2026-04-22":4.683333,"2026-04-23":4.633333,"2026-04-24":4.7,"2026-04-25":4.616667,"2026-04-27":4.55,"2026-04-28":4.6,"2026-04-29":4.633333,"2026-04-30":4.633333,"2026-05-04":4.583333,"2026-05-05":4.483333,"2026-05-06":4.6,"2026-05-25":4.733333,"2026-05-26":4.55,"2026-05-27":4.65,"2026-05-28":4.55,"2026-05-29":4.583333,"2026-05-30":4.566667,"2026-06-01":4.7,"2026-06-08":4.7,"2026-06-09":4.616667,"2026-06-10":4.65,"2026-06-11":4.683333,"2026-06-12":4.683333,"2026-06-13":4.683333,"2026-06-16":4.6,"2026-06-17":2.85,"2026-06-18":4.566667,"2026-06-19":4.35,"2026-06-20":4.733333,"2026-06-22":4.55},"PILAR":{"2026-03-02":4.316667,"2026-03-03":4.35,"2026-03-04":4.4,"2026-03-05":4.383333,"2026-03-06":4.266667,"2026-03-07":4.333333,"2026-03-09":4.316667,"2026-03-10":4.25,"2026-03-11":4.316667,"2026-03-12":4.316667,"2026-03-13":4.316667,"2026-03-16":4.3,"2026-03-18":4.266667,"2026-03-19":4.283333,"2026-03-20":4.3,"2026-03-21":4.3,"2026-03-23":4.25,"2026-03-24":4.316667,"2026-03-25":4.35,"2026-03-26":4.333333,"2026-03-27":4.283333,"2026-03-28":4.216667,"2026-03-30":4.333333,"2026-03-31":4.333333,"2026-04-01":4.583333,"2026-04-06":4.266667,"2026-04-07":4.333333,"2026-04-08":4.266667,"2026-04-09":4.3,"2026-04-10":4.216667,"2026-04-11":4.4,"2026-04-13":4.316667,"2026-04-14":4.283333,"2026-04-15":4.333333,"2026-04-16":4.35,"2026-04-17":4.333333,"2026-04-20":4.366667,"2026-04-21":4.333333,"2026-04-23":4.333333,"2026-04-24":4.283333,"2026-04-25":4.283333,"2026-04-27":4.333333,"2026-04-28":4.283333,"2026-04-29":4.266667,"2026-05-04":4.35,"2026-05-05":4.266667,"2026-05-06":4.266667,"2026-05-07":4.333333,"2026-05-08":4.35,"2026-05-11":4.316667,"2026-06-01":4.316667,"2026-06-02":3.083333,"2026-06-03":4.333333,"2026-06-08":4.266667,"2026-06-15":4.3,"2026-06-16":4.266667,"2026-06-17":4.25,"2026-06-18":4.266667,"2026-06-19":4.383333,"2026-06-20":4.283333,"2026-06-22":4.333333},"RAMON":{"2026-03-03":7.033333,"2026-03-04":7.833333,"2026-03-05":7.016667,"2026-03-06":7.016667,"2026-03-07":7.033333,"2026-03-16":7.566667,"2026-03-17":7.733333,"2026-03-18":7.616667,"2026-03-19":7.566667,"2026-03-20":7.566667,"2026-03-30":7.516667,"2026-03-31":7.55,"2026-04-01":7.516667,"2026-04-06":11.366667,"2026-04-25":7.55,"2026-04-28":7.583333,"2026-04-29":7.65,"2026-04-30":7.75,"2026-05-02":7.833333,"2026-05-04":7.033333,"2026-05-05":6.95,"2026-05-06":7.033333,"2026-05-07":6.883333,"2026-05-08":6.983333,"2026-05-09":7.066667,"2026-05-11":7.916667,"2026-05-12":7.866667,"2026-05-13":8.066667,"2026-05-14":8.183333,"2026-05-15":8.166667,"2026-05-16":7.833333,"2026-05-18":7.1,"2026-05-19":7.0,"2026-05-20":7.0,"2026-05-21":6.983333,"2026-05-22":6.866667,"2026-05-23":6.933333,"2026-05-25":7.85,"2026-05-26":7.9,"2026-05-27":7.866667,"2026-05-28":8.15,"2026-05-29":7.816667,"2026-06-01":6.933333,"2026-06-02":6.966667,"2026-06-03":7.016667,"2026-06-05":6.933333,"2026-06-06":6.866667,"2026-06-08":7.35,"2026-06-09":7.333333,"2026-06-10":7.166667,"2026-06-11":7.183333,"2026-06-12":7.166667,"2026-06-13":7.216667,"2026-06-15":7.0,"2026-06-16":6.9,"2026-06-17":6.966667,"2026-06-18":6.983333,"2026-06-19":7.083333,"2026-06-20":6.95,"2026-06-22":7.316667,"2026-06-23":7.783333},"ROSARIO":{"2026-03-02":7.05,"2026-03-03":7.016667,"2026-03-04":6.95,"2026-03-05":6.933333,"2026-03-06":6.95,"2026-03-07":6.966667,"2026-03-26":7.633333,"2026-03-27":7.733333,"2026-03-28":7.516667,"2026-04-02":11.033333,"2026-04-07":7.366667,"2026-04-08":7.75,"2026-04-09":7.566667,"2026-04-11":7.516667,"2026-04-20":7.483333,"2026-04-21":6.316667,"2026-04-22":7.75,"2026-04-23":7.616667,"2026-04-24":7.816667,"2026-04-25":7.7,"2026-05-04":7.4,"2026-05-05":7.433333,"2026-05-06":7.533333,"2026-05-08":7.666667,"2026-05-18":7.416667,"2026-05-19":7.433333,"2026-05-20":7.3,"2026-05-21":7.15,"2026-05-30":3.5,"2026-06-01":6.266666,"2026-06-02":6.916666,"2026-06-08":6.933333,"2026-06-09":6.533333,"2026-06-10":7.016667,"2026-06-11":7.066667,"2026-06-15":7.266667,"2026-06-16":7.25,"2026-06-17":7.466667,"2026-06-18":6.983333,"2026-06-19":7.416667,"2026-06-20":7.183333,"2026-06-22":7.0}},"operaciones":{"CARLOS":{"2026-03-02":6.233333,"2026-03-03":6.116667,"2026-03-04":6.166667,"2026-03-09":6.583333,"2026-03-10":6.35,"2026-03-11":5.583333,"2026-03-12":4.633333,"2026-03-16":6.566667,"2026-03-17":6.516667,"2026-03-18":5.616667,"2026-03-19":5.6,"2026-03-20":5.633333,"2026-03-21":6.9,"2026-04-07":6.583333,"2026-04-08":5.633333,"2026-04-09":5.616667,"2026-04-10":5.816667,"2026-04-13":6.716667,"2026-04-14":6.583333,"2026-04-15":5.6,"2026-04-16":5.716667,"2026-04-17":5.75,"2026-04-18":8.133333,"2026-04-20":8.316667,"2026-04-21":8.063333,"2026-04-22":7.996667,"2026-04-23":7.05,"2026-04-24":8.146667,"2026-04-25":8.646667,"2026-04-27":7.996667,"2026-04-28":8.063333,"2026-04-29":8.096667,"2026-04-30":6.983333,"2026-05-02":7.746667,"2026-05-04":7.566667,"2026-05-05":7.716667,"2026-05-06":8.066667,"2026-05-07":6.883333,"2026-05-08":7.75,"2026-05-09":8.583333,"2026-05-11":8.163333,"2026-05-12":8.113333,"2026-05-13":8.413333,"2026-05-14":7.016667,"2026-05-15":8.33,"2026-05-18":7.666667,"2026-05-19":7.85,"2026-05-20":7.7,"2026-05-21":5.583333,"2026-05-22":7.716667,"2026-05-23":7.816667,"2026-05-26":7.98,"2026-05-27":8.113333,"2026-05-28":5.75,"2026-05-29":7.83,"2026-05-30":8.23,"2026-06-01":8.0,"2026-06-02":7.85,"2026-06-03":7.783333,"2026-06-05":7.7,"2026-06-06":7.833333,"2026-06-08":7.666667,"2026-06-09":7.583333,"2026-06-10":7.733333,"2026-06-11":5.633333,"2026-06-12":7.933333,"2026-06-23":7.9},"ELENA":{"2026-03-02":6.1,"2026-03-03":4.566667,"2026-03-05":6.066667,"2026-03-06":6.166667,"2026-03-07":6.1,"2026-03-09":6.016667,"2026-03-10":6.583333,"2026-03-11":6.15,"2026-03-25":6.333333,"2026-03-26":6.25,"2026-03-27":6.516667,"2026-03-28":6.5,"2026-03-30":6.05,"2026-03-31":6.033333,"2026-04-01":5.55,"2026-04-07":6.25,"2026-04-08":6.433333,"2026-04-09":6.2,"2026-04-10":6.383333,"2026-04-11":6.266667,"2026-04-14":6.016667,"2026-04-15":6.0,"2026-04-20":6.416667,"2026-04-21":6.65,"2026-04-22":6.316667,"2026-04-23":6.6,"2026-04-24":6.533333,"2026-04-25":6.733333,"2026-04-29":6.116667,"2026-05-04":7.35,"2026-05-05":7.133333,"2026-05-06":7.2,"2026-05-07":7.1,"2026-05-08":7.15,"2026-05-09":7.166667,"2026-05-11":7.583333,"2026-05-12":7.85,"2026-05-13":7.866667,"2026-05-14":8.583333,"2026-05-15":8.283333,"2026-05-18":7.283333,"2026-05-19":7.216667,"2026-05-21":7.416667,"2026-05-22":7.233333,"2026-05-23":7.083333,"2026-05-26":9.366667,"2026-05-29":8.116667,"2026-05-30":7.666667,"2026-06-02":7.583333,"2026-06-03":7.566667,"2026-06-09":8.216667,"2026-06-10":7.716667,"2026-06-11":6.616667,"2026-06-12":7.6,"2026-06-13":7.766667,"2026-06-16":7.216667,"2026-06-17":7.516667,"2026-06-18":10.516667,"2026-06-19":7.233333,"2026-06-22":7.35},"MIRELLA":{"2026-03-02":8.016667,"2026-03-03":7.966667,"2026-03-04":8.0,"2026-03-05":8.0,"2026-03-06":8.066667,"2026-03-09":8.396667,"2026-03-10":8.18,"2026-03-11":8.363333,"2026-03-12":8.463333,"2026-03-13":8.346667,"2026-03-16":8.43,"2026-03-17":8.313333,"2026-03-18":8.346667,"2026-03-19":7.630001,"2026-03-20":7.346667,"2026-03-23":8.396667,"2026-03-24":8.48,"2026-03-25":8.463333,"2026-03-26":8.43,"2026-03-27":8.396667,"2026-03-30":8.296667,"2026-03-31":8.48,"2026-04-01":8.463333,"2026-04-07":8.463333,"2026-04-08":8.496667,"2026-04-09":8.38,"2026-04-10":8.296667,"2026-04-13":8.296667,"2026-04-14":8.446667,"2026-04-15":8.38,"2026-04-16":8.48,"2026-04-17":8.346667,"2026-04-20":8.43,"2026-04-21":8.446667,"2026-04-22":8.346667,"2026-04-23":8.363333,"2026-04-24":8.38,"2026-04-27":8.363333,"2026-04-28":8.33,"2026-04-29":8.296667,"2026-04-30":8.33,"2026-05-04":7.95,"2026-05-05":8.116667,"2026-05-06":8.033333,"2026-05-07":8.0,"2026-05-08":8.033333,"2026-05-11":8.296667,"2026-05-12":8.313333,"2026-05-13":8.363333,"2026-05-14":8.346667,"2026-05-15":8.43,"2026-05-18":8.016667,"2026-05-19":8.0,"2026-05-20":8.0,"2026-05-21":8.0,"2026-05-22":7.983333,"2026-05-25":8.313333,"2026-05-26":8.43,"2026-05-27":8.33,"2026-05-28":8.363333,"2026-05-29":3.763333,"2026-06-01":7.983333,"2026-06-02":8.133333,"2026-06-03":8.0,"2026-06-05":7.95,"2026-06-08":8.083333,"2026-06-09":8.033333,"2026-06-10":8.016667,"2026-06-11":7.966667,"2026-06-12":5.533333,"2026-06-15":7.916667,"2026-06-16":8.05,"2026-06-17":8.05,"2026-06-18":8.016667,"2026-06-19":8.0,"2026-06-22":7.566667,"2026-06-23":8.0},"VICENTE":{"2026-03-02":7.4,"2026-03-04":7.366667,"2026-03-05":7.4,"2026-03-06":6.933333,"2026-03-07":7.05,"2026-03-23":7.616667,"2026-03-24":7.783333,"2026-03-25":7.433333,"2026-03-26":7.633333,"2026-03-27":8.233333,"2026-03-30":8.166667,"2026-03-31":8.5,"2026-04-01":7.733333,"2026-04-02":9.683333,"2026-04-04":8.85,"2026-04-10":3.133333,"2026-04-27":8.083333,"2026-04-28":7.683333,"2026-04-29":8.066667,"2026-04-30":8.316667,"2026-05-04":6.916667,"2026-05-05":7.016667,"2026-05-06":7.116667,"2026-06-02":7.3,"2026-06-03":7.25,"2026-06-05":7.033333,"2026-06-06":10.066667,"2026-06-08":4.866667,"2026-06-22":9.983333,"2026-06-23":9.216667}}};
+
+// Helper: horas reales de un empleado en una fecha concreta
+function fReal(dept, empName, dsStr) {
+  return (FICHAJE_REAL[dept] && FICHAJE_REAL[dept][empName] && FICHAJE_REAL[dept][empName][dsStr] != null)
+    ? FICHAJE_REAL[dept][empName][dsStr] : null;
+}
+// Helper: horas reales totales de una semana (devuelve null si no hay datos)
+function fRealWeek(dept, empName, ws) {
+  let tot = 0, hasDat = false;
+  for(let i=0;i<7;i++){
+    const dd = new Date(ws.getTime() + i*86400000);
+    const h = fReal(dept, empName, dsFromDate(dd));
+    if(h !== null) { tot += h; hasDat = true; }
+  }
+  return hasDat ? Math.round(tot*10)/10 : null;
+}
+// Helper: horas reales totales de un mes
+function fRealMonth(dept, empName, y, m) {
+  let tot = 0, hasDat = false;
+  const days = daysInMonth(y, m);
+  for(let d=1;d<=days;d++){
+    const h = fReal(dept, empName, ds(y,m,d));
+    if(h !== null) { tot += h; hasDat = true; }
+  }
+  return hasDat ? Math.round(tot*10)/10 : null;
+}
+// Helper: horas reales totales de un rango de fechas
+function fRealRange(dept, empName, startDs, endDs) {
+  const d0 = new Date(startDs), d1 = new Date(endDs);
+  let tot = 0, hasDat = false;
+  for(let dd=new Date(d0); dd<=d1; dd.setDate(dd.getDate()+1)){
+    const h = fReal(dept, empName, dsFromDate(dd));
+    if(h !== null) { tot += h; hasDat = true; }
+  }
+  return hasDat ? Math.round(tot*10)/10 : null;
+}
+
 
 function renderPlantilla(){
   const estable   = OMNICANAL_PLANTILLA.filter(e=>e.tipo==='estable');
@@ -3977,7 +4150,7 @@ function renderEstudio(){
   function calcFTE(ds){
     const codes = DEPTS.omnicanal.raw[ds]||[];
     const EXCLUDE   = new Set(['SPS','--']);
-    const REFUERZO  = new Set([9,10,11,14,15,20,21]); // Julio,Antonio,JuanFran,Arancha,Refuerzo,Rocío,Juan
+    const REFUERZO  = new Set([9,10,11,14,15,20,21]); // Julio,Antonio,JuanFran,Rosario,Refuerzo,Rocío,Juan
     const DISCO_EMP = new Set([16,17,18,19]);           // Alba, Lucas, M.Pilar D., Cecilia
     let stable=0, refuerzo=0, disco=0;
     codes.forEach((c,i)=>{
@@ -4007,7 +4180,7 @@ function renderEstudio(){
   h+='<div style="font-size:1.05rem;font-weight:800;color:#1a237e">&#128202; Estudio de Dimensionamiento — Omnicanal</div>';
   h+='<div style="background:#e8eaf6;color:#283593;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700">15 Mayo → 30 Sept 2026</div>';
   h+='</div>';
-  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:18px">FTE Estable = plantilla base (excl. SPS) · <span style="color:#6a1b9a;font-weight:600">Refuerzo Extra: JuanFran, Antonio, Julio, Arancha, Refuerzo, Rocío, Juan</span> · <span style="color:#e65100;font-weight:600">FTE Discontinuos: Alba, Lucas, M.Pilar, Cecilia (1 Jul–15 Sep)</span></div>';
+  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:18px">FTE Estable = plantilla base (excl. SPS) · <span style="color:#6a1b9a;font-weight:600">Refuerzo Extra: JuanFran, Antonio, Julio, Rosario, Refuerzo, Rocío, Juan</span> · <span style="color:#e65100;font-weight:600">FTE Discontinuos: Alba, Lucas, M.Pilar, Cecilia (1 Jul–15 Sep)</span></div>';
 
   // Gráfico FTE Real vs FTE Óptimo (arriba del todo)
   h+='<div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px;margin-bottom:22px">';
@@ -4522,7 +4695,7 @@ const OMNI_H=[
   {fixed:[885,1320]},                // 11 Juan Fran  14:45-22:00
   {MAN:[490,930],  TAR:[900,1320]},  // 12 Ana Pilar  M 8:10-15:30 / T 15:00-22:00
   null,                              // 13 M.Aranzazu Baja larga
-  {MAN:[540,900],  TAR:[960,1320]},  // 14 Arancha    M 9:00-15:00 / T 16:00-22:00
+  {MAN:[540,900],  TAR:[960,1320]},  // 14 Rosario    M 9:00-15:00 / T 16:00-22:00
   {MAN:[570,930],  TAR:[930,1320]},  // 15 Refuerzo   M 9:30-15:30 / T 15:30-22:00
   {MAN:[540,930],  TAR:[930,1320]},  // 16 Alba       M 9:00-15:30 / T 15:30-22:00
   {MAN:[540,930],  TAR:[930,1320]},  // 17 Lucas      M 9:00-15:30 / T 15:30-22:00
@@ -5303,8 +5476,8 @@ function calcHorasDia(dept,ei,code,dsStr){
   const num=parseFloat(code);
   if(!isNaN(num)&&num>0) return num;
   const lbl=eq(code)[0];
-  if(!lbl||['LIB','VAC','BAJ','SPS','JA','--','?','FOR','PER'].includes(lbl)) return 0;
-  if(!['MAN','TAR','PAR','COM'].includes(lbl)) return 0;
+  if(!lbl||['LIB','VAC','BAJ','SPS','JA','--','?','FOR','PER','COM'].includes(lbl)) return 0;
+  if(!['MAN','TAR','PAR'].includes(lbl)) return 0;
   let rawH=0, applyBreak=true;
   if(dsStr&&_hoHas(dept,ei,dsStr)){
     const hc=_hours[_hoKey(dept,ei,dsStr)];
@@ -5361,6 +5534,7 @@ function calcResumenTrabajador(dept){
   return emps.map(function(name,ei){
     var libPast=0,libFut=0,vacPast=0,vacFut=0,festPast=0,festFut=0,compPast=0,compFut=0,perPast=0,perFut=0;
     var hAmplPast=0,hAmplFut=0,horasPast=0,horasFut=0,calPast=0,calFut=0,workDays=0;
+    var hAmplWeekMap={};  // weekKey(lunes) → nº días ampliados esa semana
     const jMax=jMaxArr[ei]||1770;
     Object.entries(raw).forEach(function(e2){
       const dsStr=e2[0],dayArr=e2[1];
@@ -5375,12 +5549,23 @@ function calcResumenTrabajador(dept){
       if(lbl==='VAC'){isPast?vacPast++:vacFut++;}
       if(lbl==='COM'){isPast?compPast++:compFut++;}
       if(lbl==='PER'){isPast?perPast++:perFut++;}
-      if(['MAN','TAR','PAR','COM'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})){isPast?festPast++:festFut++;}
-      if(['MAN','TAR','PAR','COM'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]) workDays++;
-      if(isHoraAmpliada(dept,ei,code,dsStr)){isPast?hAmplPast++:hAmplFut++;}
+      if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})){isPast?festPast++:festFut++;}
+      if(['MAN','TAR','PAR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]) workDays++;
+      if(isHoraAmpliada(dept,ei,code,dsStr)){
+        isPast?hAmplPast++:hAmplFut++;
+        // Agrupar por semana (lunes como inicio)
+        const _d=new Date(p[0],p[1]-1,p[2]);
+        const _dw2=_d.getDay()===0?6:_d.getDay()-1;
+        const _mon=new Date(_d.getTime()-_dw2*86400000);
+        const _wk=_mon.getFullYear()+'-'+String(_mon.getMonth()+1).padStart(2,'0')+'-'+String(_mon.getDate()).padStart(2,'0');
+        hAmplWeekMap[_wk]=(hAmplWeekMap[_wk]||0)+1;
+      }
       if(!FESTIVOS_CIERRE[dsStr]){const h=calcHorasDia(dept,ei,code,dsStr);isPast?horasPast+=h:horasFut+=h;}
       if(isSat&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')){isPast?calPast++:calFut++;}
     });
+    // Semanas que superan el límite de 3 días ampliados
+    const hAmplWeeksKO=Object.entries(hAmplWeekMap).filter(function(e){return e[1]>3;});
+    const hAmplMaxWeek=Object.values(hAmplWeekMap).reduce(function(a,b){return Math.max(a,b);},0);
     const hTot=Math.round((horasPast+horasFut)*10)/10;
     const diff=Math.round((hTot-jMax)*10)/10;
     // Sábados calidad: ≥150 días trabajados → 9; <150 → proporcional a horas proyectadas
@@ -5393,7 +5578,8 @@ function calcResumenTrabajador(dept){
       vac:{past:vacPast,fut:vacFut,tot:vacPast+vacFut},
       fest:{past:festPast,fut:festFut,tot:festPast+festFut},
       comp:{past:compPast,fut:compFut,tot:compPast+compFut},
-      hAmpl:{past:hAmplPast,fut:hAmplFut,tot:hAmplPast+hAmplFut},
+      hAmpl:{past:hAmplPast,fut:hAmplFut,tot:hAmplPast+hAmplFut,
+             weeksKO:hAmplWeeksKO.length,maxWeek:hAmplMaxWeek,weekMap:hAmplWeekMap},
       horas:{past:Math.round(horasPast*10)/10,fut:Math.round(horasFut*10)/10,tot:hTot,max:jMax,diff},
       cal:{past:calPast,fut:calFut,tot:calPast+calFut,obj:calObj}};
   });
@@ -5473,14 +5659,14 @@ function renderResumenTrabajador(){
   // Copiar datos ya ordenados (sort se aplica después, pero para la tabla usamos data tal cual)
   // Hacemos una copia preordenada igual que las tarjetas
   const dataSorted=data.slice().sort(function(a,b){
-    function cA(r){const d12=violByEmp[r.name]||0;return[r.horas.diff>0,r.fest.tot>0&&r.comp.tot<r.fest.tot,r.cal.obj>0&&r.cal.tot<r.cal.obj,r.hAmpl.tot>4,d12>0,r.vac.tot<r.vacMin].filter(Boolean).length;}
+    function cA(r){const d12=violByEmp[r.name]||0;return[r.horas.diff>0,r.fest.tot>0&&r.comp.tot<r.fest.tot,r.cal.obj>0&&r.cal.tot<r.cal.obj,r.hAmpl.weeksKO>0,d12>0,r.vac.tot<r.vacMin].filter(Boolean).length;}
     return cA(b)-cA(a);
   });
 
   dataSorted.forEach(function(r,i){
     const d12=violByEmp[r.name]||0;
     const aH=r.horas.diff>0, aC=r.fest.tot>0&&r.comp.tot<r.fest.tot;
-    const aCal=r.cal.obj>0&&r.cal.tot<r.cal.obj, aA=r.hAmpl.tot>4;
+    const aCal=r.cal.obj>0&&r.cal.tot<r.cal.obj, aA=r.hAmpl.weeksKO>0;
     const aD=d12>0, aV=r.vac.tot<r.vacMin;
     const nAlerts=[aH,aC,aCal,aA,aD,aV].filter(Boolean).length;
     const bg=i%2===0?'#fff':'#fafafa';
@@ -5500,7 +5686,7 @@ function renderResumenTrabajador(){
     h+=tdOK(r.horas.tot+'h');
     h+=tdNE(r.horas.max+'h');
     h+=(aH?tdAL(diffStr,'Exceso: debe compensar '+r.horas.diff+'h'):tdOK(diffStr));
-    h+=(aA?tdAL(r.hAmpl.tot,'Excede máx. 4 días'):tdOK(r.hAmpl.tot));
+    h+=(aA?tdAL(r.hAmpl.maxWeek+'/3 sem',''+r.hAmpl.weeksKO+' semana'+(r.hAmpl.weeksKO!==1?'s':'')+' con >3 días ampliados'):tdOK(r.hAmpl.maxWeek>0?r.hAmpl.maxWeek+'/3':'0'));
     h+=(aCal?tdAL(calStr,'Faltan '+(r.cal.obj-r.cal.tot)+' sáb. libres'):tdOK(calStr));
     h+=(aD?tdAL(d12,''+d12+' violaciones'):tdOK(d12===0?'&#10003;':d12));
     h+='</tr>';
@@ -5518,7 +5704,7 @@ function renderResumenTrabajador(){
       return [r.horas.diff>0,
               r.fest.tot>0&&r.comp.tot<r.fest.tot,
               r.cal.obj>0&&r.cal.tot<r.cal.obj,
-              r.hAmpl.tot>4,
+              r.hAmpl.weeksKO>0,
               desc12r>0,
               r.vac.tot<r.vacMin
              ].filter(Boolean).length;
@@ -5540,7 +5726,7 @@ function renderResumenTrabajador(){
     const aHoras  = diff>0;                                    // exceso horas
     const aComp   = r.fest.tot>0&&r.comp.tot<r.fest.tot;      // festivos sin compensar
     const aCal    = r.cal.obj>0&&r.cal.tot<r.cal.obj;         // sábados calidad insuficientes
-    const aAmpl   = r.hAmpl.tot>4;                            // más de 4 días ampliados
+    const aAmpl   = r.hAmpl.weeksKO>0;                        // alguna semana con >3 días ampliados
     const aDesc12 = desc12>0;                                  // violaciones descanso 12h
     const aVac = r.vac.tot<r.vacMin;                          // alerta: vacaciones < mínimo proporcional
     const alertCount=[aHoras,aComp,aCal,aAmpl,aDesc12,aVac].filter(Boolean).length;
@@ -5613,23 +5799,26 @@ function renderResumenTrabajador(){
       '<div style="font-size:.62rem;color:'+(aCal?'#c62828':'#b0bec5')+';font-weight:'+(aCal?'600':'400')+'">'+calExtra+'</div>'+
       '</div>';
 
-    // H.Ampliado
+    // H.Ampliado (regla: máx. 3 días ampliados por semana)
     const ampAlertStyle=aAmpl?'background:#fff5f5;border-left:3px solid #ef5350;':'';
-    const ampCol=aAmpl?'#c62828':r.hAmpl.tot>0?'#8e24aa':'#90a4ae';
-    const ampDots=[0,1,2,3].map(function(i){
-      const over=i<r.hAmpl.tot;const exceeded=i>=4&&over;
-      return '<div style="width:8px;height:8px;border-radius:50%;background:'+(over?(aAmpl&&i>=4?'#ef5350':'#8e24aa'):'#f0f0f0')+
-             ';border:0.5px solid '+(over?(aAmpl&&i>=4?'#ef5350':'#8e24aa'):'#ddd')+'"></div>';
+    const ampCol=aAmpl?'#c62828':r.hAmpl.maxWeek>0?'#8e24aa':'#90a4ae';
+    // 3 dots = límite de 3 días por semana; se colorean según el máximo semanal
+    const ampDots=[0,1,2].map(function(i){
+      const over=i<r.hAmpl.maxWeek;
+      const ko=over&&aAmpl;
+      return '<div style="width:8px;height:8px;border-radius:50%;background:'+(over?(ko?'#ef5350':'#8e24aa'):'#f0f0f0')+
+             ';border:0.5px solid '+(over?(ko?'#ef5350':'#8e24aa'):'#ddd')+'"></div>';
     }).join('');
+    const ampLabel=aAmpl?r.hAmpl.weeksKO+' sem. con &gt;3 días':
+                   r.hAmpl.maxWeek>0?'Máx. '+r.hAmpl.maxWeek+'/3 por semana':'Sin días ampliados';
     h+='<div style="padding:10px 12px;border-right:0.5px solid #f0f0f0;border-bottom:0.5px solid #f0f0f0;'+ampAlertStyle+'">'+
       '<div style="font-size:16px;color:'+(aAmpl?'#ef5350':'#90a4ae')+';margin-bottom:2px">&#9200;</div>'+
       '<div style="font-size:.68rem;color:#90a4ae;margin-bottom:1px">H. ampliado</div>'+
       '<div style="font-size:1.25rem;font-weight:500;color:'+ampCol+';line-height:1.1;display:flex;align-items:center">'+
-        r.hAmpl.tot+(aAmpl?'<span style="font-size:.7rem;color:#c62828;font-weight:700;margin-left:3px">&#9888;</span>':'')+
+        r.hAmpl.maxWeek+'/3'+(aAmpl?'<span style="font-size:.7rem;color:#c62828;font-weight:700;margin-left:3px">&#9888;</span>':'')+
       '</div>'+
       '<div style="display:flex;gap:3px;margin:4px 0 2px">'+ampDots+'</div>'+
-      '<div style="font-size:.62rem;color:'+(aAmpl?'#c62828':'#b0bec5')+';font-weight:'+(aAmpl?'600':'400')+'">'+
-        (aAmpl?'Excede el m&aacute;x. de 4 d&iacute;as':r.hAmpl.tot===0?'Sin d&iacute;as ampliados':r.hAmpl.tot+' de 4 m&aacute;x.')+
+      '<div style="font-size:.62rem;color:'+(aAmpl?'#c62828':'#b0bec5')+';font-weight:'+(aAmpl?'600':'400')+'">'+ampLabel+
       '</div></div>';
 
     // Descanso 12h
@@ -5696,10 +5885,10 @@ function exportInformeExcel(dk){
     if(r.vac.tot<r.vacMin) issues.push('Vac. '+r.vac.tot+'/'+r.vacMin);
     if(r.fest.tot>0&&r.comp.tot<r.fest.tot) issues.push('Comp.pend. '+(r.fest.tot-r.comp.tot));
     if(r.cal.obj>0&&r.cal.tot<r.cal.obj) issues.push('Cal.sab '+r.cal.tot+'/'+r.cal.obj);
-    if(r.hAmpl.tot>4) issues.push('Ampl.'+r.hAmpl.tot+'/4');
+    if(r.hAmpl.weeksKO>0) issues.push('Ampl.sem.'+r.hAmpl.weeksKO);
     if(d12>0) issues.push('Desc12h '+d12);
     if(!issues.length) return;
-    csv+=r.name+';'+(r.horas.diff>0?'+'+r.horas.diff+'h':'OK')+';'+r.vac.tot+'/'+r.vacMin+';'+(r.fest.tot>0&&r.comp.tot<r.fest.tot?(r.fest.tot-r.comp.tot)+' pend.':'OK')+';'+(r.cal.obj>0?r.cal.tot+'/'+r.cal.obj:'N/A')+';'+(r.hAmpl.tot>4?r.hAmpl.tot+'/4':'OK')+';'+(d12>0?d12+' casos':'OK')+'\r\n';
+    csv+=r.name+';'+(r.horas.diff>0?'+'+r.horas.diff+'h':'OK')+';'+r.vac.tot+'/'+r.vacMin+';'+(r.fest.tot>0&&r.comp.tot<r.fest.tot?(r.fest.tot-r.comp.tot)+' pend.':'OK')+';'+(r.cal.obj>0?r.cal.tot+'/'+r.cal.obj:'N/A')+';'+(r.hAmpl.weeksKO>0?r.hAmpl.weeksKO+' sem.':'OK')+';'+(d12>0?d12+' casos':'OK')+'\r\n';
   });
 
   // BLOQUE IV: recomendaciones
@@ -5775,6 +5964,44 @@ async function _loadAllShifts() {
     from += PAGE;
   }
   return all;
+}
+
+// ── Horario especial Carlos (Operaciones, idx 2): 12 ene – 18 abr 2026 ─────────
+// MAN: 08:30 – 14:45 (15 min descanso) / TAR: 16:00 – 22:00 (sin descanso)
+async function _aplicarHorarioCarlos2026(){
+  if(!_sb) return;
+  const raw=(DEPTS['operaciones']||{raw:{}}).raw;
+  const start=new Date('2026-01-12'), end=new Date('2026-04-18');
+  const rows=[];
+  let cur=new Date(start);
+  while(cur<=end){
+    const dsStr=dsFromDate(cur);
+    const code=(raw[dsStr]||[])[2]||'0';
+    const lbl=eq(code)[0];
+    const key=_hoKey('operaciones',2,dsStr);
+    if(['MAN','PAR'].includes(lbl)){
+      rows.push({hour_key:key,time_in:'08:30',time_out:'14:45',break_min:15,
+        updated_by:'auto-carlos-2026',updated_at:new Date().toISOString()});
+    } else if(lbl==='TAR'){
+      rows.push({hour_key:key,time_in:'16:00',time_out:'22:00',break_min:0,
+        updated_by:'auto-carlos-2026',updated_at:new Date().toISOString()});
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+  if(rows.length>0){
+    const {error}=await _sb.from('custom_hours').upsert(rows,{onConflict:'hour_key'});
+    if(error){console.error('Error aplicando horario Carlos:',error);}
+    else{
+      rows.forEach(function(r){_hours[r.hour_key]={in:r.time_in,out:r.time_out,break:r.break_min};});
+      localStorage.setItem('cq_hours',JSON.stringify(_hours));
+      localStorage.setItem('cq_carlos_h_2026','1');
+      console.log('✅ Horario de Carlos aplicado: '+rows.length+' días guardados en Supabase');
+    }
+  } else {
+    // No había turnos MAN/TAR en el rango (datos aún no cargados) — marcar para reintento
+    console.warn('Horario Carlos: sin turnos MAN/TAR detectados en el rango. Reintenta al recargar.');
+    localStorage.setItem('cq_carlos_h_2026','1');
+  }
 }
 
 async function initSupabase() {
@@ -6018,6 +6245,11 @@ async function initSupabase() {
       btnCl.textContent = '📋 Cambios';
       btnCl.onclick = openChangelog;
       hdr.appendChild(btnCl);
+    }
+
+    // Aplicar horario especial de Carlos (12 ene – 18 abr 2026) — se ejecuta una vez por navegador
+    if(!localStorage.getItem('cq_carlos_h_2026')) {
+      await _aplicarHorarioCarlos2026();
     }
 
     // Ocultar overlay y renderizar
