@@ -5520,6 +5520,8 @@ function calcHorasDia(dept,ei,code,dsStr){
     const [ih,im]=hc.in.split(':').map(Number);
     const [oh,om]=hc.out.split(':').map(Number);
     rawH=((oh*60+om)-(ih*60+im))/60;
+    if(hc.break!=null) rawH-=hc.break/60;
+    applyBreak=false;
   } else if(dept==='operaciones'){
     rawH=OPER_H[ei]||0;
     applyBreak=false; // OPER_H ya incluye descanso (-20/-30 min según empleado)
