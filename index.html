@@ -543,7 +543,7 @@ try{_hours=JSON.parse(localStorage.getItem('cq_hours')||'{}');}catch(e){_hours={
 const HORARIOS_DEF={
   'operaciones|0':{'MAN':['09:00','16:00'],'TAR':['15:00','22:00']},
   'operaciones|1':{'MAN':['09:00','16:00'],'TAR':['15:00','22:00']},
-  'operaciones|2':{'MAN':['07:10','14:45'],'TAR':['07:10','14:45']},
+  'operaciones|2':{'MAN':['07:10','14:45',20],'TAR':['07:10','14:45',20],'PAR':['07:10','14:45',20]},
   'operaciones|3':{'MAN':['08:30','16:30'],'TAR':['15:00','22:00']},
   'operaciones|4':{'MAN':['09:00','17:00'],'TAR':['14:00','22:00']},
   'omnicanal|0': {'MAN':['09:00','13:00'],'TAR':['18:00','22:00']},
@@ -594,7 +594,7 @@ function _hoGet(dept,ei,ds,lbl){
     if(lbl==='TAR') return {in:'16:00',out:'22:00',break:0};
   }
   const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
-  return def?{in:def[0],out:def[1]}:null;
+  return def?{in:def[0],out:def[1],break:def[2]!=null?def[2]:null}:null;
 }
 function _hoHas(dept,ei,ds){return !!_hours[_hoKey(dept,ei,ds)];}
 try{_ov=JSON.parse(localStorage.getItem('cq_ov')||'{}');}catch(e){_ov={};}
@@ -5787,6 +5787,30 @@ function renderResumenTrabajador(){
     h+='<button onclick="goToEmpleado('+r.ei+')" title="Ver calendario" style="flex-shrink:0;background:rgba(255,255,255,.18);border:0.5px solid rgba(255,255,255,.4);border-radius:7px;padding:4px 9px;cursor:pointer;color:#fff;font-size:.7rem;font-weight:700;margin-left:4px">&#128197; Ver</button>';
     h+='<div style="background:'+badgeBg+';border:0.5px solid '+badgeBdr+';border-radius:12px;padding:3px 10px;font-size:.7rem;color:#fff;white-space:nowrap;font-weight:700;flex-shrink:0">'+badgeTxt+'</div>';
     h+='</div>';
+
+    // ── Horario habitual ──
+    const _horDef=HORARIOS_DEF[dept+'|'+r.ei];
+    if(_horDef){
+      const _hMan=_horDef.MAN, _hTar=_horDef.TAR, _hPar=_horDef.PAR;
+      const _mainSch=_hMan||_hTar||_hPar;
+      if(_mainSch){
+        const _sameMT=_hMan&&_hTar&&_hMan[0]===_hTar[0]&&_hMan[1]===_hTar[1];
+        const _brk=_mainSch[2]!=null?_mainSch[2]:null;
+        const _brkStr=_brk!=null?' &middot; descanso: <b>'+_brk+' min</b>':'';
+        let _schStr='';
+        if(_sameMT||(!_hTar&&_hMan)){
+          _schStr='<b>'+_mainSch[0]+'</b> &rarr; <b>'+_mainSch[1]+'</b>'+_brkStr;
+        } else {
+          if(_hMan) _schStr+='&#127774; <b>'+_hMan[0]+'&ndash;'+_hMan[1]+'</b>';
+          if(_hTar) _schStr+=((_hMan)?' &nbsp; ':'')+'&#127763; <b>'+_hTar[0]+'&ndash;'+_hTar[1]+'</b>';
+          _schStr+=_brkStr;
+        }
+        h+='<div style="padding:8px 16px;background:#f8f9ff;border-bottom:0.5px solid #e8eaf6;display:flex;align-items:center;gap:6px;font-size:.72rem;color:#546e7a">';
+        h+='<span style="font-size:.85rem">&#9200;</span>';
+        h+='<span>Horario habitual: '+_schStr+'</span>';
+        h+='</div>';
+      }
+    }
 
     // ── Barra horas ──
     const horasAlertStyle=aHoras?'background:#fff5f5;border-left:3px solid #ef5350;':'';
