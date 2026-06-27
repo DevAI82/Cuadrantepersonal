@@ -545,7 +545,7 @@ const HORARIOS_DEF={
   'operaciones|1':{'MAN':['09:00','16:00'],'TAR':['15:00','22:00']},
   'operaciones|2':{'MAN':['07:10','14:45',20],'TAR':['07:10','14:45',20],'PAR':['07:10','14:45',20]},
   'operaciones|3':{'MAN':['08:30','16:30'],'TAR':['15:00','22:00']},
-  'operaciones|4':{'MAN':['09:00','17:00'],'TAR':['14:00','22:00']},
+  'operaciones|4':{'MAN':['09:20','13:50',20],'TAR':['16:50','20:40',0],'PAR':['09:20','20:40',200,'09:20–13:50 + 16:50–20:40 · 20min desc.']},
   'omnicanal|0': {'MAN':['09:00','13:00'],'TAR':['18:00','22:00']},
   'omnicanal|1': {'MAN':['08:10','15:30'],'TAR':['15:00','22:00']},
   'omnicanal|3': {'MAN':['09:00','15:00'],'TAR':['16:00','22:00']},
@@ -587,7 +587,10 @@ const HORARIOS_DEF={
 function _hoKey(dept,ei,ds){return dept+'|'+ei+'|'+ds;}
 function _hoGet(dept,ei,ds,lbl){
   const saved=_hours[_hoKey(dept,ei,ds)];
-  if(saved) return saved;
+  if(saved){
+    if(dept==='operaciones'&&ei===2&&saved.break!==20) return Object.assign({},saved,{break:20});
+    return saved;
+  }
   // Carlos (operaciones|2): horario especial del 12 ene al 18 abr 2026
   if(dept==='operaciones'&&ei===2&&ds>='2026-01-12'&&ds<='2026-04-18'){
     if(lbl==='MAN'||lbl==='PAR') return {in:'08:30',out:'14:45',break:15};
@@ -5802,7 +5805,9 @@ function renderResumenTrabajador(){
         const _brk=_mainSch[2]!=null?_mainSch[2]:null;
         const _brkStr=_brk!=null?' &middot; descanso: <b>'+_brk+' min</b>':'';
         let _schStr='';
-        if(_sameMT||(!_hTar&&_hMan)){
+        if(_mainSch[3]){
+          _schStr=_mainSch[3];
+        } else if(_sameMT||(!_hTar&&_hMan)){
           _schStr='<b>'+_mainSch[0]+'</b> &rarr; <b>'+_mainSch[1]+'</b>'+_brkStr;
         } else {
           if(_hMan) _schStr+='&#127774; <b>'+_hMan[0]+'&ndash;'+_hMan[1]+'</b>';
@@ -6784,6 +6789,7 @@ if('serviceWorker' in navigator) {
           <option value="90">90 min</option>
           <option value="120">120 min</option>
           <option value="180">180 min</option>
+          <option value="200">200 min</option>
         </select>
         <button id="em-hours-clear" style="display:none;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer">↩ Restablecer</button>
       </div>
