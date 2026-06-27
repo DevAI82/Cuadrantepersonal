@@ -587,10 +587,7 @@ const HORARIOS_DEF={
 function _hoKey(dept,ei,ds){return dept+'|'+ei+'|'+ds;}
 function _hoGet(dept,ei,ds,lbl){
   const saved=_hours[_hoKey(dept,ei,ds)];
-  if(saved){
-    if(dept==='operaciones'&&ei===2&&saved.break!==20) return Object.assign({},saved,{break:20});
-    return saved;
-  }
+  if(saved) return saved;
   // Carlos (operaciones|2): horario especial del 12 ene al 18 abr 2026
   if(dept==='operaciones'&&ei===2&&ds>='2026-01-12'&&ds<='2026-04-18'){
     if(lbl==='MAN'||lbl==='PAR') return {in:'08:30',out:'14:45',break:15};
@@ -2526,6 +2523,7 @@ function renderEmpleado(){
       if(lbl==='PER') _per++;
       if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})) _fest++;
       if(['MAN','TAR','PAR','COM'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
+      if(lbl==='JA'&&!FESTIVOS_CIERRE[dsStr]){_horasT+=calcHorasDia(activeDept,ei,code,dsStr);} // JA: día excedente año ant. computa como horas trabajadas
       if(isHoraAmpliada(activeDept,ei,code,dsStr)) _hAmpl++;
       if(dw===6&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')) _cal++;
     });
@@ -5515,8 +5513,10 @@ function calcHorasDia(dept,ei,code,dsStr){
   const num=parseFloat(code);
   if(!isNaN(num)&&num>0) return num;
   const lbl=eq(code)[0];
-  if(!lbl||['LIB','VAC','BAJ','SPS','JA','J','--','?','FOR','PER','COM'].includes(lbl)) return 0;
-  if(!['MAN','TAR','PAR'].includes(lbl)) return 0;
+  if(!lbl||['LIB','VAC','BAJ','SPS','J','--','?','FOR','PER','COM'].includes(lbl)) return 0;
+  // JA: libre por exceso de jornada año anterior → computa como jornada trabajada con horario habitual
+  if(!['MAN','TAR','PAR','JA'].includes(lbl)) return 0;
+  const workLbl=lbl==='JA'?'MAN':lbl; // JA usa turno de mañana como referencia horaria
   let rawH=0, applyBreak=true;
   if(dsStr&&_hoHas(dept,ei,dsStr)){
     const hc=_hours[_hoKey(dept,ei,dsStr)];
@@ -5531,17 +5531,17 @@ function calcHorasDia(dept,ei,code,dsStr){
   } else if(dept==='cajasac'){
     const s=CAJA_H[ei];
     if(!s) rawH=6;
-    else if(lbl==='MAN'&&s.MAN) rawH=(s.MAN[1]-s.MAN[0])/60;
-    else if(lbl==='TAR'&&s.TAR) rawH=(s.TAR[1]-s.TAR[0])/60;
-    else if(lbl==='PAR') rawH=(s.MAN?(s.MAN[1]-s.MAN[0])/60:0)+(s.TAR?(s.TAR[1]-s.TAR[0])/60:0);
+    else if(workLbl==='MAN'&&s.MAN) rawH=(s.MAN[1]-s.MAN[0])/60;
+    else if(workLbl==='TAR'&&s.TAR) rawH=(s.TAR[1]-s.TAR[0])/60;
+    else if(workLbl==='PAR') rawH=(s.MAN?(s.MAN[1]-s.MAN[0])/60:0)+(s.TAR?(s.TAR[1]-s.TAR[0])/60:0);
     else rawH=6;
   } else if(dept==='omnicanal'){
     const s=OMNI_H[ei];
     if(!s) rawH=0;
     else if(s.fixed) rawH=(s.fixed[1]-s.fixed[0])/60;
-    else if(lbl==='MAN'&&s.MAN) rawH=(s.MAN[1]-s.MAN[0])/60;
-    else if(lbl==='TAR'&&s.TAR) rawH=(s.TAR[1]-s.TAR[0])/60;
-    else if(lbl==='PAR'&&s.MAN&&s.TAR) rawH=(s.MAN[1]-s.MAN[0])/60+(s.TAR[1]-s.TAR[0])/60;
+    else if(workLbl==='MAN'&&s.MAN) rawH=(s.MAN[1]-s.MAN[0])/60;
+    else if(workLbl==='TAR'&&s.TAR) rawH=(s.TAR[1]-s.TAR[0])/60;
+    else if(workLbl==='PAR'&&s.MAN&&s.TAR) rawH=(s.MAN[1]-s.MAN[0])/60+(s.TAR[1]-s.TAR[0])/60;
     else rawH=7;
   } else if(dept==='muelle'){
     rawH=(MUELLE_H_END[ei]-MUELLE_H_START[ei])/60;
