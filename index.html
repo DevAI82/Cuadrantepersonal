@@ -6798,5 +6798,16 @@ if('serviceWorker' in navigator) {
   </div>
 </div>
 
+<!-- Modal: preview cobertura diaria -->
+<div id="dia-preview-modal" onclick="if(event.target===this)closeDiaPreview()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9998;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#f5f7fa;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.35);width:min(560px,96vw);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0">
+      <span style="font-size:.72rem;color:#90a4ae;font-weight:700;letter-spacing:.5px">COBERTURA DIARIA</span>
+      <button onclick="closeDiaPreview()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#546e7a;line-height:1">&times;</button>
+    </div>
+    <div id="dia-preview-body" style="padding:14px 18px 18px"></div>
+  </div>
+</div>
+
 </body>
 </html>
