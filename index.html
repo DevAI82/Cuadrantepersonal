@@ -5511,10 +5511,16 @@ function calcHorasDia(dept,ei,code,dsStr){
   const num=parseFloat(code);
   if(!isNaN(num)&&num>0) return num;
   const lbl=eq(code)[0];
-  if(!lbl||['LIB','VAC','BAJ','SPS','J','--','?','FOR','PER','COM'].includes(lbl)) return 0;
-  // JA: libre por exceso de jornada año anterior → computa como jornada trabajada con horario habitual
-  if(!['MAN','TAR','PAR','JA'].includes(lbl)) return 0;
-  const workLbl=lbl==='JA'?'MAN':lbl; // JA usa turno de mañana como referencia horaria
+  if(!lbl||['LIB','VAC','BAJ','SPS','J','--','?','COM'].includes(lbl)) return 0;
+  // JA/PER/FOR: computan como jornada trabajada con el horario habitual del empleado
+  if(!['MAN','TAR','PAR','JA','PER','FOR'].includes(lbl)) return 0;
+  // Para JA/PER/FOR usar el turno "natural" del empleado como referencia horaria
+  let workLbl=lbl;
+  if(['JA','PER','FOR'].includes(lbl)){
+    if(dept==='cajasac'){const s=CAJA_H[ei];workLbl=(s&&s.TAR&&!s.MAN)?'TAR':'MAN';}
+    else if(dept==='omnicanal'){const s=OMNI_H[ei];workLbl=(s&&s.TAR&&!s.MAN&&!s.fixed)?'TAR':'MAN';}
+    else workLbl='MAN';
+  }
   let rawH=0, applyBreak=true;
   if(dsStr&&_hoHas(dept,ei,dsStr)){
     const hc=_hours[_hoKey(dept,ei,dsStr)];
