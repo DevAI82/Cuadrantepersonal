@@ -2520,7 +2520,7 @@ function renderEmpleado(){
       if(lbl==='COM') _comp++;
       if(lbl==='PER') _per++;
       if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})) _fest++;
-      if(['MAN','TAR','PAR','COM'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
+      if(['MAN','TAR','PAR','COM','PER','FOR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
       if(lbl==='JA'&&!FESTIVOS_CIERRE[dsStr]){_horasT+=calcHorasDia(activeDept,ei,code,dsStr);} // JA: día excedente año ant. computa como horas trabajadas
       if(isHoraAmpliada(activeDept,ei,code,dsStr)) _hAmpl++;
       if(dw===6&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')) _cal++;
