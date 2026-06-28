@@ -360,12 +360,13 @@ const DEPT_SUBGROUPS={
   },
   cajasac:{
     order:[0,1,2,3,4,5,6,7,8],
-    order:[0,4, 2,1,8,3, 5,6, 7],
+    order:[0,4, 2,1,8,3, 5,6, 7, 9],
     groups:[
       {label:'CAJA',         indices:[0,4],    bg:'#e3f2fd',border:'#1565c0'},
       {label:'PATRÓN A',     indices:[2,1,8,3],bg:'#e8f5e9',border:'#2e7d32'},
       {label:'PATRÓN B',     indices:[5,6],    bg:'#e0f7fa',border:'#00838f'},
-      {label:'DÍAS SUELTOS', indices:[7],      bg:'#fff8e1',border:'#e65100'}
+      {label:'DÍAS SUELTOS', indices:[7],      bg:'#fff8e1',border:'#e65100'},
+      {label:'REFUERZO SAC (jun–sep)', indices:[9], bg:'#fce4ec',border:'#c2185b'}
     ]
   },
   muelle:{order:[1,3,4,0,5,6,2,7],groups:[{label:'MOZOS MUELLE',indices:[1,3,4],bg:'#e8f5e9',border:'#388e3c'},{label:'RECEPCIÓN',indices:[0,5],bg:'#e3f2fd',border:'#1565c0'},{label:'ALMACÉN',indices:[6],bg:'#f3e5f5',border:'#6a1b9a'},{label:'POSTVENTA',indices:[2,7],bg:'#fff8e1',border:'#f57f17'}]},
@@ -575,6 +576,7 @@ const HORARIOS_DEF={
   'cajasac|6':{'MAN':['09:45','15:00'],'TAR':['16:45','22:00']},
   'cajasac|7':{'MAN':['13:00','22:00'],'TAR':['13:00','22:00']},
   'cajasac|8':{'MAN':['09:30','14:40'],'TAR':['17:00','22:00']},
+  'cajasac|9':{'MAN':['09:30','15:00'],'TAR':['16:30','22:00']},
   'muelle|0':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
   'muelle|1':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
   'muelle|2':{'MAN':['09:30','13:30'],'TAR':['09:30','13:30']},
