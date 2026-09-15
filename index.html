@@ -945,6 +945,7 @@ function resetOverrides(){
   location.reload();
 }
 let activeView = 'semanal';
+let _hideInactiveWeek = false; // filtro vista Semanal: oculta quien esté de Baja/Permiso/sin turno toda la semana
 
 function D(){ return DEPTS[activeDept]; }
 function S(){ return deptState[activeDept]; }
@@ -1126,11 +1127,29 @@ function renderResumen(){
 
 // ===== SEMANAL =====
 function changeWeek(dir){S().weekStart=new Date(S().weekStart.getTime()+dir*7*86400000);renderWeekly();}
+// Devuelve true si el empleado ei tiene AL MENOS un turno de trabajo real
+// (Mañana/Tarde/Partido/Compensado) en algún día de la semana que empieza en ws.
+// false = toda la semana está de Baja, Permiso, Vacaciones, Libre o sin horario (0/'').
+function _empActiveThisWeek(ei,ws){
+  for(let i=0;i<7;i++){
+    const dd=new Date(ws.getTime()+i*86400000);
+    const code=(getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[])[ei]||'0';
+    const lbl=omniEduardoEq(ei,code)[0];
+    if(['MAN','TAR','PAR','COM'].includes(lbl)) return true;
+  }
+  return false;
+}
 function renderWeekly(){
   const ws=S().weekStart, we=new Date(ws.getTime()+6*86400000);
+  const _dispOrder0=getDispOrder();
+  const _nHidden=_hideInactiveWeek ? _dispOrder0.filter(ei=>!_empActiveThisWeek(ei,ws)).length : 0;
   let h='<div class="nav-row"><button class="nav-btn" onclick="changeWeek(-1)">&larr; Anterior</button>';
   h+='<div class="nav-title">Semana '+fmtDate(ws)+' - '+fmtDate(we)+'</div>';
-  h+='<button class="nav-btn" onclick="changeWeek(1)">Siguiente &rarr;</button></div>';
+  h+='<button class="nav-btn" onclick="changeWeek(1)">Siguiente &rarr;</button>';
+  h+='<label style="display:flex;align-items:center;gap:5px;margin-left:12px;font-size:.75rem;color:#37474f;font-weight:600;cursor:pointer;user-select:none">'+
+     '<input type="checkbox" id="chk-hide-inactive" '+(_hideInactiveWeek?'checked':'')+' onchange="_hideInactiveWeek=this.checked;renderWeekly()" style="width:15px;height:15px;cursor:pointer">'+
+     'Ocultar sin turno esta semana (baja/permiso/sin horario)'+(_hideInactiveWeek?' <span style="color:#78909c;font-weight:400">('+_nHidden+' ocultos)</span>':'')+'</label>';
+  h+='</div>';
   h+='<div class="wrap"><table><tr><td class="alert-lbl">ALERTA</td>';
   for(let i=0;i<7;i++){
     const dd=new Date(ws.getTime()+i*86400000), dw=dd.getDay()===0?6:dd.getDay()-1;
@@ -1163,7 +1182,10 @@ function renderWeekly(){
   }
   h+='<th class="th-day" style="min-width:52px;background:#1565c0;color:#fff;font-size:.62rem;font-weight:800">HRS<br>REAL</th></tr>';
   const LM={'MAN':'Manana','TAR':'Tarde','VAC':'Vacaciones','LIB':'Libre','PAR':'Partido','COM':'Compensado','BAJ':'BAJA','SPS':'Sin Cto.','PER':'Permiso','--':'--'};
-  const dispOrder=getDispOrder();let prevSG=undefined;
+  let prevSG=undefined;
+  // Filtrar empleados sin ningún turno de trabajo real (MAN/TAR/PAR/COM) esta semana
+  // (toda la semana de baja, permiso, vacaciones, o sin horario asignado).
+  const dispOrder=_hideInactiveWeek ? _dispOrder0.filter(ei=>_empActiveThisWeek(ei,ws)) : _dispOrder0;
   for(const ei of dispOrder){
     const sg=getSubgroup(ei);
     if(sg!==prevSG){if(sg)h+='<tr><td colspan="9" style="background:'+sg.border+';color:#fff;font-size:.62rem;font-weight:800;padding:2px 8px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSG=sg;}
