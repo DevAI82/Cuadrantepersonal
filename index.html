@@ -41,12 +41,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a1a2e;
 .wrap{overflow-x:auto;border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.1)}
 table{border-collapse:collapse;width:100%;background:#fff}
 th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
-.th-emp{text-align:left;padding:7px 10px;background:var(--navy2);color:#fff;font-weight:700;min-width:110px;white-space:nowrap}
+.th-emp{text-align:left;padding:7px 8px;background:var(--navy2);color:#fff;font-weight:700;min-width:72px;white-space:nowrap}
 .th-day{padding:5px 3px;background:var(--navy3);color:#fff;font-weight:700;min-width:38px;line-height:1.3}
 .th-day.wk{background:#78909c;color:#eceff1}
 .th-day .dn{font-size:.6rem;opacity:.85}
 .th-day .dd{font-size:.85rem}
-.td-emp{text-align:left;padding:6px 10px;font-weight:700;background:#e8eaf6;font-size:.83rem;white-space:nowrap}
+.td-emp{text-align:left;padding:6px 8px;font-weight:700;background:#e8eaf6;font-size:.83rem;white-space:nowrap}
+.emp-ape{display:block}
+.emp-num{display:block;font-size:.62rem;font-weight:600;color:#5c6bc0;letter-spacing:.2px;margin-top:1px}
 .shift{padding:3px 1px;font-weight:700;font-size:.73rem;white-space:nowrap}
 .shift.wknd{background:#eceff1!important;color:#b0bec5!important}
 .s-MAN{background:#b3e5fc;color:#01579b}
@@ -277,6 +279,7 @@ let _presenceChannel = null; // Canal Presence para usuarios online
 let _onlineUsers  = {};   // {username: {joined_at}} - usuarios actualmente online
 let _empIdMap   = {};     // "dept|idx" → UUID
 let _empRevMap  = {};     // UUID → "dept|idx"
+let EMP_NUMBER  = {};     // "dept|idx" → número de empleado (ej. "66408048"), cargado desde Supabase
 let _currentUser = localStorage.getItem('cq_user') || null;
 let _sessionId   = null;   // UUID de la sesión activa en Supabase
 let _sessionStart= null;   // Date de inicio de sesión
@@ -287,6 +290,25 @@ const USERS      = ['Jose','Vicente','Elena','Carlos','Mirella'];
 const DAYS_ES   = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_SH = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+
+// Primer apellido de cada trabajador (para mostrar en columnas estrechas).
+// Mapa explícito en vez de heurística automática por posición de palabra,
+// porque varios nombres compuestos (ej. "JOSE MIGUEL OLMEDA", solo 1 apellido
+// real) rompían la regla genérica "penúltima palabra = primer apellido".
+const APELLIDO_MAP = {"ALBA DESCALZO FAJARDO": "DESCALZO", "ANA PILAR GARIJO MARTINEZ": "GARIJO", "ANDREA GARCIA SORIANO": "GARCIA", "ANTONIO F. ARENAS ATENCIA": "ARENAS", "ANTONIO FERNANDEZ GARCIA": "FERNANDEZ", "ARTURO GARCIA SIMARRO": "GARCIA", "CARLA SILVESTRE MOLINA": "SILVESTRE", "CARLOS LAPEÑA CARNICERO": "LAPEÑA", "CECILIA OCHOVO ALBA": "OCHOVO", "ELENA RODENAS CEBRIAN": "RODENAS", "ENCARNACION GALDON PARRAS": "GALDON", "EVA MARIA MONTOYA GARCIA": "MONTOYA", "INMACULADA COLLADO SAERA": "COLLADO", "IRENE GOMEZ GOMEZ": "GOMEZ", "ISABEL GUALDA PICAZO": "GUALDA", "ISABEL ZAMORA SANCHEZ": "ZAMORA", "J. PASCASIO QUILEZ SOTOS": "QUILEZ", "J. PASCUAL GARCIA GARCIA": "GARCIA", "JAVIER LOPEZ GALLEGO": "LOPEZ", "JESSICA ALEJ AYALA ARGUELLO": "AYALA", "JOSE LUIS RAMIREZ RAMIREZ": "RAMIREZ", "JOSE MIGUEL OLMEDA": "OLMEDA", "JUAN F. LOPEZ NIETO": "LOPEZ", "JUAN ORTIZ MUÑOZ": "ORTIZ", "JULIO SERNA CARRION": "SERNA", "LINA MARIA GARCIA FERNANDEZ": "GARCIA", "LUCAS HERNANDEZ DE AGUILAR": "HERNANDEZ", "M. AMPARO HENARES JIMENEZ": "HENARES", "M. ARANZAZU CELESTINO ROMERO": "CELESTINO", "M. CORTES RODRIGUEZ HUESCAR": "RODRIGUEZ", "M. JOSE ESCOBAR LOPEZ": "ESCOBAR", "M. MERCEDES GARCIA VALENCIANO": "GARCIA", "M. VICTORIA SERRANO MONEDERO": "SERRANO", "M.CARMEN DIAZ MORENO": "DIAZ", "MARIA DEL PI RODENAS RODENAS": "RODENAS", "MIGUEL A. ALCAHUD CUARTERO": "ALCAHUD", "MIGUEL ANGEL MAESO MARTINEZ": "MAESO", "MIRELLA MARTINEZ ANDUJAR": "MARTINEZ", "PEDRO LUIS MARTINEZ SORIA": "MARTINEZ", "PILAR GONZALEZ CIFO": "GONZALEZ", "RAFAEL MOTOS FERNANDEZ": "MOTOS", "RAMON MARIN SERRANO": "MARIN", "ROSARIO SANCHEZ MUÑOZ": "SANCHEZ", "SAMUEL CARRION TORRES": "CARRION", "SHEREZADE CUSUTIEN DE GRACIA": "CUSUTIEN", "VICENTE RODENAS SANCHEZ": "RODENAS", "VICTORIA SANCHEZ ARCAS": "SANCHEZ"};
+function apellido(nombreCompleto){
+  if(APELLIDO_MAP[nombreCompleto]) return APELLIDO_MAP[nombreCompleto];
+  // Fallback genérico para nombres no mapeados (ej. si se añade un empleado nuevo):
+  // penúltima palabra = primer apellido (heurística razonable en la mayoría de casos).
+  const parts = (nombreCompleto||'').trim().split(/\s+/);
+  return parts.length >= 2 ? parts[parts.length-2] : (parts[0]||'');
+}
+// Celda de empleado: apellido a la izquierda + nº de empleado a la derecha,
+// en la misma celda (evita tener que ajustar colspans en todas las tablas).
+function empCellHTML(ei){
+  const num = EMP_NUMBER[activeDept+'|'+ei] || '';
+  return '<span class="emp-ape">'+apellido(EMPS()[ei])+'</span>'+(num?'<span class="emp-num">'+num+'</span>':'');
+}
 
 const EQ = {
   '0':['--','s-empty'],'':['--','s-empty'],
@@ -1144,7 +1166,7 @@ function renderWeekly(){
     const sg=getSubgroup(ei);
     if(sg!==prevSG){if(sg)h+='<tr><td colspan="9" style="background:'+sg.border+';color:#fff;font-size:.62rem;font-weight:800;padding:2px 8px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSG=sg;}
     const rs=sg?'style="background:'+sg.bg+'"':'';
-    h+='<tr '+rs+'><td class="td-emp">'+EMPS()[ei]+'</td>';
+    h+='<tr '+rs+'><td class="td-emp">'+empCellHTML(ei)+'</td>';
     for(let i=0;i<7;i++){
       const dd=new Date(ws.getTime()+i*86400000);
       const code=(getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[])[ei]||'0';
@@ -2045,7 +2067,7 @@ function renderMonthBlock(y,m){
     const sg=getSubgroup(ei);
     if(sg!==prevSGM){if(sg)h+='<tr><td colspan="'+(days+2)+'" style="background:'+sg.border+';color:#fff;font-size:.58rem;font-weight:800;padding:1px 6px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSGM=sg;}
     const rs=sg?'style="background:'+sg.bg+'"':'';
-    h+='<tr '+rs+'><td class="td-emp">'+EMPS()[ei]+'</td>';
+    h+='<tr '+rs+'><td class="td-emp">'+empCellHTML(ei)+'</td>';
     for(let d=1;d<=days;d++){
       const code=(getCode(y,m,d)||[])[ei]||'0';
       const [lbl,cls]=omniEduardoEq(ei,code),dw=dow(y,m,d);
@@ -2199,7 +2221,7 @@ function renderAnnual(){
       const sg=getSubgroup(ei);
       if(sg!==prevSGA){if(sg)h+='<tr><td colspan="'+(ndays+1)+'" style="background:'+sg.border+';color:#fff;font-size:.58rem;font-weight:800;padding:1px 6px;letter-spacing:.8px">'+sg.label+'</td></tr>';prevSGA=sg;}
       const rs=sg?'style="background:'+sg.bg+'"':'';
-      h+='<tr '+rs+'><td class="td-emp">'+EMPS()[ei]+'</td>';
+      h+='<tr '+rs+'><td class="td-emp">'+empCellHTML(ei)+'</td>';
       for(let d=1;d<=ndays;d++){
         const dw=dow(2026,mo,d), code=(RAW()[ds(2026,mo,d)]||[])[ei]||'0';
         const [lbl,cls]=omniEduardoEq(ei,code);
@@ -6183,7 +6205,7 @@ async function initSupabase() {
     _supaMsg('Cargando empleados...', '');
     const { data: emps, error: eErr } = await _sb
       .from('employees')
-      .select('id, department_id, name, sort_order')
+      .select('id, department_id, name, sort_order, employee_number')
       .order('sort_order');
     if(eErr) throw eErr;
 
@@ -6195,6 +6217,7 @@ async function initSupabase() {
       DEPTS[d].employees.push(emp.name);
       _empIdMap[d + '|' + idx] = emp.id;
       _empRevMap[emp.id] = d + '|' + idx;
+      EMP_NUMBER[d + '|' + idx] = emp.employee_number || '';
     }
 
     // Cargar turnos (paginado)
