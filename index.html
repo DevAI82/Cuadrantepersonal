@@ -41,7 +41,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a1a2e;
 .wrap{overflow-x:auto;border-radius:var(--r);box-shadow:0 2px 12px rgba(0,0,0,.1)}
 table{border-collapse:collapse;width:100%;background:#fff}
 th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
-.th-emp{text-align:left;padding:7px 8px;background:var(--navy2);color:#fff;font-weight:700;min-width:72px;white-space:nowrap}
+.th-emp{text-align:left;padding:7px 8px;background:var(--navy2);color:#fff;font-weight:700;min-width:98px;white-space:nowrap}
 .th-day{padding:5px 3px;background:var(--navy3);color:#fff;font-weight:700;min-width:38px;line-height:1.3}
 .th-day.wk{background:#78909c;color:#eceff1}
 .th-day .dn{font-size:.6rem;opacity:.85}
@@ -291,17 +291,19 @@ const DAYS_ES   = ['LUN','MAR','MIE','JUE','VIE','SAB','DOM'];
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_SH = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 
-// Primer apellido de cada trabajador (para mostrar en columnas estrechas).
+// Primer nombre + primer apellido de cada trabajador (para columnas estrechas).
 // Mapa explícito en vez de heurística automática por posición de palabra,
-// porque varios nombres compuestos (ej. "JOSE MIGUEL OLMEDA", solo 1 apellido
-// real) rompían la regla genérica "penúltima palabra = primer apellido".
-const APELLIDO_MAP = {"ALBA DESCALZO FAJARDO": "DESCALZO", "ANA PILAR GARIJO MARTINEZ": "GARIJO", "ANDREA GARCIA SORIANO": "GARCIA", "ANTONIO F. ARENAS ATENCIA": "ARENAS", "ANTONIO FERNANDEZ GARCIA": "FERNANDEZ", "ARTURO GARCIA SIMARRO": "GARCIA", "CARLA SILVESTRE MOLINA": "SILVESTRE", "CARLOS LAPEÑA CARNICERO": "LAPEÑA", "CECILIA OCHOVO ALBA": "OCHOVO", "ELENA RODENAS CEBRIAN": "RODENAS", "ENCARNACION GALDON PARRAS": "GALDON", "EVA MARIA MONTOYA GARCIA": "MONTOYA", "INMACULADA COLLADO SAERA": "COLLADO", "IRENE GOMEZ GOMEZ": "GOMEZ", "ISABEL GUALDA PICAZO": "GUALDA", "ISABEL ZAMORA SANCHEZ": "ZAMORA", "J. PASCASIO QUILEZ SOTOS": "QUILEZ", "J. PASCUAL GARCIA GARCIA": "GARCIA", "JAVIER LOPEZ GALLEGO": "LOPEZ", "JESSICA ALEJ AYALA ARGUELLO": "AYALA", "JOSE LUIS RAMIREZ RAMIREZ": "RAMIREZ", "JOSE MIGUEL OLMEDA": "OLMEDA", "JUAN F. LOPEZ NIETO": "LOPEZ", "JUAN ORTIZ MUÑOZ": "ORTIZ", "JULIO SERNA CARRION": "SERNA", "LINA MARIA GARCIA FERNANDEZ": "GARCIA", "LUCAS HERNANDEZ DE AGUILAR": "HERNANDEZ", "M. AMPARO HENARES JIMENEZ": "HENARES", "M. ARANZAZU CELESTINO ROMERO": "CELESTINO", "M. CORTES RODRIGUEZ HUESCAR": "RODRIGUEZ", "M. JOSE ESCOBAR LOPEZ": "ESCOBAR", "M. MERCEDES GARCIA VALENCIANO": "GARCIA", "M. VICTORIA SERRANO MONEDERO": "SERRANO", "M.CARMEN DIAZ MORENO": "DIAZ", "MARIA DEL PI RODENAS RODENAS": "RODENAS", "MIGUEL A. ALCAHUD CUARTERO": "ALCAHUD", "MIGUEL ANGEL MAESO MARTINEZ": "MAESO", "MIRELLA MARTINEZ ANDUJAR": "MARTINEZ", "PEDRO LUIS MARTINEZ SORIA": "MARTINEZ", "PILAR GONZALEZ CIFO": "GONZALEZ", "RAFAEL MOTOS FERNANDEZ": "MOTOS", "RAMON MARIN SERRANO": "MARIN", "ROSARIO SANCHEZ MUÑOZ": "SANCHEZ", "SAMUEL CARRION TORRES": "CARRION", "SHEREZADE CUSUTIEN DE GRACIA": "CUSUTIEN", "VICENTE RODENAS SANCHEZ": "RODENAS", "VICTORIA SANCHEZ ARCAS": "SANCHEZ"};
+// porque varios nombres compuestos (ej. "ANA PILAR", "JOSE MIGUEL OLMEDA" con
+// un solo apellido real) rompían cualquier regla genérica de 2 palabras.
+const APELLIDO_MAP = {"ALBA DESCALZO FAJARDO": "ALBA DESCALZO", "ANA PILAR GARIJO MARTINEZ": "ANA PILAR GARIJO", "ANDREA GARCIA SORIANO": "ANDREA GARCIA", "ANTONIO F. ARENAS ATENCIA": "ANTONIO F. ARENAS", "ANTONIO FERNANDEZ GARCIA": "ANTONIO FERNANDEZ", "ARTURO GARCIA SIMARRO": "ARTURO GARCIA", "CARLA SILVESTRE MOLINA": "CARLA SILVESTRE", "CARLOS LAPEÑA CARNICERO": "CARLOS LAPEÑA", "CECILIA OCHOVO ALBA": "CECILIA OCHOVO", "ELENA RODENAS CEBRIAN": "ELENA RODENAS", "ENCARNACION GALDON PARRAS": "ENCARNACION GALDON", "EVA MARIA MONTOYA GARCIA": "EVA MONTOYA", "INMACULADA COLLADO SAERA": "INMACULADA COLLADO", "IRENE GOMEZ GOMEZ": "IRENE GOMEZ", "ISABEL GUALDA PICAZO": "ISABEL GUALDA", "ISABEL ZAMORA SANCHEZ": "ISABEL ZAMORA", "J. PASCASIO QUILEZ SOTOS": "J. PASCASIO QUILEZ", "J. PASCUAL GARCIA GARCIA": "J. PASCUAL GARCIA", "JAVIER LOPEZ GALLEGO": "JAVIER LOPEZ", "JESSICA ALEJ AYALA ARGUELLO": "JESSICA ALEJ AYALA", "JOSE LUIS RAMIREZ RAMIREZ": "JOSE LUIS RAMIREZ", "JOSE MIGUEL OLMEDA": "JOSE MIGUEL OLMEDA", "JUAN F. LOPEZ NIETO": "JUAN F. LOPEZ", "JUAN ORTIZ MUÑOZ": "JUAN ORTIZ", "JULIO SERNA CARRION": "JULIO SERNA", "LINA MARIA GARCIA FERNANDEZ": "LINA GARCIA", "LUCAS HERNANDEZ DE AGUILAR": "LUCAS HERNANDEZ", "M. AMPARO HENARES JIMENEZ": "M. AMPARO HENARES", "M. ARANZAZU CELESTINO ROMERO": "M. ARANZAZU CELESTINO", "M. CORTES RODRIGUEZ HUESCAR": "M. CORTES RODRIGUEZ", "M. JOSE ESCOBAR LOPEZ": "M. JOSE ESCOBAR", "M. MERCEDES GARCIA VALENCIANO": "M. MERCEDES GARCIA", "M. VICTORIA SERRANO MONEDERO": "M. VICTORIA SERRANO", "M.CARMEN DIAZ MORENO": "M.CARMEN DIAZ", "MARIA DEL PI RODENAS RODENAS": "MARIA DEL PI RODENAS", "MIGUEL A. ALCAHUD CUARTERO": "MIGUEL A. ALCAHUD", "MIGUEL ANGEL MAESO MARTINEZ": "MIGUEL ANGEL MAESO", "MIRELLA MARTINEZ ANDUJAR": "MIRELLA MARTINEZ", "PEDRO LUIS MARTINEZ SORIA": "PEDRO LUIS MARTINEZ", "PILAR GONZALEZ CIFO": "PILAR GONZALEZ", "RAFAEL MOTOS FERNANDEZ": "RAFAEL MOTOS", "RAMON MARIN SERRANO": "RAMON MARIN", "ROSARIO SANCHEZ MUÑOZ": "ROSARIO SANCHEZ", "SAMUEL CARRION TORRES": "SAMUEL CARRION", "SHEREZADE CUSUTIEN DE GRACIA": "SHEREZADE CUSUTIEN", "VICENTE RODENAS SANCHEZ": "VICENTE RODENAS", "VICTORIA SANCHEZ ARCAS": "VICTORIA SANCHEZ"};
 function apellido(nombreCompleto){
   if(APELLIDO_MAP[nombreCompleto]) return APELLIDO_MAP[nombreCompleto];
   // Fallback genérico para nombres no mapeados (ej. si se añade un empleado nuevo):
-  // penúltima palabra = primer apellido (heurística razonable en la mayoría de casos).
+  // primera palabra (nombre) + penúltima palabra (primer apellido).
   const parts = (nombreCompleto||'').trim().split(/\s+/);
-  return parts.length >= 2 ? parts[parts.length-2] : (parts[0]||'');
+  if(parts.length>=3) return parts[0]+' '+parts[parts.length-2];
+  if(parts.length===2) return parts[0]+' '+parts[1];
+  return parts[0]||'';
 }
 // Celda de empleado: apellido a la izquierda + nº de empleado a la derecha,
 // en la misma celda (evita tener que ajustar colspans en todas las tablas).
