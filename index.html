@@ -429,7 +429,8 @@ const DEPT_SUBGROUPS={
       {label:'REFUERZO SAC (jun–sep)', indices:[9], bg:'#fce4ec',border:'#c2185b'}
     ]
   },
-  muelle:{order:[1,3,4,0,5,6,2,7],groups:[{label:'MOZOS MUELLE',indices:[1,3,4],bg:'#e8f5e9',border:'#388e3c'},{label:'RECEPCIÓN',indices:[0,5],bg:'#e3f2fd',border:'#1565c0'},{label:'ALMACÉN',indices:[6],bg:'#f3e5f5',border:'#6a1b9a'},{label:'POSTVENTA',indices:[2,7],bg:'#fff8e1',border:'#f57f17'}]},
+  muelle:{order:[1,3,4,0,5,6,2,7],groups:[{label:'MOZOS MUELLE',indices:[1,3,4],bg:'#e8f5e9',border:'#388e3c'},{label:'RECEPCIÓN',indices:[0,5],bg:'#e3f2fd',border:'#1565c0'},{label:'ALMACÉN',indices:[6],bg:'#f3e5f5',border:'#6a1b9a'},{label:'OTROS',indices:[2,7],bg:'#fff8e1',border:'#f57f17'}]},
+  postventa:{order:[0,1],groups:[{label:'POSTVENTA',indices:[0,1],bg:'#f3e5f5',border:'#8e24aa'}]},
   omnicanal:{
     order:[6,8,7, 1,12,3,0,5,4,14, 10,9,11, 16,19,17,18, 20,21,15, 2,13],
     groups:[
@@ -576,7 +577,8 @@ const deptState = {
   operaciones: { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 },
   omnicanal:   { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 },
   cajasac:     { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 },
-  muelle:      { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 }
+  muelle:      { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 },
+  postventa:   { month:_hoy.getMonth()+1, year:_hoy.getFullYear(), weekStart:new Date(_ws), curEmp:0 }
 };
 // ===== EDIT SYSTEM =====
 let _ov={};
