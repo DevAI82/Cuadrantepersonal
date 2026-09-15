@@ -215,6 +215,7 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
   <button class="dept-btn" onclick="switchDept('omnicanal',this)">OMNICANAL</button>
   <button class="dept-btn" onclick="switchDept('cajasac',this)">CAJA-SAC</button>
   <button class="dept-btn" onclick="switchDept('muelle',this)">MUELLE</button>
+  <button class="dept-btn" onclick="switchDept('postventa',this)">POSTVENTA</button>
   <div style="width:2px;background:rgba(255,255,255,.2);border-radius:2px;margin:2px 4px"></div>
   <button class="dept-btn" id="btn-global" onclick="switchToGlobal(this)" style="border-color:rgba(255,215,0,.5);color:rgba(255,215,0,.8)">&#127760; GLOBAL</button>
   <a href="Tutorial_Cuadrante_Personal.html" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:2px solid rgba(100,220,255,.45);border-radius:10px;background:rgba(100,220,255,.1);color:rgba(180,240,255,.9);font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='rgba(100,220,255,.22)'" onmouseout="this.style.background='rgba(100,220,255,.1)'">&#128218; Tutorial</a>
@@ -1055,7 +1056,7 @@ function _deptMinOK(dept, dw) {
 
 function renderResumen(){
   const thr=DEPT_THR[activeDept]||{minOK:1,detail:'names',label:''};
-  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle'}[activeDept];
+  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[activeDept];
   let h='<div style="padding:16px 18px">';
   h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">';
   h+='<div style="font-size:1rem;font-weight:800;color:#1a237e">'+dLabel+' &mdash; '+N()+' empleados</div>';
@@ -1906,7 +1907,7 @@ function hayIncidencia(y,m,d){
 }
 
 function buildIncidenciasPage(sy,sm){
-  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle'}[activeDept]||activeDept;
+  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[activeDept]||activeDept;
 
   let months=[];
   let m=sm,y=sy;
@@ -3438,7 +3439,7 @@ function checkDescanso12h(dept,fromDs,toDs){
 
 function buildInformeHTML(dk){
   const _saved=activeDept; activeDept=dk;
-  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle'}[activeDept]||activeDept;
+  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[activeDept]||activeDept;
   const dColor={operaciones:'#3949ab',omnicanal:'#00897b',cajasac:'#e53935',muelle:'#6d4c41'};
   const dc=dColor[activeDept]||'#1a237e';
 
@@ -3838,9 +3839,9 @@ function renderInforme(){
 }
 
 // ===== GLOBAL =====
-const DEPT_KEYS=['operaciones','omnicanal','cajasac','muelle'];
-const DEPT_LABEL={'operaciones':'Operaciones','omnicanal':'Omnicanal','cajasac':'Caja-SAC','muelle':'Muelle'};
-const DEPT_COLOR={'operaciones':'#3949ab','omnicanal':'#00897b','cajasac':'#e53935','muelle':'#6d4c41'};
+const DEPT_KEYS=['operaciones','omnicanal','cajasac','muelle','postventa'];
+const DEPT_LABEL={'operaciones':'Operaciones','omnicanal':'Omnicanal','cajasac':'Caja-SAC','muelle':'Muelle','postventa':'Postventa'};
+const DEPT_COLOR={'operaciones':'#3949ab','omnicanal':'#00897b','cajasac':'#e53935','muelle':'#6d4c41','postventa':'#8e24aa'};
 
 function buildWeeklyCoverage(){
   const _sv=activeDept;
@@ -3855,8 +3856,8 @@ function buildWeeklyCoverage(){
   ];
 
   // Min thresholds M and T per dept for color coding
-  const MIN_M={operaciones:1,omnicanal:3,cajasac:1,muelle:4};
-  const MIN_T={operaciones:0,omnicanal:3,cajasac:2,muelle:0};
+  const MIN_M={operaciones:1,omnicanal:3,cajasac:1,muelle:4,postventa:1};
+  const MIN_T={operaciones:0,omnicanal:3,cajasac:2,muelle:0,postventa:0};
 
   function cellColor(val,minVal){
     if(minVal===0) return val>0?['#e8f5e9','#1b5e20']:['#f5f5f5','#90a4ae'];
@@ -5440,7 +5441,7 @@ function buildDiaPreviewHTML(dsStr, dept) {
   const date=new Date(p[0],p[1]-1,p[2]);
   const DAY_LONG=['Domingo','Lunes','Martes','Mi\u00e9rcoles','Jueves','Viernes','S\u00e1bado'];
   const MON_SH=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle'}[dept]||dept;
+  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[dept]||dept;
   const dColor={operaciones:'#3949ab',omnicanal:'#00897b',cajasac:'#e53935',muelle:'#6d4c41'}[dept]||'#1a237e';
   const raw=(DEPTS[dept]||{raw:{}}).raw[dsStr]||[];
   const emps=(DEPTS[dept]||{employees:[]}).employees;
@@ -5997,7 +5998,7 @@ function goToEmpleado(ei){
 // ── Exportar Informe a Excel (CSV descargable) ──────────────────────────────
 function exportInformeExcel(dk){
   const _sv=activeDept; activeDept=dk;
-  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle'}[dk]||dk;
+  const dLabel={operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[dk]||dk;
   const today=new Date();
   const dateStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   let csv='﻿'; // BOM UTF-8 para Excel
