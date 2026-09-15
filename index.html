@@ -60,6 +60,8 @@ th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
 .s-FOR{background:#ffe0b2;color:#bf360c}
 .s-empty{background:#f5f5f5;color:#bdbdbd}
 .s-PER{background:#e8eaf6;color:#3949ab;border:1px solid #9fa8da}
+.s-FES{background:#90a4ae;color:#fff}
+.s-unk{background:#fff9c4;color:#795548;border:1px dashed #f57f17}
 .ed-cell{cursor:pointer}
 .ed-cell:hover{opacity:.78;outline:2px solid #1565c0;outline-offset:-2px;position:relative;z-index:1}
 .alert-lbl{background:#37474f;color:#fff;font-size:.7rem;font-weight:700;padding:3px 6px;text-align:center;white-space:nowrap}
@@ -301,13 +303,70 @@ const EQ = {
   'FOR':['FOR','s-FOR'],
   'SPS':['SPS','s-SPS'],
   'JA':['JA','s-JA'],'Z':['--','s-empty'],'J':['J','s-J'],
-  'PER':['PER','s-PER']
+  'PER':['PER','s-PER'],
+  // Códigos de los PDFs oficiales de El Corte Inglés aclarados por el usuario
+  // (14-sep-2026): no tienen horario propio, son categorías de ausencia.
+  'LS':['LIB','s-LIB'],           // Libre (mismo trato que 'L')
+  'AH':['BAJ','s-ENF'],           // Ausencia/Horas → tratar como Baja/Ausencia
+  'VA':['VAC','s-VAC'],           // Vacaciones (mismo trato que 'V')
+  'PM':['PER','s-PER'],           // Permiso → tratar como ausencia/permiso
+  'FF':['FES','s-FES']            // Festivo
+  // El resto de códigos de muy pocas apariciones (CM, CT, DD, EG, EI, S) quedan
+  // SIN mapear a propósito: el usuario pidió revisarlos manualmente uno a uno
+  // en vez de que se adivinen. Caen en el fallback de eq() como '?' / s-unk.
 };
+
+// Catálogo real de horarios por código, extraído de los PDFs oficiales de
+// El Corte Inglés (2026), subido por el usuario. Es SOLO para clasificar
+// automáticamente códigos de turno de trabajo que no están en EQ (arriba):
+// horas de entrada/salida reales de cada código, iguales para todos los
+// trabajadores que lo usan. Formato: {CODIGO: "HH:MM - HH:MM (TRABAJO)"}.
+const CATALOGO_TURNOS = {"VSL": "16:00 - 22:00", "VKY": "12:00 - 22:00", "VEE": "10:00 - 16:00", "2UJ": "09:00 - 19:00", "VP9": "14:30 - 20:30", "X9S": "09:00 - 18:00", "VQL": "15:00 - 22:00", "ABJ": "08:10 - 15:20", "BNR": "13:00 - 22:00", "2UK": "12:00 - 22:00", "VES": "10:00 - 17:10", "V7R": "08:30 - 18:30", "V7M": "08:30 - 17:30", "45F": "10:00 - 20:00", "VTT": "17:00 - 22:00", "VE1": "10:00 - 15:00", "B7Y": "10:45 - 20:45", "VDL": "10:00 - 14:00", "VE7": "10:00 - 15:15", "3HR": "09:45 - 19:45", "AQF": "09:30 - 15:40", "APP": "09:30 - 18:30", "BNH": "13:00 - 22:00", "ZBQ": "11:00 - 18:00", "SPS": "00:00 - 00:00", "VHA": "11:00 - 21:00", "TDG": "09:00 - 18:00", "VEZ": "10:00 - 19:00", "VIA": "11:00 - 21:00", "VPZ": "14:45 - 22:00", "VQK": "15:00 - 21:45", "ZCH": "09:15 - 13:45", "VA5": "09:30 - 14:30", "F7F": "14:45 - 21:00", "V48": "06:00 - 13:30", "K5X": "06:00 - 14:30", "VAE": "09:30 - 15:30", "ZAM": "14:00 - 20:00", "AQ4": "09:30 - 14:15", "ZK0": "09:30 - 14:00", "VAN": "09:30 - 16:30", "VA9": "09:30 - 15:00", "V8Q": "09:00 - 16:00", "ZKC": "15:30 - 21:00", "VTA": "16:30 - 22:00", "P9D": "09:00 - 15:15", "VHG": "11:00 - 22:00", "2R6": "11:00 - 17:15", "VRA": "15:15 - 22:15", "V7W": "08:45 - 15:45", "AFY": "09:00 - 21:00", "5DG": "08:40 - 17:00", "AFE": "08:45 - 17:15", "2QV": "11:00 - 22:00", "5KX": "09:00 - 20:00", "VDX": "10:00 - 22:00", "VEP": "10:00 - 17:00", "V8D": "09:00 - 14:30", "ZTV": "07:30 - 16:00", "BGQ": "12:00 - 22:00", "V8I": "09:00 - 15:00", "45E": "09:00 - 19:00", "V8K": "09:00 - 15:30", "VVR": "09:30 - 19:30", "VQG": "15:00 - 21:00", "V70": "08:20 - 15:20", "M6C": "08:15 - 14:50", "VUP": "18:00 - 22:00", "V84": "09:00 - 13:00", "BN4": "12:45 - 21:45", "2UN": "09:45 - 18:45", "VKD": "12:00 - 16:00", "BGP": "12:00 - 21:00", "M6E": "09:30 - 18:30", "D2K": "11:00 - 15:00", "V7D": "08:30 - 15:30", "VRX": "15:30 - 22:30", "V6Y": "08:15 - 18:15", "3NU": "09:00 - 16:20", "ZPY": "08:30 - 15:40", "VRB": "15:15 - 22:15", "ZG9": "09:30 - 16:40", "VQM": "15:00 - 22:00", "BPU": "13:15 - 22:15", "VVI": "08:00 - 18:00", "2TR": "08:00 - 18:00", "G4R": "08:10 - 15:30", "VMZ": "13:00 - 20:00", "3AQ": "08:15 - 14:40", "VH3": "11:00 - 21:00", "VPY": "14:45 - 22:00", "V8W": "09:00 - 16:15", "2TS": "08:00 - 18:00", "R5P": "09:30 - 19:30", "ZG6": "09:30 - 20:30", "ZUE": "10:00 - 22:00", "AGE": "09:00 - 21:00", "Z2B": "15:00 - 22:15", "V8S": "09:00 - 16:00", "V89": "09:00 - 14:00", "ZCO": "10:00 - 17:00", "VZV": "15:00 - 20:30", "V76": "08:30 - 14:00", "ZHH": "09:30 - 17:00", "A6V": "07:30 - 15:00", "VTQ": "17:00 - 21:30", "2FM": "10:45 - 16:00", "VTH": "16:45 - 22:00", "BZR": "15:45 - 22:00", "VC6": "09:45 - 15:00", "ZHI": "09:45 - 16:00", "VBV": "09:45 - 14:15", "2WP": "15:05 - 21:05", "ZIH": "16:00 - 22:15", "ATJ": "09:45 - 20:45", "Q2J": "10:30 - 16:45", "45J": "11:00 - 21:00", "ZHN": "10:00 - 16:15", "ZF8": "09:30 - 16:00", "A3U": "06:00 - 15:00", "45K": "11:15 - 21:15", "AMR": "09:15 - 15:30", "G8D": "07:20 - 15:00", "VA1": "09:30 - 13:30", "V56": "07:30 - 13:30", "ZSQ": "07:30 - 12:00", "A6N": "07:30 - 13:00", "A6K": "07:30 - 12:45", "VVE": "07:30 - 12:30", "5DN": "07:30 - 12:20", "A6M": "07:30 - 12:50", "V55": "07:30 - 11:45", "V4M": "07:00 - 14:00", "VEQ": "10:00 - 17:00", "V9N": "09:15 - 16:15", "ZDO": "08:30 - 16:00", "V6R": "08:15 - 15:15", "BXB": "15:10 - 22:10", "N5A": "07:50 - 15:10", "VF6": "10:00 - 20:00", "ZCP": "10:00 - 17:10", "GFR": "09:30 - 19:30", "BGF": "12:00 - 22:00", "VXJ": "07:30 - 15:00", "VXZ": "09:30 - 21:30", "AQM": "09:30 - 20:30", "VIN": "11:15 - 22:15", "VAL": "09:30 - 16:30", "4QG": "10:15 - 22:15", "ZHS": "10:30 - 17:30", "2QU": "09:00 - 20:00", "VLJ": "12:15 - 22:15", "VOI": "14:00 - 21:00", "VHW": "11:00 - 21:00", "ZHB": "09:00 - 13:30", "ZAS": "16:00 - 20:30", "BQD": "13:30 - 17:30", "N2D": "08:00 - 12:30", "C9P": "08:30 - 14:45", "F5S": "09:15 - 14:50", "VFK": "10:15 - 16:15", "A6A": "07:15 - 14:45", "T3J": "07:10 - 14:45", "VZD": "08:15 - 14:45", "ZG5": "09:15 - 14:45", "F5V": "07:20 - 14:05", "C9F": "07:30 - 14:00", "V5J": "07:45 - 15:00", "Z5G": "08:30 - 16:30", "3Y4": "08:30 - 16:20", "V78": "08:30 - 14:30", "ZIU": "08:20 - 14:20"};
+
+/**
+ * Clasifica automáticamente un código de turno de trabajo (no ausencia) según
+ * su horario, con las reglas dictadas por el usuario (14-sep-2026):
+ *   - Empieza antes de las 13:00           → Mañana (MAN)
+ *   - Termina a las 22:00 (o después)      → Tarde (TAR)
+ *   - Empieza por la mañana y se extiende
+ *     buena parte de la tarde (>=9h turno,
+ *     o cruza mediodía hasta últimas horas) → Partido (PAR)
+ *   - Si no se puede determinar el horario → sin clasificar (s-unk, '?')
+ */
+function _classifyByHours(tIn, tOut){
+  const [ih] = tIn.split(':').map(Number);
+  const [oh, om] = tOut.split(':').map(Number);
+  const startMin = ih*60 + (parseInt(tIn.split(':')[1])||0);
+  const endMin = oh*60 + om;
+  const durationMin = endMin - startMin;
+  const startsBefore13 = ih < 13;
+  const endsAt22orLater = (oh > 22) || (oh===22 && om>=0) || (oh===21 && om>=45);
+  // Partido: empieza en horario de mañana Y el turno es largo (>=8h) llegando
+  // hasta última hora de tarde/noche — cubre mañana y gran parte de la tarde.
+  const isSplit = startsBefore13 && endsAt22orLater && durationMin >= 480;
+  if(isSplit) return ['PAR','s-PAR'];
+  if(startsBefore13) return ['MAN','s-MAN'];
+  // No empieza antes de las 13:00 → es turno de tarde (empiece a la hora que
+  // empiece: 13:00, 14:00, 15:00... termine a las 22:00 o antes).
+  return ['TAR','s-TAR'];
+}
+
 function eq(c){
   if(c && c!=='0' && !isNaN(parseFloat(c))){
     return parseFloat(c)>7 ? ['PAR','s-PAR'] : ['MAN','s-MAN'];
   }
-  return EQ[c]||['?','s-empty'];
+  if(EQ[c]) return EQ[c];
+  // Código no reconocido en EQ: intentar clasificar por su horario real
+  // (catálogo de PDFs oficiales), según las reglas del usuario.
+  const info = c ? CATALOGO_TURNOS[c] : null;
+  if(info){
+    const m = info.match(/^(\d{2}:\d{2}) - (\d{2}:\d{2})/);
+    if(m){
+      const cls = _classifyByHours(m[1], m[2]);
+      if(cls) return cls;
+    }
+  }
+  return c ? ['?','s-unk'] : ['?','s-empty'];
 }
 
 const FESTIVOS_CIERRE = {
