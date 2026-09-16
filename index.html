@@ -999,7 +999,7 @@ function switchToIncumplimientos(btn){
 }
 
 // ===== INCUMPLIMIENTOS DE CONVENIO (Grandes Almacenes 2023-2026, CCOO) =====
-// Reglas contrastadas contra el convenio (art. 26, 27.1, 30.1, 30.3, 30.4, 35.1):
+// Reglas contrastadas contra el convenio (art. 26, 27.1, 30.1, 30.3, 30.4, 30.5, 35.1):
 //   - Jornada máxima anual: 1770h (100%), proporcional al % de jornada del empleado.
 //   - Descanso diario mínimo entre jornadas: 12h ininterrumpidas (norma general ET,
 //     referenciada por el art. 27.1 del convenio).
@@ -1009,12 +1009,15 @@ function switchToIncumplimientos(btn){
 //     actividad (art. 30.3).
 //   - Interrupción de jornada partida: mínimo 2h, máximo 4h, salvo pacto de las
 //     partes (art. 30.4) — Operaciones tiene pacto de 3h, ya aplicado.
+//   - Fines de semana completos de descanso (sábado+domingo): mínimo 9 al año en
+//     2026 (escalado desde 2024; 10 en zonas de apertura liberalizada) (art. 30.5).
 //   - Vacaciones: 31 días naturales/año, al menos 21 ininterrumpidos entre jun-sep
 //     (art. 35.1, 36.1).
 const CONVENIO_JORNADA_MAX_ANUAL = 1770; // horas, 100% jornada (art. 26)
 const CONVENIO_DESCANSO_DIARIO_MIN_H = 12; // horas entre fin de una jornada e inicio de la siguiente
 const CONVENIO_MAX_DIAS_CONSECUTIVOS = 10; // art. 30.3 (11 en periodos de mayor actividad, no distinguimos aquí)
 const CONVENIO_PARTIDO_MIN_H = 2, CONVENIO_PARTIDO_MAX_H = 4; // art. 30.4 (salvo pacto distinto, ver excepción Operaciones)
+const CONVENIO_FINDE_CALIDAD_MIN = 9; // art. 30.5, año 2026 (10 en zona apertura liberalizada; no distinguido aquí)
 
 function _pctJornada(dept, ei){
   const max = (JORNADA_MAX_H[dept]||[])[ei];
@@ -1122,6 +1125,34 @@ function _detectarIncumplimientos(dept){
         weekStart = dia.dsStr; weekLabel = dia.dsStr; workedAll = true; weekHasRest = false;
       }
       if(['LIB','VAC','BAJ','J','SPS','--'].includes(dia.lbl)) weekHasRest = true;
+    }
+
+    // 4b) Fines de semana completos de descanso (sábado Y domingo libres la misma
+    //     semana natural) — mínimo 9 al año (art. 30.5, escalado 2026).
+    let findesCalidad = 0;
+    for(let m=1;m<=12;m++){
+      const nd = daysInMonth(year,m);
+      for(let d=1;d<=nd;d++){
+        const dt = new Date(year,m-1,d);
+        if(dt.getDay()!==6) continue; // solo mirar sábados
+        const dsSab = ds(year,m,d);
+        const dSun = new Date(dt.getTime()+86400000);
+        // domingo puede caer en el mes siguiente
+        const dsDom = dSun.getFullYear()+'-'+String(dSun.getMonth()+1).padStart(2,'0')+'-'+String(dSun.getDate()).padStart(2,'0');
+        const codeSab = (raw[dsSab]||[])[ei] || '0';
+        const codeDom = (raw[dsDom]||[])[ei] || '0';
+        const lblSab = eq(codeSab)[0], lblDom = eq(codeDom)[0];
+        const descansaSab = ['LIB','VAC','BAJ','J','SPS','--'].includes(lblSab);
+        const descansaDom = ['LIB','VAC','BAJ','J','SPS','--'].includes(lblDom) || lblDom==='--';
+        if(descansaSab && descansaDom) findesCalidad++;
+      }
+    }
+    if(findesCalidad < CONVENIO_FINDE_CALIDAD_MIN){
+      incidencias.push({
+        tipo:'Fines de semana de calidad insuficientes', severidad:'media', empleado:nombre,
+        detalle:`Solo ${findesCalidad} fines de semana completos (sáb+dom) de descanso en 2026 — mínimo 9 (art. 30.5)`,
+        fecha:null
+      });
     }
 
     // 5) Interrupción de jornada partida fuera de 2-4h (excepto Operaciones, que
