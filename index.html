@@ -1188,6 +1188,9 @@ function _detectarIncumplimientos(dept){
 }
 
 let _incumpQuarter = 'all'; // 'all' | 'Q1' | 'Q2' | 'Q3' | 'Q4'
+let _incumpTipo = 'all';
+let _incumpDept = 'all';
+let _incumpEmp = 'all';
 const INCUMP_QUARTERS = {
   Q1: {label:'Ene-Mar', start:'2026-01-01', end:'2026-03-31'},
   Q2: {label:'Abr-Jun', start:'2026-04-01', end:'2026-06-30'},
@@ -1195,6 +1198,9 @@ const INCUMP_QUARTERS = {
   Q4: {label:'Oct-Dic', start:'2026-10-01', end:'2026-12-31'}
 };
 function setIncumpQuarter(q){ _incumpQuarter = q; renderIncumplimientos(); }
+function setIncumpTipo(v){ _incumpTipo = v; renderIncumplimientos(); }
+function setIncumpDept(v){ _incumpDept = v; renderIncumplimientos(); }
+function setIncumpEmp(v){ _incumpEmp = v; renderIncumplimientos(); }
 
 function renderIncumplimientos(){
   let h='<div style="padding:18px 22px">';
@@ -1202,7 +1208,7 @@ function renderIncumplimientos(){
   h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:12px">Revisión automática de jornada anual, descansos diarios/semanales, días consecutivos e interrupción de jornada partida, contrastada contra el convenio colectivo (arts. 26, 27, 30, 35). Es una alerta orientativa: revisa manualmente cada caso antes de actuar.</div>';
 
   // Filtro de trimestre
-  h+='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">';
+  h+='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
   const qBtn=(key,label)=>{
     const active = _incumpQuarter===key;
     return '<button onclick="setIncumpQuarter(\''+key+'\')" style="padding:6px 14px;border-radius:8px;border:2px solid '+(active?'#c62828':'#e0e0e0')+';background:'+(active?'#c62828':'#fff')+';color:'+(active?'#fff':'#546e7a')+';font-weight:700;font-size:.75rem;cursor:pointer">'+label+'</button>';
@@ -1227,6 +1233,36 @@ function renderIncumplimientos(){
     todas = todas.filter(i=> i.fecha && i.fecha>=q.start && i.fecha<=q.end);
   }
 
+  // Opciones disponibles para los selects (calculadas ANTES de aplicar motivo/depto/
+  // trabajador, para que el desplegable siempre muestre todas las opciones posibles
+  // dentro del trimestre elegido, no solo las que sobreviven al resto de filtros).
+  const tiposDisp = [...new Set(todas.map(i=>i.tipo))].sort();
+  const deptsDisp = [...new Set(todas.map(i=>i.dept))];
+  const empsDisp = [...new Set(todas.map(i=>i.empleado))].sort();
+
+  // Filtros adicionales: motivo, departamento, trabajador
+  if(_incumpTipo!=='all') todas = todas.filter(i=>i.tipo===_incumpTipo);
+  if(_incumpDept!=='all') todas = todas.filter(i=>i.dept===_incumpDept);
+  if(_incumpEmp!=='all') todas = todas.filter(i=>i.empleado===_incumpEmp);
+
+  // Selects de Motivo / Depto / Trabajador
+  const mkSelect=(id,onchange,current,options,allLabel)=>{
+    let s='<select id="'+id+'" onchange="'+onchange+'(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid #cfd8dc;font-size:.75rem;color:#37474f;background:#fff;cursor:pointer">';
+    s+='<option value="all"'+(current==='all'?' selected':'')+'>'+allLabel+'</option>';
+    for(const [val,label] of options) s+='<option value="'+val.replace(/"/g,'&quot;')+'"'+(current===val?' selected':'')+'>'+label+'</option>';
+    s+='</select>';
+    return s;
+  };
+  h+='<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">';
+  h+='<span style="font-size:.72rem;color:#90a4ae;font-weight:700">FILTRAR POR:</span>';
+  h+=mkSelect('sel-motivo','setIncumpTipo',_incumpTipo, tiposDisp.map(t=>[t,t]), 'Todos los motivos');
+  h+=mkSelect('sel-depto','setIncumpDept',_incumpDept, deptsDisp.map(d=>[d,DEPT_LABEL[d]||d]), 'Todos los deptos');
+  h+=mkSelect('sel-emp','setIncumpEmp',_incumpEmp, empsDisp.map(e=>[e,apellido(e)]), 'Todos los trabajadores');
+  if(_incumpTipo!=='all'||_incumpDept!=='all'||_incumpEmp!=='all'){
+    h+='<button onclick="_incumpTipo=\'all\';_incumpDept=\'all\';_incumpEmp=\'all\';renderIncumplimientos()" style="padding:6px 12px;border-radius:8px;border:1px solid #ef9a9a;background:#fff;color:#c62828;font-size:.72rem;font-weight:700;cursor:pointer">&times; Limpiar filtros</button>';
+  }
+  h+='</div>';
+
   const bySev = {alta:[], media:[], baja:[]};
   for(const i of todas) (bySev[i.severidad]||bySev.baja).push(i);
 
@@ -1246,8 +1282,8 @@ function renderIncumplimientos(){
        '<th class="th-emp" style="min-width:60px">SEV.</th>'+
        '<th class="th-emp" style="min-width:90px">DEPTO</th>'+
        '<th class="th-emp" style="min-width:140px">TRABAJADOR</th>'+
-       '<th class="th-emp" style="min-width:160px">TIPO</th>'+
        '<th class="th-emp" style="min-width:80px">FECHA</th>'+
+       '<th class="th-emp" style="min-width:160px">MOTIVO</th>'+
        '<th class="th-emp" style="min-width:300px">DETALLE</th></tr>';
     const orden = {alta:0, media:1, baja:2};
     todas.sort((a,b)=>{
@@ -1265,8 +1301,8 @@ function renderIncumplimientos(){
         '<td style="background:'+sevBg[i.severidad]+';color:'+sevColor[i.severidad]+';font-weight:800;font-size:.68rem">'+i.severidad.toUpperCase()+'</td>'+
         '<td class="td-emp" style="font-size:.7rem">'+DEPT_LABEL[i.dept]+'</td>'+
         '<td class="td-emp">'+apellido(i.empleado)+'</td>'+
-        '<td style="text-align:left;padding:6px 8px;font-size:.72rem;font-weight:600">'+i.tipo+'</td>'+
         '<td style="text-align:center;padding:6px 8px;font-size:.72rem;font-weight:700;color:#1a237e;white-space:nowrap">'+fechaFmt+'</td>'+
+        '<td style="text-align:left;padding:6px 8px;font-size:.72rem;font-weight:600">'+i.tipo+'</td>'+
         '<td style="text-align:left;padding:6px 8px;font-size:.72rem;color:#455a64">'+i.detalle+'</td>'+
         '</tr>';
     }
