@@ -1158,6 +1158,10 @@ function _detectarIncumplimientos(dept){
     // 5) Interrupción de jornada partida fuera de 2-4h (excepto Operaciones, que
     //    tiene pacto de 3h de comida ya aplicado en calcHorasDia — no se evalúa aquí
     //    porque el pacto expreso del art. 30.4 lo permite).
+    // NOTA DE FIABILIDAD: esta regla usa OMNI_H/CAJA_H (horario "de referencia" fijo
+    // por empleado, no el horario real de cada día concreto), así que puede arrojar
+    // falsos positivos/negativos cuando el horario real varía día a día. Tratar como
+    // orientativa, revisar manualmente antes de actuar.
     if(dept !== 'operaciones'){
       for(const dia of dias){
         if(dia.lbl !== 'PAR') continue;
@@ -1169,10 +1173,10 @@ function _detectarIncumplimientos(dept){
         const def = s ? s[ei] : null;
         if(def && def.MAN && def.TAR){
           const interrH = (def.TAR[0]-def.MAN[1])/60;
-          if(interrH < CONVENIO_PARTIDO_MIN_H || interrH > CONVENIO_PARTIDO_MAX_H){
+          if(interrH>0 && (interrH < CONVENIO_PARTIDO_MIN_H || interrH > CONVENIO_PARTIDO_MAX_H)){
             incidencias.push({
               tipo:'Interrupción de jornada partida fuera de rango', severidad:'baja', empleado:nombre,
-              detalle:`${dia.dsStr}: interrupción de ${interrH.toFixed(1)}h (permitido 2-4h, art. 30.4)`,
+              detalle:`${dia.dsStr}: interrupción de ${interrH.toFixed(1)}h según horario de referencia (permitido 2-4h, art. 30.4) — ORIENTATIVO, verificar horario real de ese día`,
               fecha:dia.dsStr
             });
           }
