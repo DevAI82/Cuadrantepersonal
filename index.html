@@ -1220,15 +1220,26 @@ function renderIncumplimientos(){
        '<th class="th-emp" style="min-width:90px">DEPTO</th>'+
        '<th class="th-emp" style="min-width:140px">TRABAJADOR</th>'+
        '<th class="th-emp" style="min-width:160px">TIPO</th>'+
+       '<th class="th-emp" style="min-width:80px">FECHA</th>'+
        '<th class="th-emp" style="min-width:300px">DETALLE</th></tr>';
     const orden = {alta:0, media:1, baja:2};
-    todas.sort((a,b)=>orden[a.severidad]-orden[b.severidad]);
+    todas.sort((a,b)=>{
+      const s = orden[a.severidad]-orden[b.severidad];
+      if(s!==0) return s;
+      // Dentro de la misma severidad, ordenar cronológicamente (los sin fecha van al final)
+      if(!a.fecha && !b.fecha) return 0;
+      if(!a.fecha) return 1;
+      if(!b.fecha) return -1;
+      return a.fecha.localeCompare(b.fecha);
+    });
     for(const i of todas){
+      const fechaFmt = i.fecha ? (()=>{const p=i.fecha.split('-');return p[2]+'/'+p[1]+'/'+p[0];})() : '—';
       h+='<tr>'+
         '<td style="background:'+sevBg[i.severidad]+';color:'+sevColor[i.severidad]+';font-weight:800;font-size:.68rem">'+i.severidad.toUpperCase()+'</td>'+
         '<td class="td-emp" style="font-size:.7rem">'+DEPT_LABEL[i.dept]+'</td>'+
         '<td class="td-emp">'+apellido(i.empleado)+'</td>'+
         '<td style="text-align:left;padding:6px 8px;font-size:.72rem;font-weight:600">'+i.tipo+'</td>'+
+        '<td style="text-align:center;padding:6px 8px;font-size:.72rem;font-weight:700;color:#1a237e;white-space:nowrap">'+fechaFmt+'</td>'+
         '<td style="text-align:left;padding:6px 8px;font-size:.72rem;color:#455a64">'+i.detalle+'</td>'+
         '</tr>';
     }
