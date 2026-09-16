@@ -1187,10 +1187,29 @@ function _detectarIncumplimientos(dept){
   return incidencias;
 }
 
+let _incumpQuarter = 'all'; // 'all' | 'Q1' | 'Q2' | 'Q3' | 'Q4'
+const INCUMP_QUARTERS = {
+  Q1: {label:'Ene-Mar', start:'2026-01-01', end:'2026-03-31'},
+  Q2: {label:'Abr-Jun', start:'2026-04-01', end:'2026-06-30'},
+  Q3: {label:'Jul-Sep', start:'2026-07-01', end:'2026-09-30'},
+  Q4: {label:'Oct-Dic', start:'2026-10-01', end:'2026-12-31'}
+};
+function setIncumpQuarter(q){ _incumpQuarter = q; renderIncumplimientos(); }
+
 function renderIncumplimientos(){
   let h='<div style="padding:18px 22px">';
   h+='<div style="font-size:1.1rem;font-weight:800;color:#c62828;margin-bottom:4px">&#9888; Incumplimientos de Convenio &mdash; Grandes Almacenes 2023-2026</div>';
-  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:16px">Revisión automática de jornada anual, descansos diarios/semanales, días consecutivos e interrupción de jornada partida, contrastada contra el convenio colectivo (arts. 26, 27, 30, 35). Es una alerta orientativa: revisa manualmente cada caso antes de actuar.</div>';
+  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:12px">Revisión automática de jornada anual, descansos diarios/semanales, días consecutivos e interrupción de jornada partida, contrastada contra el convenio colectivo (arts. 26, 27, 30, 35). Es una alerta orientativa: revisa manualmente cada caso antes de actuar.</div>';
+
+  // Filtro de trimestre
+  h+='<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">';
+  const qBtn=(key,label)=>{
+    const active = _incumpQuarter===key;
+    return '<button onclick="setIncumpQuarter(\''+key+'\')" style="padding:6px 14px;border-radius:8px;border:2px solid '+(active?'#c62828':'#e0e0e0')+';background:'+(active?'#c62828':'#fff')+';color:'+(active?'#fff':'#546e7a')+';font-weight:700;font-size:.75rem;cursor:pointer">'+label+'</button>';
+  };
+  h+=qBtn('all','Todo el año');
+  for(const qk of ['Q1','Q2','Q3','Q4']) h+=qBtn(qk, INCUMP_QUARTERS[qk].label);
+  h+='</div>';
 
   const allDepts = ['operaciones','omnicanal','cajasac','muelle','postventa'];
   let todas = [];
@@ -1198,6 +1217,14 @@ function renderIncumplimientos(){
     if(!DEPTS[dk]) continue;
     const inc = _detectarIncumplimientos(dk).map(i=>Object.assign({dept:dk}, i));
     todas = todas.concat(inc);
+  }
+
+  // Aplicar filtro de trimestre: las incidencias sin fecha concreta (ej. "Jornada
+  // anual excedida", que es un total del año) se muestran siempre, salvo que se
+  // filtre un trimestre concreto, en cuyo caso quedan fuera (no pertenecen a uno solo).
+  if(_incumpQuarter!=='all'){
+    const q = INCUMP_QUARTERS[_incumpQuarter];
+    todas = todas.filter(i=> i.fecha && i.fecha>=q.start && i.fecha<=q.end);
   }
 
   const bySev = {alta:[], media:[], baja:[]};
