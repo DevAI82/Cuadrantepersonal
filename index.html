@@ -5636,12 +5636,14 @@ function calcHorasDia(dept,ei,code,dsStr){
     rawH=((oh*60+om)-(ih*60+im))/60;
     let brk = (hc.break!=null) ? hc.break/60 : 0;
     // Regla especial Operaciones (indicada por el usuario, 16-sep-2026):
-    // José Miguel Olmeda, Vicente y Elena en turno PARTIDO tienen 3h reales de
-    // descanso de comida (no el break_min genérico de 30min guardado); Mirella
-    // tiene 20 min de descanso para comer en su jornada normal. Sustituye el
-    // break_min almacenado en custom_hours por estos valores reales conocidos.
+    // José Miguel Olmeda, Vicente y Elena tienen turnos con tramo largo (mañana
+    // + tarde con hueco de comida) que la clasificación automática etiqueta como
+    // "Mañana" por horario de inicio, pero son realmente PARTIDOS con 3h reales
+    // de descanso de comida — se detecta por la duración bruta (>8.5h) en vez de
+    // por la etiqueta eq(), que no lo distingue de un turno largo continuo.
+    // Mirella tiene 20 min de descanso para comer en su jornada normal.
     if(dept==='operaciones'){
-      if([1,2,4].includes(ei) && workLbl==='PAR') brk = 3;
+      if([1,2,4].includes(ei) && rawH>8.5) brk = 3;
       else if(ei===3) brk = 20/60;
     }
     rawH -= brk;
