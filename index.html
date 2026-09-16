@@ -220,6 +220,7 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
   <button class="dept-btn" onclick="switchDept('postventa',this)">POSTVENTA</button>
   <div style="width:2px;background:rgba(255,255,255,.2);border-radius:2px;margin:2px 4px"></div>
   <button class="dept-btn" id="btn-global" onclick="switchToGlobal(this)" style="border-color:rgba(255,215,0,.5);color:rgba(255,215,0,.8)">&#127760; GLOBAL</button>
+  <button class="dept-btn" id="btn-incump" onclick="switchToIncumplimientos(this)" style="border-color:rgba(255,100,100,.5);color:rgba(255,150,150,.85)">&#9888; INCUMPLIMIENTOS</button>
   <a href="Tutorial_Cuadrante_Personal.html" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:2px solid rgba(100,220,255,.45);border-radius:10px;background:rgba(100,220,255,.1);color:rgba(180,240,255,.9);font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .18s" onmouseover="this.style.background='rgba(100,220,255,.22)'" onmouseout="this.style.background='rgba(100,220,255,.1)'">&#128218; Tutorial</a>
   <div style="flex:1"></div>
   <button onclick="resetOverrides()" title="Eliminar todos los cambios guardados" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,200,150,.5);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.7rem;color:rgba(255,220,180,.9);font-weight:700">&#8635; Restablecer</button>
@@ -267,6 +268,7 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
 <div id="view-dia"        class="view"></div>
 <div id="view-trabajador"  class="view"></div>
 <div id="view-global"      class="view"></div>
+<div id="view-incump"      class="view"></div>
 <div id="view-plantilla"    class="view"></div>
 <div id="view-estudio"     class="view"></div>
 <div id="view-reglas"      class="view"></div>
@@ -984,6 +986,223 @@ function switchToGlobal(btn){
   document.getElementById('view-global').classList.add('active');
   renderGlobal();
 }
+
+function switchToIncumplimientos(btn){
+  document.querySelectorAll('.dept-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dept-label').textContent='INCUMPLIMIENTOS';
+  document.querySelector('.tabs').style.display='none';
+  document.querySelector('.legend-bar').style.display='none';
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-incump').classList.add('active');
+  renderIncumplimientos();
+}
+
+// ===== INCUMPLIMIENTOS DE CONVENIO (Grandes Almacenes 2023-2026, CCOO) =====
+// Reglas contrastadas contra el convenio (art. 26, 27.1, 30.1, 30.3, 30.4, 35.1):
+//   - Jornada máxima anual: 1770h (100%), proporcional al % de jornada del empleado.
+//   - Descanso diario mínimo entre jornadas: 12h ininterrumpidas (norma general ET,
+//     referenciada por el art. 27.1 del convenio).
+//   - Descanso semanal: día y medio ininterrumpido (art. 30.1); en la práctica del
+//     cuadrante se traduce en al menos 1 día de Libre/semana natural.
+//   - Máximo 10 días consecutivos de trabajo, ampliable a 11 en periodos de mayor
+//     actividad (art. 30.3).
+//   - Interrupción de jornada partida: mínimo 2h, máximo 4h, salvo pacto de las
+//     partes (art. 30.4) — Operaciones tiene pacto de 3h, ya aplicado.
+//   - Vacaciones: 31 días naturales/año, al menos 21 ininterrumpidos entre jun-sep
+//     (art. 35.1, 36.1).
+const CONVENIO_JORNADA_MAX_ANUAL = 1770; // horas, 100% jornada (art. 26)
+const CONVENIO_DESCANSO_DIARIO_MIN_H = 12; // horas entre fin de una jornada e inicio de la siguiente
+const CONVENIO_MAX_DIAS_CONSECUTIVOS = 10; // art. 30.3 (11 en periodos de mayor actividad, no distinguimos aquí)
+const CONVENIO_PARTIDO_MIN_H = 2, CONVENIO_PARTIDO_MAX_H = 4; // art. 30.4 (salvo pacto distinto, ver excepción Operaciones)
+
+function _pctJornada(dept, ei){
+  const max = (JORNADA_MAX_H[dept]||[])[ei];
+  if(!max) return 1;
+  return max / 1770;
+}
+
+// Recorre TODO el año 2026 de un departamento y detecta incidencias.
+function _detectarIncumplimientos(dept){
+  const emps = (DEPTS[dept]||{employees:[]}).employees;
+  const raw = (DEPTS[dept]||{raw:{}}).raw;
+  const incidencias = [];
+  const year = 2026;
+
+  for(let ei=0; ei<emps.length; ei++){
+    const nombre = emps[ei];
+    // Construir la serie completa de días del año con su código y etiqueta
+    const dias = [];
+    for(let m=1;m<=12;m++){
+      const nd = daysInMonth(year,m);
+      for(let d=1;d<=nd;d++){
+        const dsStr = ds(year,m,d);
+        const code = (raw[dsStr]||[])[ei] || '0';
+        const [lbl] = eq(code);
+        dias.push({dsStr, code, lbl, date:new Date(year,m-1,d)});
+      }
+    }
+
+    // 1) Horas anuales trabajadas vs máximo proporcional a su % de jornada
+    let horasAnuales = 0;
+    for(const dia of dias){
+      if(['MAN','TAR','PAR','COM','PER','FOR'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
+        horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
+      }
+    }
+    const maxAnual = (JORNADA_MAX_H[dept]||[])[ei] || CONVENIO_JORNADA_MAX_ANUAL;
+    if(horasAnuales > maxAnual + 20){ // margen de 20h para redondeos/festivos puntuales
+      incidencias.push({
+        tipo:'Jornada anual excedida', severidad:'alta', empleado:nombre,
+        detalle:`${Math.round(horasAnuales)}h trabajadas en 2026 vs máximo pactado ${maxAnual}h (art. 26 convenio)`,
+        fecha:null
+      });
+    }
+
+    // 2) Descanso diario mínimo entre jornadas (12h) — comparar fin de un día
+    //    trabajado con inicio del día siguiente si también trabaja.
+    for(let i=0;i<dias.length-1;i++){
+      const hoy = dias[i], manana = dias[i+1];
+      if(!['MAN','TAR','PAR','COM'].includes(hoy.lbl)) continue;
+      if(!['MAN','TAR','PAR','COM'].includes(manana.lbl)) continue;
+      const hcHoy = _hours[_hoKey(dept,ei,hoy.dsStr)];
+      const hcManana = _hours[_hoKey(dept,ei,manana.dsStr)];
+      if(!hcHoy || !hcManana) continue;
+      const finHoyMin = timeToMin(hcHoy.out);
+      const inicioMananaMin = timeToMin(hcManana.in) + 24*60;
+      const descansoH = (inicioMananaMin - finHoyMin)/60;
+      if(descansoH < CONVENIO_DESCANSO_DIARIO_MIN_H){
+        incidencias.push({
+          tipo:'Descanso diario insuficiente', severidad:'alta', empleado:nombre,
+          detalle:`Solo ${descansoH.toFixed(1)}h de descanso entre el ${hoy.dsStr} (sale ${hcHoy.out}) y el ${manana.dsStr} (entra ${hcManana.in}) — mínimo legal 12h`,
+          fecha:manana.dsStr
+        });
+      }
+    }
+
+    // 3) Días consecutivos de trabajo > 10 (11 en periodos de mayor actividad, no distinguido)
+    let racha = 0, inicioRacha = null;
+    for(const dia of dias){
+      const trabaja = ['MAN','TAR','PAR','COM'].includes(dia.lbl);
+      if(trabaja){
+        if(racha===0) inicioRacha = dia.dsStr;
+        racha++;
+      } else {
+        if(racha > CONVENIO_MAX_DIAS_CONSECUTIVOS){
+          incidencias.push({
+            tipo:'Más de 10 días consecutivos trabajados', severidad:'media', empleado:nombre,
+            detalle:`${racha} días seguidos trabajando desde ${inicioRacha} (art. 30.3, máx. 10, 11 en campaña)`,
+            fecha:inicioRacha
+          });
+        }
+        racha = 0;
+      }
+    }
+    if(racha > CONVENIO_MAX_DIAS_CONSECUTIVOS){
+      incidencias.push({
+        tipo:'Más de 10 días consecutivos trabajados', severidad:'media', empleado:nombre,
+        detalle:`${racha} días seguidos trabajando desde ${inicioRacha} hasta fin de año (art. 30.3, máx. 10, 11 en campaña)`,
+        fecha:inicioRacha
+      });
+    }
+
+    // 4) Descanso semanal (al menos 1 día de Libre/Vacaciones/Baja por semana natural)
+    //    Agrupamos por semanas ISO (lunes-domingo).
+    let weekStart = null, workedAll = true, weekHasRest = false, weekLabel = '';
+    for(const dia of dias){
+      const dow = dia.date.getDay()===0?6:dia.date.getDay()-1; // 0=lunes
+      if(dow===0){ // nuevo lunes: cerrar semana anterior
+        if(weekStart && !weekHasRest && workedAll){
+          incidencias.push({
+            tipo:'Sin descanso semanal', severidad:'alta', empleado:nombre,
+            detalle:`Semana del ${weekLabel}: ningún día de descanso (Libre/Vacaciones/Baja) — mínimo legal día y medio (art. 30.1)`,
+            fecha:weekLabel
+          });
+        }
+        weekStart = dia.dsStr; weekLabel = dia.dsStr; workedAll = true; weekHasRest = false;
+      }
+      if(['LIB','VAC','BAJ','J','SPS','--'].includes(dia.lbl)) weekHasRest = true;
+    }
+
+    // 5) Interrupción de jornada partida fuera de 2-4h (excepto Operaciones, que
+    //    tiene pacto de 3h de comida ya aplicado en calcHorasDia — no se evalúa aquí
+    //    porque el pacto expreso del art. 30.4 lo permite).
+    if(dept !== 'operaciones'){
+      for(const dia of dias){
+        if(dia.lbl !== 'PAR') continue;
+        const hc = _hours[_hoKey(dept,ei,dia.dsStr)];
+        if(!hc) continue;
+        // Estimar interrupción a partir del horario partido guardado, si el sistema
+        // registra explícitamente un tramo de mañana y otro de tarde en OMNI_H/CAJA_H.
+        const s = (dept==='omnicanal'?OMNI_H:dept==='cajasac'?CAJA_H:null);
+        const def = s ? s[ei] : null;
+        if(def && def.MAN && def.TAR){
+          const interrH = (def.TAR[0]-def.MAN[1])/60;
+          if(interrH < CONVENIO_PARTIDO_MIN_H || interrH > CONVENIO_PARTIDO_MAX_H){
+            incidencias.push({
+              tipo:'Interrupción de jornada partida fuera de rango', severidad:'baja', empleado:nombre,
+              detalle:`${dia.dsStr}: interrupción de ${interrH.toFixed(1)}h (permitido 2-4h, art. 30.4)`,
+              fecha:dia.dsStr
+            });
+          }
+        }
+      }
+    }
+  }
+  return incidencias;
+}
+
+function renderIncumplimientos(){
+  let h='<div style="padding:18px 22px">';
+  h+='<div style="font-size:1.1rem;font-weight:800;color:#c62828;margin-bottom:4px">&#9888; Incumplimientos de Convenio &mdash; Grandes Almacenes 2023-2026</div>';
+  h+='<div style="font-size:.78rem;color:#78909c;margin-bottom:16px">Revisión automática de jornada anual, descansos diarios/semanales, días consecutivos e interrupción de jornada partida, contrastada contra el convenio colectivo (arts. 26, 27, 30, 35). Es una alerta orientativa: revisa manualmente cada caso antes de actuar.</div>';
+
+  const allDepts = ['operaciones','omnicanal','cajasac','muelle','postventa'];
+  let todas = [];
+  for(const dk of allDepts){
+    if(!DEPTS[dk]) continue;
+    const inc = _detectarIncumplimientos(dk).map(i=>Object.assign({dept:dk}, i));
+    todas = todas.concat(inc);
+  }
+
+  const bySev = {alta:[], media:[], baja:[]};
+  for(const i of todas) (bySev[i.severidad]||bySev.baja).push(i);
+
+  h+='<div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap">';
+  h+='<div style="background:#ffebee;border:1px solid #ef9a9a;border-radius:10px;padding:10px 18px;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#c62828">'+bySev.alta.length+'</div><div style="font-size:.7rem;color:#c62828;font-weight:700">ALTA</div></div>';
+  h+='<div style="background:#fff8e1;border:1px solid #ffcc80;border-radius:10px;padding:10px 18px;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#e65100">'+bySev.media.length+'</div><div style="font-size:.7rem;color:#e65100;font-weight:700">MEDIA</div></div>';
+  h+='<div style="background:#f5f5f5;border:1px solid #cfd8dc;border-radius:10px;padding:10px 18px;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#546e7a">'+bySev.baja.length+'</div><div style="font-size:.7rem;color:#546e7a;font-weight:700">BAJA</div></div>';
+  h+='<div style="background:#e8eaf6;border:1px solid #9fa8da;border-radius:10px;padding:10px 18px;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:#3949ab">'+todas.length+'</div><div style="font-size:.7rem;color:#3949ab;font-weight:700">TOTAL</div></div>';
+  h+='</div>';
+
+  if(todas.length===0){
+    h+='<div style="padding:20px;background:#e8f5e9;border-radius:10px;color:#2e7d32;font-weight:700">&#10003; No se han detectado incumplimientos con las reglas actuales.</div>';
+  } else {
+    const sevColor = {alta:'#c62828', media:'#e65100', baja:'#546e7a'};
+    const sevBg = {alta:'#ffebee', media:'#fff8e1', baja:'#f5f5f5'};
+    h+='<div class="wrap"><table style="width:100%"><tr>'+
+       '<th class="th-emp" style="min-width:60px">SEV.</th>'+
+       '<th class="th-emp" style="min-width:90px">DEPTO</th>'+
+       '<th class="th-emp" style="min-width:140px">TRABAJADOR</th>'+
+       '<th class="th-emp" style="min-width:160px">TIPO</th>'+
+       '<th class="th-emp" style="min-width:300px">DETALLE</th></tr>';
+    const orden = {alta:0, media:1, baja:2};
+    todas.sort((a,b)=>orden[a.severidad]-orden[b.severidad]);
+    for(const i of todas){
+      h+='<tr>'+
+        '<td style="background:'+sevBg[i.severidad]+';color:'+sevColor[i.severidad]+';font-weight:800;font-size:.68rem">'+i.severidad.toUpperCase()+'</td>'+
+        '<td class="td-emp" style="font-size:.7rem">'+DEPT_LABEL[i.dept]+'</td>'+
+        '<td class="td-emp">'+apellido(i.empleado)+'</td>'+
+        '<td style="text-align:left;padding:6px 8px;font-size:.72rem;font-weight:600">'+i.tipo+'</td>'+
+        '<td style="text-align:left;padding:6px 8px;font-size:.72rem;color:#455a64">'+i.detalle+'</td>'+
+        '</tr>';
+    }
+    h+='</table></div>';
+  }
+  h+='</div>';
+  document.getElementById('view-incump').innerHTML=h;
+}
+
 function showView(name,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
