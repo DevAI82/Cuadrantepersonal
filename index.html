@@ -5851,16 +5851,11 @@ function initDiaPreviewChart(dsStr, dept) {
 
 // ── Jornada máxima anual (horas) por dept e índice de empleado
 const JORNADA_MAX_H={
-  operaciones:[1770,1720,1693,Math.round(1770*0.945*10)/10,1770],
-  omnicanal:[Math.round(1770*0.59),1770,Math.round(1770*0.77),Math.round(1770*0.92),
-             Math.round(1770*0.91),1770,Math.round(1770*0.80),Math.round(1770*0.65),
-             Math.round(1770*0.62),Math.round(1770*0.90),Math.round(1770*0.70),
-             Math.round(1770*0.90),1770,Math.round(1770*0.84),Math.round(1770*0.84),
-             1770,Math.round(1770*0.92),Math.round(1770*0.92),Math.round(1770*0.92),
-             Math.round(1770*0.92),Math.round(1770*0.92),Math.round(1770*0.60)],
-  cajasac:[Math.round(1770*0.75),1770,1770,1770,Math.round(1770*0.75),
-           1770,Math.round(1770*0.65),Math.round(1770*0.15),Math.round(1770*0.50)],
-  muelle:[1770,1770,Math.round(1770*0.50),1770,1770,1770,1770,1770]
+  operaciones:[1770.0, 1770.0, 1770.0, 1678.8, 1770.0],
+  omnicanal:[1614.2, 1770.0, 885.0, 1614.2, 1593.0, 1614.2, 1614.2, 1044.3, 1770.0, 1593.0, 1062.0, 1239.0, 1614.2, 1495.7, 1416.0, 1150.5, 1614.2, 1770.0, 1770.0, 1770.0],
+  cajasac:[1327.5, 1548.8, 1770.0, 531.0, 1770.0, 1380.6, 1631.9, 1416.0, 1631.9, 531.0, 1770.0],
+  muelle:[1770.0, 1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
+  postventa:[1770.0, 885.0]
 };
 
 function calcHorasDia(dept,ei,code,dsStr){
