@@ -1046,10 +1046,14 @@ function _detectarIncumplimientos(dept){
       }
     }
 
-    // 1) Horas anuales trabajadas vs máximo proporcional a su % de jornada
+    // 1) Horas anuales trabajadas vs máximo proporcional a su % de jornada.
+    // NOTA: 'COM' (código C = "Compensado") es un DÍA DE DESCANSO, no un día
+    // trabajado — compensa horas extra hechas otro día, no se trabaja ese día.
+    // Se excluye de días trabajados en todo este bloque de incumplimientos
+    // (corregido 2026-09-16 tras aviso del usuario: contaba como trabajo).
     let horasAnuales = 0;
     for(const dia of dias){
-      if(['MAN','TAR','PAR','COM','PER','FOR'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
+      if(['MAN','TAR','PAR','PER','FOR'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
         horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
       }
     }
@@ -1066,8 +1070,8 @@ function _detectarIncumplimientos(dept){
     //    trabajado con inicio del día siguiente si también trabaja.
     for(let i=0;i<dias.length-1;i++){
       const hoy = dias[i], manana = dias[i+1];
-      if(!['MAN','TAR','PAR','COM'].includes(hoy.lbl)) continue;
-      if(!['MAN','TAR','PAR','COM'].includes(manana.lbl)) continue;
+      if(!['MAN','TAR','PAR'].includes(hoy.lbl)) continue;
+      if(!['MAN','TAR','PAR'].includes(manana.lbl)) continue;
       const hcHoy = _hours[_hoKey(dept,ei,hoy.dsStr)];
       const hcManana = _hours[_hoKey(dept,ei,manana.dsStr)];
       if(!hcHoy || !hcManana) continue;
@@ -1086,7 +1090,7 @@ function _detectarIncumplimientos(dept){
     // 3) Días consecutivos de trabajo > 10 (11 en periodos de mayor actividad, no distinguido)
     let racha = 0, inicioRacha = null;
     for(const dia of dias){
-      const trabaja = ['MAN','TAR','PAR','COM'].includes(dia.lbl);
+      const trabaja = ['MAN','TAR','PAR'].includes(dia.lbl);
       if(trabaja){
         if(racha===0) inicioRacha = dia.dsStr;
         racha++;
@@ -1109,7 +1113,8 @@ function _detectarIncumplimientos(dept){
       });
     }
 
-    // 4) Descanso semanal (al menos 1 día de Libre/Vacaciones/Baja por semana natural)
+    // 4) Descanso semanal (al menos 1 día de Libre/Vacaciones/Baja/Compensado por
+    //    semana natural). 'COM' se cuenta como descanso (ver nota arriba).
     //    Agrupamos por semanas ISO (lunes-domingo).
     let weekStart = null, workedAll = true, weekHasRest = false, weekLabel = '';
     for(const dia of dias){
@@ -1118,13 +1123,13 @@ function _detectarIncumplimientos(dept){
         if(weekStart && !weekHasRest && workedAll){
           incidencias.push({
             tipo:'Sin descanso semanal', severidad:'alta', empleado:nombre,
-            detalle:`Semana del ${weekLabel}: ningún día de descanso (Libre/Vacaciones/Baja) — mínimo legal día y medio (art. 30.1)`,
+            detalle:`Semana del ${weekLabel}: ningún día de descanso (Libre/Vacaciones/Baja/Compensado) — mínimo legal día y medio (art. 30.1)`,
             fecha:weekLabel
           });
         }
         weekStart = dia.dsStr; weekLabel = dia.dsStr; workedAll = true; weekHasRest = false;
       }
-      if(['LIB','VAC','BAJ','J','SPS','--'].includes(dia.lbl)) weekHasRest = true;
+      if(['LIB','VAC','BAJ','J','SPS','COM','--'].includes(dia.lbl)) weekHasRest = true;
     }
 
     // 4b) Fines de semana completos de descanso (sábado Y domingo libres la misma
@@ -1142,8 +1147,8 @@ function _detectarIncumplimientos(dept){
         const codeSab = (raw[dsSab]||[])[ei] || '0';
         const codeDom = (raw[dsDom]||[])[ei] || '0';
         const lblSab = eq(codeSab)[0], lblDom = eq(codeDom)[0];
-        const descansaSab = ['LIB','VAC','BAJ','J','SPS','--'].includes(lblSab);
-        const descansaDom = ['LIB','VAC','BAJ','J','SPS','--'].includes(lblDom) || lblDom==='--';
+        const descansaSab = ['LIB','VAC','BAJ','J','SPS','COM','--'].includes(lblSab);
+        const descansaDom = ['LIB','VAC','BAJ','J','SPS','COM','--'].includes(lblDom) || lblDom==='--';
         if(descansaSab && descansaDom) findesCalidad++;
       }
     }
