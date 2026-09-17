@@ -327,6 +327,13 @@ const EQ = {
   'P(MT)d':['PAR','s-PAR'],'P(AM)':['PAR','s-PAR'],'P(AMTC)d':['PAR','s-PAR'],
   'C':['COM','s-COM'],
   'E':['BAJ','s-ENF'],
+  // BNH: 13:00-22:00 con 1h de descanso para comer (15:00-16:00) — es un
+  // turno PARTIDO real (8h netas), no una Tarde continua. La heurística
+  // automática por horario (_classifyByHours) no lo detecta como partido
+  // porque empieza a las 13:00 exactas (no antes), así que se fuerza aquí
+  // explícitamente (confirmado por el usuario 2026-09-16, caso Antonio
+  // Fernández, que además estaba oculto por el hack legacy omniEduardoEq).
+  'BNH':['PAR','s-PAR'],
   'FOR':['FOR','s-FOR'],
   'SPS':['SPS','s-SPS'],
   'JA':['JA','s-JA'],'Z':['--','s-empty'],'J':['J','s-J'],
@@ -539,11 +546,17 @@ function _crossDeptMonth(y,m){
   h+='</table></div></div>';
   return h;
 }
-// Eduardo (omnicanal idx 2): muestra "Lib" en días de trabajo, no computa como trabajador
+// LEGACY: esta función forzaba "Lib" para el idx 2 de Omnicanal, pensada para
+// un empleado "Eduardo" (liberado sindical) que ya no existe en esa posición
+// tras varias reorganizaciones (Amparo eliminada, Rosario movida, etc.). Ese
+// índice 2 ahora es ANTONIO FERNANDEZ GARCIA, un trabajador real con turno
+// partido/tarde (código BNH, 13:00-22:00) — el hack le ocultaba su turno real
+// y lo mostraba morado-Libre incorrectamente. Desactivado (2026-09-16, aviso
+// del usuario). Se mantiene la función (llamada en 8 sitios) mapeada 1:1 a
+// eq() normal por si algún día se reintroduce un liberado sindical real —
+// en ese caso, reactivar el hack apuntando al ÍNDICE ACTUAL de esa persona,
+// no asumir que sigue siendo el 2.
 function omniEduardoEq(ei,code){
-  if(activeDept!=='omnicanal'||ei!==2) return eq(code);
-  const [lbl]=eq(code);
-  if(['MAN','TAR','PAR','COM'].includes(lbl)) return ['Lib','lib-s'];
   return eq(code);
 }
 // Devuelve si Carlos (Operaciones idx 2) trabaja en una fecha dada
