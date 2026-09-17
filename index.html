@@ -599,9 +599,11 @@ function _crossIntRowM(y,m){
   h+='</tr>';
   return h;
 }
-function muelleAlerts(y,m,d){if(activeDept!=='muelle')return[];if(isCierre(ds(y,m,d)))return[];const c=getCode(y,m,d);const lbl=i=>eq(c[i]||'0')[0];const a=[];const _dw=new Date(y,m-1,d).getDay();if(lbl(2)==='LIB'&&lbl(7)==='LIB'&&_dw!==6)a.push('⚠ POSTVENTA: Pilar+Eva libres (L-V)');if((lbl(1)==='LIB'||lbl(1)==='VAC')&&(lbl(3)==='LIB'||lbl(3)==='VAC')&&(lbl(4)==='LIB'||lbl(4)==='VAC'))a.push('⚠ MOZOS: Arturo+Pascual+Rafa ausentes');
-// RECEPCIÓN: alerta solo si los 3 están ausentes (Miguel A., Carlos, Antonio F.)
-const _wkLbls=['MAN','TAR','PAR','COM'];const _migWk=_wkLbls.includes(lbl(0));const _antWk=_wkLbls.includes(lbl(5));const _carWk=_carlosWorking(ds(y,m,d));if(!_migWk&&!_antWk&&!_carWk)a.push('⚠ RECEPCIÓN: Sin cobertura (Miguel A., Carlos y Antonio F. ausentes');
+function muelleAlerts(y,m,d){if(activeDept!=='muelle')return[];if(isCierre(ds(y,m,d)))return[];const c=getCode(y,m,d);const lbl=i=>eq(c[i]||'0')[0];const a=[];const _dw=new Date(y,m-1,d).getDay();if(lbl(1)==='LIB'&&lbl(6)==='LIB'&&_dw!==6)a.push('⚠ POSTVENTA: Pilar+Eva libres (L-V)');if((lbl(0)==='LIB'||lbl(0)==='VAC')&&(lbl(2)==='LIB'||lbl(2)==='VAC')&&(lbl(3)==='LIB'||lbl(3)==='VAC'))a.push('⚠ MOZOS: Arturo+Pascual+Rafa ausentes');
+// RECEPCIÓN: alerta si los 2 que quedan están ausentes (Miguel A., Carlos).
+// Antes también contaba a Toni Arenas (idx 0 antiguo) — eliminado de la
+// empresa (excedencia 28-sep-2026), ya no forma parte de esta cobertura.
+const _wkLbls=['MAN','TAR','PAR','COM'];const _migAWk=_wkLbls.includes(lbl(4));const _carWk=_carlosWorking(ds(y,m,d));if(!_migAWk&&!_carWk)a.push('⚠ RECEPCIÓN: Sin cobertura (Miguel A. y Carlos ausentes');
   // Mínimo de personas trabajando
   const _working=c.filter((_,ei)=>{const l=eq(c[ei]||'0')[0];return l==='MAN'||l==='PAR'||l==='COM';}).length;
   const _isSab=_dw===6;
