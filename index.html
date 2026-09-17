@@ -461,7 +461,7 @@ const DEPT_SUBGROUPS={
       {label:'REFUERZO SAC (jun–sep)', indices:[9,10], bg:'#fce4ec',border:'#c2185b'}
     ]
   },
-  muelle:{order:[1,3,4,0,5,6,2,7],groups:[{label:'MOZOS MUELLE',indices:[1,3,4],bg:'#e8f5e9',border:'#388e3c'},{label:'RECEPCIÓN',indices:[0,5],bg:'#e3f2fd',border:'#1565c0'},{label:'ALMACÉN',indices:[6],bg:'#f3e5f5',border:'#6a1b9a'},{label:'OTROS',indices:[2,7],bg:'#fff8e1',border:'#f57f17'}]},
+  muelle:{order:[0,2,3,4,5,1,6],groups:[{label:'MOZOS MUELLE',indices:[0,2,3],bg:'#e8f5e9',border:'#388e3c'},{label:'RECEPCIÓN',indices:[4],bg:'#e3f2fd',border:'#1565c0'},{label:'ALMACÉN',indices:[5],bg:'#f3e5f5',border:'#6a1b9a'},{label:'OTROS',indices:[1,6],bg:'#fff8e1',border:'#f57f17'}]},
   postventa:{order:[0,1],groups:[{label:'POSTVENTA',indices:[0,1],bg:'#f3e5f5',border:'#8e24aa'}]},
   omnicanal:{
     order:[6,8,7, 1,12,3,0,5,4,14, 10,9,11, 16,17,18, 15, 2,13, 19],
@@ -2347,7 +2347,7 @@ function muelleHasSlotIncidencia(y,m,d){
     const minimo=muelleSlotMinimo(t,jsDw);
     if(minimo===0) continue;
     let count=0;
-    for(let i=0;i<8;i++){
+    for(let i=0;i<7;i++){
       const lbl=eq(raw[i]||'0')[0];
       if(lbl==='MAN'||lbl==='PAR'||lbl==='COM'){
         if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count++;
@@ -3954,7 +3954,7 @@ function buildInformeHTML(dk){
         const minimo2=muelleSlotMinimo(t,jsDw2);
         if(minimo2===0) continue;
         let count2=0;
-        for(let i=0;i<8;i++){
+        for(let i=0;i<7;i++){
           const lbl2=eq(raw2[i]||'0')[0];
           if(lbl2==='MAN'||lbl2==='PAR'||lbl2==='COM'){
             if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count2++;
@@ -4927,9 +4927,12 @@ function renderEstudio(){
 
 
 // ===== DÍA (solo Muelle) =====
-const MUELLE_H_START=[360,360,570,360,360,360,360,390];
-const MUELLE_H_END  =[810,810,810,810,810,810,810,900];
-const MUELLE_H_LABEL=['06:00-13:30','06:00-13:30','09:30-13:30','06:00-13:30','06:00-13:30','06:00-13:30','06:00-13:30','06:30-15:00'];
+// Arrays reindexados tras eliminar a ANTONIO F. ARENAS (idx 0, excedencia
+// 28-sep-2026): quien era idx 1 pasa a idx 0, etc. — se quita el primer
+// elemento (06:00-13:30, que era el de Toni) y el resto conserva su orden.
+const MUELLE_H_START=[360,570,360,360,360,360,390];
+const MUELLE_H_END  =[810,810,810,810,810,810,900];
+const MUELLE_H_LABEL=['06:00-13:30','09:30-13:30','06:00-13:30','06:00-13:30','06:00-13:30','06:00-13:30','06:30-15:00'];
 let _diaChart=null;
 function _diaDefaultDate(){return new Date(2026,4,25);}
 function _dsOfDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -4980,7 +4983,7 @@ function _renderDiaIncidencias(){
         const slMin=muelleSlotMinimo(t,jsDw2);
         if(slMin===0) continue;
         let cnt=0;
-        for(let i=0;i<8;i++){
+        for(let i=0;i<7;i++){
           const lbl2=eq(raw2[i]||'0')[0];
           // COM = día compensatorio (descanso) → NO trabaja
           if(lbl2==='MAN'||lbl2==='PAR'){
@@ -5114,7 +5117,7 @@ function _renderDiaDia(){
   }
   const slotData=slots.map(sl=>{
     let count=0;const names=[];
-    for(let i=0;i<8;i++){
+    for(let i=0;i<7;i++){
       const code=raw[i]||'0',lbl=eq(code)[0];
       // COM = día compensatorio (descanso) → NO trabaja
       if(lbl==='MAN'||lbl==='PAR'){
@@ -5988,12 +5991,12 @@ function initDiaPreviewChart(dsStr, dept) {
       const hh=Math.floor(t/60),mm=t%60;
       labels.push(String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'));
       let cnt=0;
-      for(let i=0;i<8;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])cnt++;}
+      for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])cnt++;}
       data.push(cnt);
       const dw=new Date(dsStr+'T00:00:00').getDay();
       const mn=muelleSlotMinimo(t,dw)||0;
       minData.push(mn);
-      const _mN2=[];for(let i=0;i<8;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])_mN2.push(DEPTS.muelle.employees[i]);}slotNames.push(_mN2);
+      const _mN2=[];for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])_mN2.push(DEPTS.muelle.employees[i]);}slotNames.push(_mN2);
       colors.push(cnt===0?'#cfd8dc':cnt<(mn||1)?'#ef5350':'#66bb6a');
     }
   }
@@ -6031,7 +6034,7 @@ const JORNADA_MAX_H={
   operaciones:[1770.0, 1770.0, 1770.0, 1678.8, 1770.0],
   omnicanal:[1614.2, 1770.0, 885.0, 1614.2, 1593.0, 1614.2, 1614.2, 1044.3, 1770.0, 1593.0, 1062.0, 1239.0, 1614.2, 1495.7, 1416.0, 1150.5, 1614.2, 1770.0, 1770.0, 1770.0],
   cajasac:[1327.5, 1548.8, 1770.0, 531.0, 1770.0, 1380.6, 1631.9, 1416.0, 1631.9, 531.0, 1770.0],
-  muelle:[1770.0, 1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
+  muelle:[1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
   postventa:[1770.0, 885.0]
 };
 
