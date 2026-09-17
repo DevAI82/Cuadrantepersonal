@@ -1141,6 +1141,12 @@ function _detectarIncumplimientos(dept){
     }
 
     // ── 2) Sábados de calidad: mínimo 9/año, UNA línea por empleado si falta ──
+    // Criterio: sábado con código Libre/Compensado (mismo criterio que la
+    // tarjeta de Resumen Trabajador, que el usuario usó como referencia al
+    // confirmar "Vicente solo tiene 7"). Vacaciones/Baja NO cuentan aquí:
+    // aunque son descanso, no son el "sábado de calidad" que exige el art.
+    // 30.5 (destinado a que quien trabaja regularmente los sábados tenga
+    // algunos completamente libres, no de vacaciones/baja).
     let sabadosLibres = 0;
     for(let m=1;m<=12;m++){
       const nd = daysInMonth(year,m);
@@ -1150,7 +1156,7 @@ function _detectarIncumplimientos(dept){
         const dsSab = ds(year,m,d);
         const codeSab = (raw[dsSab]||[])[ei] || '0';
         const lblSab = eq(codeSab)[0];
-        if(['LIB','VAC','BAJ','J','SPS','COM'].includes(lblSab)) sabadosLibres++;
+        if(['LIB','COM'].includes(lblSab)) sabadosLibres++;
       }
     }
     if(sabadosLibres < CONVENIO_FINDE_CALIDAD_MIN){
