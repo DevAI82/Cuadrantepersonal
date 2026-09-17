@@ -58,6 +58,7 @@ th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
 .s-PAR{background:#ce93d8;color:#4a148c}
 .s-COM{background:#ffd700;color:#bf360c}
 .s-ENF{background:#ef9a9a;color:#b71c1c}
+.s-TRASLADO{background:#e57373;color:#7f0000;border:1px solid #c62828}
 .s-SPS{background:#cfd8dc;color:#37474f}
 .s-FOR{background:#ffe0b2;color:#bf360c}
 .s-empty{background:#f5f5f5;color:#bdbdbd}
@@ -251,6 +252,7 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
   <div class="leg"><div class="leg-chip s-PAR">PAR</div>Partido</div>
   <div class="leg"><div class="leg-chip s-COM">COM</div>Compensado</div>
   <div class="leg"><div class="leg-chip s-ENF">BAJ</div>Baja/Enf.</div>
+  <div class="leg"><div class="leg-chip s-TRASLADO">TRAS</div>Traslado a otro dpto.</div>
   <div class="leg"><div class="leg-chip s-FOR">FOR</div>Formaci&oacute;n</div>
   <div class="leg"><div class="leg-chip s-SPS">SPS</div>Sin contrato</div>
   <div class="leg"><div class="leg-chip s-PER">PER</div>Permiso</div>
@@ -338,6 +340,12 @@ const EQ = {
   'SPS':['SPS','s-SPS'],
   'JA':['JA','s-JA'],'Z':['--','s-empty'],'J':['J','s-J'],
   'PER':['PER','s-PER'],
+  // TRASLADO: trabajador cedido temporalmente a otro departamento (no cuenta
+  // como plantilla de Omnicanal en ese periodo). Rojo, como una Baja, pero
+  // es una categoría propia para distinguirlo visualmente de BAJ real
+  // (confirmado por el usuario 2026-09-16: Alba/Isabel Zamora/Rosario,
+  // 21-sep a 21-nov-2026).
+  'TRASLADO':['TRASLADO','s-TRASLADO'],
   // Códigos de los PDFs oficiales de El Corte Inglés aclarados por el usuario
   // (14-sep-2026): no tienen horario propio, son categorías de ausencia.
   'LS':['LIB','s-LIB'],           // Libre (mismo trato que 'L')
