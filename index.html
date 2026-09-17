@@ -1483,7 +1483,11 @@ function getCode(y,m,d){ return RAW()[ds(y,m,d)]||[]; }
 function absentWorking(y,m,d){
   const codes=getCode(y,m,d); let ab=0,wk=0;
   for(let i=0;i<N();i++){
-    if(activeDept==='omnicanal'&&i===2) continue; // Eduardo: liberado sindical, no computa
+    // (era un hack legacy para "Eduardo", liberado sindical que ocupaba el
+    // índice 2 de Omnicanal — ya no existe ahí, ahora es Antonio Fernández,
+    // trabajador real que SÍ debe computar en estos contadores. Eliminado
+    // 2026-09-16 tras aviso del usuario: Antonio no se contaba como
+    // cobertura de tarde pese a trabajar 13:00-22:00 el 26-sep.)
     const l=eq(codes[i]||'0')[0];
     if(l==='LIB'||l==='VAC'||l==='BAJ'||l==='J'||l==='JA') ab++;
     else if(l==='MAN'||l==='TAR'||l==='PAR'||l==='COM') wk++;
@@ -1520,7 +1524,11 @@ function cajaAlerts(y,m,d){
 function countDay(y,m,d){
   const codes=getCode(y,m,d); let total=0,man=0,tar=0; const names=[];
   for(let i=0;i<N();i++){
-    if(activeDept==='omnicanal'&&i===2) continue; // Eduardo: liberado sindical, no computa
+    // (era un hack legacy para "Eduardo", liberado sindical que ocupaba el
+    // índice 2 de Omnicanal — ya no existe ahí, ahora es Antonio Fernández,
+    // trabajador real que SÍ debe computar en estos contadores. Eliminado
+    // 2026-09-16 tras aviso del usuario: Antonio no se contaba como
+    // cobertura de tarde pese a trabajar 13:00-22:00 el 26-sep.)
     const code=codes[i]||'0';
     const l=eq(code)[0];
     if(l==='MAN'){total++;man++;names.push(EMPS()[i]);}
@@ -1720,7 +1728,7 @@ function renderWeekly(){
     if(isClosedDay(dsFromDate(dd),dw)){h+='<td class="sum-wk"></td>';continue;}
     const codes2=getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[];
     let man=0;
-    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).man)man++;}
+    for(let ei=0;ei<N();ei++){const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).man)man++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e3f2fd;font-size:.8rem;font-weight:800;color:#01579b">'+man+'</td>';
   }
   h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
@@ -1730,7 +1738,7 @@ function renderWeekly(){
     if(isClosedDay(dsFromDate(dd),dw)){h+='<td class="sum-wk"></td>';continue;}
     const codes2=getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[];
     let tar=0;
-    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).tar)tar++;}
+    for(let ei=0;ei<N();ei++){const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).tar)tar++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e8f5e9;font-size:.8rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
   }
   h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
@@ -2611,7 +2619,7 @@ function renderMonthBlock(y,m){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const c2=getCode(y,m,d)||[];let man=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=c2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).man)man++;}
+      for(let ei=0;ei<N();ei++){const code=c2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).man)man++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e3f2fd;font-size:.68rem;font-weight:800;color:#01579b">'+man+'</td>';
     }
     h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.62rem">T</td>';
@@ -2619,7 +2627,7 @@ function renderMonthBlock(y,m){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const c2=getCode(y,m,d)||[];let tar=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=c2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).tar)tar++;}
+      for(let ei=0;ei<N();ei++){const code=c2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).tar)tar++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e8f5e9;font-size:.68rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
     }
     h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
@@ -2734,7 +2742,7 @@ function renderAnnual(){
       if(isClosedDay(ds(2026,mo,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const codes2=RAW()[ds(2026,mo,d)]||[];
       let man=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).man)man++;}
+      for(let ei=0;ei<N();ei++){const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).man)man++;}
       h+='<td style="text-align:center;padding:1px;background:#e3f2fd;font-size:.62rem;font-weight:800;color:#01579b">'+man+'</td>';
     }
     h+='</tr><tr><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.58rem">T</td>';
@@ -2743,7 +2751,7 @@ function renderAnnual(){
       if(isClosedDay(ds(2026,mo,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const codes2=RAW()[ds(2026,mo,d)]||[];
       let tar=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).tar)tar++;}
+      for(let ei=0;ei<N();ei++){const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).tar)tar++;}
       h+='<td style="text-align:center;padding:1px;background:#e8f5e9;font-size:.62rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
     }
         h+='</tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
