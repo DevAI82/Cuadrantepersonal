@@ -708,6 +708,31 @@ function _hoGet(dept,ei,ds,lbl){
   const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
   return def?{in:def[0],out:def[1],break:def[2]!=null?def[2]:null}:null;
 }
+
+// Un turno "Partido" real reparte sus horas entre mañana y tarde de forma muy
+// desigual (ej. Antonio Fernández 13:00-22:00: prácticamente todo tarde,
+// solo 1h antes de las 14:00). El contador de cobertura Mañana/Tarde (M/T)
+// contaba TODO turno PAR como +1 en ambas columnas por igual, lo cual
+// sobreestima la cobertura de mañana cuando en realidad esa persona casi no
+// cubre esa franja. Se reparte según las horas reales trabajadas antes y
+// después de las 14:00 (mediodía de referencia de tienda), usando el
+// horario guardado del día; con horario "de referencia" como fallback.
+// Devuelve {man:bool, tar:bool} — puede ser {true,true} si el reparto es
+// casi igual (diferencia < 1h), o solo uno de los dos si es muy desigual.
+// Confirmado por el usuario (2026-09-16, caso Antonio Fernández 26-sep).
+function parSplit(dept,ei,code,dsStr){
+  const hc=_hoGet(dept,ei,dsStr,'PAR');
+  if(!hc) return {man:true,tar:true}; // sin datos de horario: no se puede repartir, contar en ambos (comportamiento anterior, conservador)
+  const [ih,im]=hc.in.split(':').map(Number);
+  const [oh,om]=hc.out.split(':').map(Number);
+  const startMin=ih*60+im, endMin=oh*60+om;
+  const MIDDAY=14*60; // 14:00, punto de corte entre "mañana" y "tarde"
+  const manMin=Math.max(0, Math.min(endMin,MIDDAY)-startMin);
+  const tarMin=Math.max(0, endMin-Math.max(startMin,MIDDAY));
+  const diffH=Math.abs(manMin-tarMin)/60;
+  if(diffH<1) return {man:true,tar:true}; // reparto casi igual: cuenta en ambos
+  return {man:manMin>tarMin, tar:tarMin>=manMin};
+}
 function _hoHas(dept,ei,ds){return !!_hours[_hoKey(dept,ei,ds)];}
 try{_ov=JSON.parse(localStorage.getItem('cq_ov')||'{}');}catch(e){_ov={};}
 function applyOverrides(){
@@ -1496,10 +1521,15 @@ function countDay(y,m,d){
   const codes=getCode(y,m,d); let total=0,man=0,tar=0; const names=[];
   for(let i=0;i<N();i++){
     if(activeDept==='omnicanal'&&i===2) continue; // Eduardo: liberado sindical, no computa
-    const l=eq(codes[i]||'0')[0];
+    const code=codes[i]||'0';
+    const l=eq(code)[0];
     if(l==='MAN'){total++;man++;names.push(EMPS()[i]);}
     else if(l==='TAR'){total++;tar++;names.push(EMPS()[i]);}
-    else if(l==='PAR'){total++;man++;tar++;names.push(EMPS()[i]);}
+    else if(l==='PAR'){
+      total++;names.push(EMPS()[i]);
+      const sp=parSplit(activeDept,i,code,ds(y,m,d));
+      if(sp.man)man++; if(sp.tar)tar++;
+    }
     else if(l==='COM'){total++;names.push(EMPS()[i]);}
   }
   return {total,man,tar,names};
@@ -1690,7 +1720,7 @@ function renderWeekly(){
     if(isClosedDay(dsFromDate(dd),dw)){h+='<td class="sum-wk"></td>';continue;}
     const codes2=getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[];
     let man=0;
-    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='MAN'||l==='PAR')man++;}
+    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).man)man++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e3f2fd;font-size:.8rem;font-weight:800;color:#01579b">'+man+'</td>';
   }
   h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
@@ -1700,7 +1730,7 @@ function renderWeekly(){
     if(isClosedDay(dsFromDate(dd),dw)){h+='<td class="sum-wk"></td>';continue;}
     const codes2=getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[];
     let tar=0;
-    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='TAR'||l==='PAR')tar++;}
+    for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,dsFromDate(dd)).tar)tar++;}
     h+='<td style="text-align:center;padding:3px 2px;background:#e8f5e9;font-size:.8rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
   }
   h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:52px"></td></tr>';
@@ -2581,7 +2611,7 @@ function renderMonthBlock(y,m){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const c2=getCode(y,m,d)||[];let man=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(c2[ei]||'0')[0];if(l==='MAN'||l==='PAR')man++;}
+      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=c2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).man)man++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e3f2fd;font-size:.68rem;font-weight:800;color:#01579b">'+man+'</td>';
     }
     h+='<td style="background:#e3f2fd;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.62rem">T</td>';
@@ -2589,7 +2619,7 @@ function renderMonthBlock(y,m){
       const dw=dow(y,m,d);
       if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const c2=getCode(y,m,d)||[];let tar=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(c2[ei]||'0')[0];if(l==='TAR'||l==='PAR')tar++;}
+      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=c2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(y,m,d)).tar)tar++;}
       h+='<td style="text-align:center;padding:2px 1px;background:#e8f5e9;font-size:.68rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
     }
     h+='<td style="background:#e8f5e9;border-left:2px solid #90caf9;min-width:48px"></td></tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
@@ -2704,7 +2734,7 @@ function renderAnnual(){
       if(isClosedDay(ds(2026,mo,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const codes2=RAW()[ds(2026,mo,d)]||[];
       let man=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='MAN'||l==='PAR')man++;}
+      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='MAN')man++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).man)man++;}
       h+='<td style="text-align:center;padding:1px;background:#e3f2fd;font-size:.62rem;font-weight:800;color:#01579b">'+man+'</td>';
     }
     h+='</tr><tr><td class="summary-lbl" style="background:#e8f5e9;color:#2e7d32;font-size:.58rem">T</td>';
@@ -2713,7 +2743,7 @@ function renderAnnual(){
       if(isClosedDay(ds(2026,mo,d),dw)){h+='<td class="sum-wk"></td>';continue;}
       const codes2=RAW()[ds(2026,mo,d)]||[];
       let tar=0;
-      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const l=eq(codes2[ei]||'0')[0];if(l==='TAR'||l==='PAR')tar++;}
+      for(let ei=0;ei<N();ei++){if(activeDept==='omnicanal'&&ei===2)continue;const code=codes2[ei]||'0';const l=eq(code)[0];if(l==='TAR')tar++;else if(l==='PAR'&&parSplit(activeDept,ei,code,ds(2026,mo,d)).tar)tar++;}
       h+='<td style="text-align:center;padding:1px;background:#e8f5e9;font-size:.62rem;font-weight:800;color:#2e7d32">'+tar+'</td>';
     }
         h+='</tr><tr class="trim-sum-row"><td class="summary-lbl">TOTAL</td>';
