@@ -1076,16 +1076,19 @@ function _detectarIncumplimientos(dept){
     // 'COM' es descanso, no cuenta. 'JA' (débito de horas del año anterior)
     // el trabajador no está presente pero SÍ suma a la proyección anual.
     let horasAnuales = 0;
+    let bajaDiasInc = 0; // días de Baja en 2026 — reduce proporcionalmente el máximo exigible
     for(const dia of dias){
       if(['MAN','TAR','PAR','PER','FOR','JA'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
         horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
       }
+      if(dia.lbl==='BAJ') bajaDiasInc++;
     }
-    const maxAnual = (JORNADA_MAX_H[dept]||[])[ei] || CONVENIO_JORNADA_MAX_ANUAL;
+    const maxAnualTeorico = (JORNADA_MAX_H[dept]||[])[ei] || CONVENIO_JORNADA_MAX_ANUAL;
+    const maxAnual = Math.round((maxAnualTeorico*(1-bajaDiasInc/365))*10)/10;
     if(horasAnuales > maxAnual + CONVENIO_JORNADA_MARGEN_H){
       incidencias.push({
         tipo:'Jornada anual excedida', severidad:'alta', empleado:nombre,
-        detalle:`${Math.round(horasAnuales)}h trabajadas en 2026 vs máximo pactado ${maxAnual}h — excede en ${Math.round(horasAnuales-maxAnual)}h (art. 26 convenio, margen ${CONVENIO_JORNADA_MARGEN_H}h)`,
+        detalle:`${Math.round(horasAnuales)}h trabajadas en 2026 vs máximo pactado ${maxAnual}h${bajaDiasInc>0?` (ajustado por ${bajaDiasInc} días de baja)`:''} — excede en ${Math.round(horasAnuales-maxAnual)}h (art. 26 convenio, margen ${CONVENIO_JORNADA_MARGEN_H}h)`,
         fecha:null
       });
     }
@@ -6134,8 +6137,9 @@ function calcResumenTrabajador(dept){
   return emps.map(function(name,ei){
     var libPast=0,libFut=0,vacPast=0,vacFut=0,festPast=0,festFut=0,compPast=0,compFut=0,perPast=0,perFut=0;
     var hAmplPast=0,hAmplFut=0,horasPast=0,horasFut=0,calPast=0,calFut=0,workDays=0,horasReal=0,horasEstim=0;
+    var bajaDias=0; // días de Baja/Excedencia en 2026 — reduce el máximo anual proporcionalmente
     var hAmplWeekMap={};  // weekKey(lunes) → nº días ampliados esa semana
-    const jMax=jMaxArr[ei]||1770;
+    const jMaxTeorico=jMaxArr[ei]||1770;
     Object.entries(raw).forEach(function(e2){
       const dsStr=e2[0],dayArr=e2[1];
       const code=(dayArr||[])[ei]||'0';
@@ -6149,6 +6153,7 @@ function calcResumenTrabajador(dept){
       if(lbl==='VAC'){isPast?vacPast++:vacFut++;}
       if(lbl==='COM'){isPast?compPast++:compFut++;}
       if(lbl==='PER'){isPast?perPast++:perFut++;}
+      if(lbl==='BAJ') bajaDias++;
       if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})){isPast?festPast++:festFut++;}
       if(['MAN','TAR','PAR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]) workDays++;
       if(isHoraAmpliada(dept,ei,code,dsStr)){
@@ -6167,6 +6172,11 @@ function calcResumenTrabajador(dept){
     const hAmplWeeksKO=Object.entries(hAmplWeekMap).filter(function(e){return e[1]>3;});
     const hAmplMaxWeek=Object.values(hAmplWeekMap).reduce(function(a,b){return Math.max(a,b);},0);
     const hTot=Math.round((horasPast+horasFut)*10)/10;
+    // Máximo anual ajustado por días de Baja/Excedencia (indicado por el
+    // usuario 2026-09-16, caso José Miguel Olmeda: 63 días de baja ene-mar
+    // no deben computar como jornada teórica exigible). Reducción
+    // proporcional: cada día de baja resta jMaxTeorico/365 del máximo.
+    const jMax=Math.round((jMaxTeorico*(1-bajaDias/365))*10)/10;
     const diff=Math.round((hTot-jMax)*10)/10;
     // Sábados calidad: ≥150 días trabajados → 9; <150 → proporcional a horas proyectadas
     const calObj=workDays>=150?9:Math.ceil(9*hTot/1770);
