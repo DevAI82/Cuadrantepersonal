@@ -3159,7 +3159,7 @@ function renderEmpleado(){
       let hoursDiv='';
       if(!isEmpty&&!_eCl){
         const _fr=fReal(activeDept,_empName,dsStr);
-        const _num=parseFloat(code);
+        const _num=(/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
         const _isPast=dsStr<dsFromDate(new Date());
         const _wHasFR=!!(FICHAJE_REAL[activeDept]&&FICHAJE_REAL[activeDept][_empName]);
         if(_fr!==null){
@@ -3321,7 +3321,7 @@ const OPER_ANNUAL_MAX = [1770, 1720, 1693, Math.round(1770*0.945*10)/10, 1770];
 // ===== HORAS SEMANALES =====
 function horasParaCodigo(code, empIdx, dsStr) {
   if (!code || code === '0' || code === '') return 0;
-  const num = parseFloat(code);
+  const num = (/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
   if (!isNaN(num)) return num;  // fichaje real (Jose)
   const lbl = eq(code)[0];
   if (!lbl || ['LIB','VAC','BAJ','SPS','JA','--','?','FOR','PER'].includes(lbl)) return 0;
@@ -3455,12 +3455,13 @@ function renderHorasSemanales() {
         h = 0;
       } else if (ei === 4 && FESTIVOS_AP.some(f=>f.date===dsStr)) {
         const _lbl = eq(code)[0];
-        h = (['MAN','TAR','PAR','COM'].includes(_lbl)) ? 9 : (!isNaN(parseFloat(code)) && parseFloat(code)>0 ? parseFloat(code) : 0);
+        const _pfn = (/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
+        h = (['MAN','TAR','PAR','COM'].includes(_lbl)) ? 9 : (!isNaN(_pfn) && _pfn>0 ? _pfn : 0);
       } else {
         h = horasParaCodigo(code, ei, dsStr);
       }
       wkH[wkKey] += h;
-      if (!isNaN(parseFloat(code)) && parseFloat(code) > 0) wkActual[wkKey] += h;
+      if ((/^\d+(\.\d+)?$/.test(code)) && parseFloat(code) > 0) wkActual[wkKey] += h;
     }
     const ytd = weeks.filter(w=>w.isPast||w.isCurrent).reduce((a,w)=>a+wkH[w.label],0);
     const registradas = weeks.reduce((a,w)=>a+wkActual[w.label],0);
@@ -5950,7 +5951,16 @@ const JORNADA_MAX_H={
 
 function calcHorasDia(dept,ei,code,dsStr){
   if(!code||code==='0'||code==='') return 0;
-  const num=parseFloat(code);
+  // BUG CORREGIDO (2026-09-16, aviso del usuario sobre Vicente Rodenas):
+  // parseFloat('4QG') devolvía 4 (interpretaba el prefijo numérico del código
+  // de turno como si fueran horas de "fichaje real"), truncando turnos de
+  // 9-12h reales a solo 4h. Afectaba a 22 códigos de turno que empiezan por
+  // dígito (4QG, 3Y4, 2R6, 45F, 5DG, 2QV, 5KX, 2QU, 2UK, 2UN, 2UJ, 45E, 2TS,
+  // 2WP, 3AQ, 2TR, 3NU, 3HR, 2FM, 45J, 45K, 5DN) en varios departamentos.
+  // El mecanismo de "fichaje real" (código = horas puras, ej. "8") ya no se
+  // usa en ningún dato actual — se exige coincidencia EXACTA con un número
+  // (código completo numérico), nunca un prefijo.
+  const num=(/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
   if(!isNaN(num)&&num>0) return num;
   const lbl=eq(code)[0];
   if(!lbl||['LIB','VAC','BAJ','SPS','J','--','?','COM'].includes(lbl)) return 0;
