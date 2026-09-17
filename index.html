@@ -1047,13 +1047,20 @@ function _detectarIncumplimientos(dept){
     }
 
     // 1) Horas anuales trabajadas vs máximo proporcional a su % de jornada.
-    // NOTA: 'COM' (código C = "Compensado") es un DÍA DE DESCANSO, no un día
+    // NOTA 1: 'COM' (código C = "Compensado") es un DÍA DE DESCANSO, no un día
     // trabajado — compensa horas extra hechas otro día, no se trabaja ese día.
     // Se excluye de días trabajados en todo este bloque de incumplimientos
     // (corregido 2026-09-16 tras aviso del usuario: contaba como trabajo).
+    // NOTA 2: 'JA' (día libre con cargo al exceso de horas del año ANTERIOR)
+    // es lo opuesto: el trabajador NO está físicamente en el centro (por eso NO
+    // cuenta para descanso diario/semanal/días consecutivos, que siguen
+    // tratándolo como descanso), pero SÍ debe sumar horas a la proyección/total
+    // anual de horas trabajadas de ESTE año, porque así se pactó al compensarlo
+    // (indicado por el usuario 2026-09-16). calcHorasDia ya sabe calcular sus
+    // horas usando el turno natural del empleado como referencia horaria.
     let horasAnuales = 0;
     for(const dia of dias){
-      if(['MAN','TAR','PAR','PER','FOR'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
+      if(['MAN','TAR','PAR','PER','FOR','JA'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
         horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
       }
     }
