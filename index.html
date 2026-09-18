@@ -662,49 +662,56 @@ let _hours={};
 try{_hours=JSON.parse(localStorage.getItem('cq_hours')||'{}');}catch(e){_hours={};}
 // Horarios por defecto por empleado: 'dept|empIdx' → {SHIFT:[entrada,salida]}
 const HORARIOS_DEF={
-  'operaciones|0':{'MAN':['09:00','16:00'],'TAR':['15:00','22:00']},
-  'operaciones|1':{'MAN':['09:00','16:00'],'TAR':['15:00','22:00']},
-  'operaciones|2':{'MAN':['07:10','14:45',20],'TAR':['07:10','14:45',20],'PAR':['07:10','14:45',20]},
-  'operaciones|3':{'MAN':['08:30','16:30'],'TAR':['15:00','22:00']},
-  'operaciones|4':{'MAN':['09:20','13:50',20],'TAR':['16:50','20:40',0],'PAR':['09:20','20:40',200,'09:20–13:50 + 16:50–20:40 · 20min desc.']},
-  'omnicanal|0': {'MAN':['09:00','13:00'],'TAR':['18:00','22:00']},
-  'omnicanal|1': {'MAN':['08:10','15:30'],'TAR':['15:00','22:00']},
-  'omnicanal|3': {'MAN':['09:00','15:00'],'TAR':['16:00','22:00']},
-  'omnicanal|4': {'MAN':['09:00','15:00'],'TAR':['16:00','22:00']},
-  'omnicanal|5': {'MAN':['08:10','15:30'],'TAR':['15:00','22:00']},
-  'omnicanal|6': {'MAN':['09:30','15:00'],'TAR':['09:30','15:00']},
-  'omnicanal|7': {'MAN':['09:00','13:30'],'TAR':['16:00','20:30']},
-  'omnicanal|8': {'MAN':['09:15','13:30'],'TAR':['09:15','13:30']},
-  'omnicanal|9': {'MAN':['12:00','22:00'],'TAR':['12:00','22:00']},
-  'omnicanal|10':{'MAN':['13:00','22:00'],'TAR':['13:00','22:00']},
-  'omnicanal|11':{'MAN':['14:45','22:00'],'TAR':['14:45','22:00']},
-  'omnicanal|12':{'MAN':['08:10','15:30'],'TAR':['15:00','22:00']},
-  'omnicanal|14':{'MAN':['09:00','15:00'],'TAR':['16:00','22:00']},
-  'omnicanal|15':{'MAN':['09:30','15:30'],'TAR':['15:30','22:00']},
-  'omnicanal|16':{'MAN':['09:00','15:30'],'TAR':['15:30','22:00']},
-  'omnicanal|17':{'MAN':['09:00','15:30'],'TAR':['15:30','22:00']},
-  'omnicanal|18':{'MAN':['15:00','22:00'],'TAR':['15:00','22:00']},
-  'omnicanal|19':{'MAN':['09:00','15:30'],'TAR':['15:30','22:00']},
-  'omnicanal|20':{'MAN':['09:30','15:30'],'TAR':['15:30','22:00']},
-  'omnicanal|21':{'MAN':['09:30','15:30'],'TAR':['15:30','22:00']},
-  'cajasac|0':{'MAN':['09:30','15:30'],'TAR':['14:00','20:00']},
-  'cajasac|1':{'MAN':['09:30','16:00'],'TAR':['16:00','22:00']},
-  'cajasac|2':{'MAN':['09:30','16:00'],'TAR':['16:00','22:00']},
-  'cajasac|3':{'MAN':['09:00','16:20'],'TAR':['15:00','22:00']},
-  'cajasac|4':{'MAN':['08:30','15:40'],'TAR':['15:15','22:15']},
-  'cajasac|5':{'MAN':['09:00','16:20'],'TAR':['15:00','22:00']},
-  'cajasac|6':{'MAN':['09:45','15:00'],'TAR':['16:45','22:00']},
-  'cajasac|7':{'MAN':['13:00','22:00'],'TAR':['13:00','22:00']},
-  'cajasac|8':{'MAN':['09:30','14:40'],'TAR':['17:00','22:00']},
-  'cajasac|9':{'MAN':['09:30','15:00'],'TAR':['16:30','22:00']},
-  'muelle|0':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|1':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|2':{'MAN':['09:30','13:30'],'TAR':['09:30','13:30']},
-  'muelle|3':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|4':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|5':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|6':{'MAN':['06:00','13:30'],'TAR':['06:00','13:30']},
-  'muelle|7':{'MAN':['06:30','15:00'],'TAR':['06:30','15:00']},
+  // OPERACIONES
+  'operaciones|0':{'MAN':['07:10','14:45',20],'TAR':['16:00','22:15',15],'PAR':['07:10','14:45',20]}, // Carlos Lapeña
+  'operaciones|1':{'MAN':['08:45','15:45',30],'TAR':['15:00','22:00',30],'PAR':['09:00','21:00',180,'09:00–21:00 · comida 13:00–16:00 (3h)']}, // Elena Ródenas
+  'operaciones|2':{'PAR':['09:30','20:30',180,'09:30–20:30 · comida 12:00–15:00 (3h)'],'MAN':['09:30','16:00',30],'TAR':['15:00','21:30',30]}, // Jose Miguel Olmeda (ZG6)
+  'operaciones|3':{'MAN':['08:30','16:30',20],'TAR':['15:00','22:00',30],'PAR':['08:30','16:30',20]}, // Mirella Martínez (Z5G)
+  'operaciones|4':{'MAN':['09:30','16:30',30],'TAR':['15:15','22:15',30],'PAR':['09:30','20:30',180,'09:30–20:30 · comida 12:00–15:00 (3h)']}, // Vicente Ródenas
+  // OMNICANAL
+  'omnicanal|0': {'MAN':['10:00','16:00',0],'TAR':['16:00','22:00',0]}, // Alba Descalzo
+  'omnicanal|1': {'MAN':['08:10','15:20',30],'TAR':['15:00','22:00',30]}, // Ana Pilar Garijo
+  'omnicanal|2': {'TAR':['13:00','22:00',60,'13:00–22:00 · comida 15:00–16:00 (1h)'],'PAR':['12:00','22:00',60]}, // Antonio Fernández (BNH)
+  'omnicanal|3': {'MAN':['10:00','16:00',0],'TAR':['16:00','22:00',0]}, // Cecilia Ochovo
+  'omnicanal|4': {'MAN':['10:00','16:00',0],'TAR':['16:00','22:00',0]}, // Encarnación Galdón
+  'omnicanal|5': {'MAN':['09:00','15:00',0],'TAR':['16:00','22:00',0]}, // Inmaculada Collado
+  'omnicanal|6': {'MAN':['09:00','15:00',0],'TAR':['16:00','22:00',0]}, // Irene Gómez
+  'omnicanal|7': {'MAN':['09:00','13:00',0],'TAR':['18:00','22:00',0]}, // Isabel Zamora
+  'omnicanal|8': {'MAN':['08:10','15:20',30],'TAR':['15:00','22:00',30]}, // Javier López
+  'omnicanal|9': {'MAN':['10:00','16:00',0],'TAR':['16:00','22:00',0]}, // Jessica Ayala
+  'omnicanal|10':{'TAR':['18:00','22:00',0],'PAR':['12:00','22:00',60]}, // Juan F. López Nieto
+  'omnicanal|11':{'PAR':['12:00','22:00',60,'12:00–22:00 · comida 14:30–15:30 (1h)']}, // Julio Serna (BGQ)
+  'omnicanal|12':{'MAN':['10:00','16:00',0],'TAR':['16:00','22:00',0]}, // Lucas Hernández
+  'omnicanal|13':{'MAN':['09:15','13:45',0],'TAR':['14:45','21:00',15]}, // M. Aránzazu Celestino
+  'omnicanal|14':{'MAN':['09:30','15:00',0],'TAR':['15:30','21:00',0]}, // M. Cortés Rodríguez
+  'omnicanal|15':{'MAN':['09:00','13:30',0],'TAR':['16:00','20:30',0]}, // M. Victoria Serrano
+  'omnicanal|16':{'TAR':['16:00','22:00',0],'MAN':['10:00','16:00',0]}, // María del Pilar Ródenas
+  'omnicanal|17':{'MAN':['09:15','16:15',30],'TAR':['15:15','22:15',30]}, // Ramón Marín
+  'omnicanal|18':{'MAN':['08:10','15:20',30],'TAR':['15:00','22:00',30],'PAR':['12:00','22:00',60]}, // Sherezade Cusutien
+  'omnicanal|19':{'MAN':['08:15','15:15',30],'TAR':['15:15','22:15',30]}, // Rosario Sánchez
+  // CAJA-SAC
+  'cajasac|0':{'MAN':['10:00','15:00',0],'TAR':['17:00','22:00',0]}, // Andrea García
+  'cajasac|1':{'MAN':['09:30','15:30',0],'TAR':['14:00','20:00',0]}, // Carla Silvestre
+  'cajasac|2':{'MAN':['08:30','15:40',20],'TAR':['15:15','22:15',20]}, // Isabel Gualda
+  'cajasac|3':{'TAR':['13:00','22:00',60,'13:00–22:00 · comida 15:00–16:00 (1h)'],'PAR':['12:00','22:00',60]}, // Juan Ortiz
+  'cajasac|4':{'MAN':['09:00','16:00',15],'TAR':['15:00','22:15',20]}, // Lina María García
+  'cajasac|5':{'MAN':['09:45','15:00',0],'TAR':['16:45','22:00',0]}, // M. José Escobar
+  'cajasac|6':{'MAN':['09:30','16:00',15],'TAR':['16:00','22:00',0]}, // M. Mercedes García
+  'cajasac|7':{'MAN':['09:30','15:00',0],'TAR':['15:00','20:30',0]}, // M. Carmen Díaz
+  'cajasac|8':{'MAN':['09:30','16:00',15],'TAR':['16:00','22:00',0]}, // Pedro Luis Martínez
+  'cajasac|9':{'PAR':['12:00','22:00',120,'12:00–22:00 · comida 14:00–16:00 (2h)']}, // Samuel Carrión
+  'cajasac|10':{'MAN':['09:00','16:20',30],'TAR':['15:00','22:00',20]}, // Victoria Sánchez
+  // MUELLE
+  'muelle|0':{'MAN':['06:00','13:30',30]}, // Arturo García
+  'muelle|1':{'MAN':['07:20','15:00',30]}, // J. Pascasio Quílez
+  'muelle|2':{'MAN':['06:00','13:30',30]}, // J. Pascual García
+  'muelle|3':{'MAN':['06:00','13:30',30]}, // José Luis Ramírez
+  'muelle|4':{'MAN':['06:00','13:30',30]}, // Miguel A. Alcahud
+  'muelle|5':{'MAN':['06:00','13:30',30]}, // Miguel Ángel Maeso
+  'muelle|6':{'MAN':['06:00','13:30',30],'TAR':['15:00','22:00',30],'PAR':['08:00','18:00',60]}, // Rafael Motos
+  // POSTVENTA
+  'postventa|0':{'MAN':['07:30','16:00',30]}, // Eva María Montoya
+  'postventa|1':{'MAN':['09:30','13:30',0]}   // Pilar González Cifo
 };
 function _hoKey(dept,ei,ds){return dept+'|'+ei+'|'+ds;}
 function _hoGet(dept,ei,ds,lbl){
@@ -6448,7 +6455,7 @@ function renderResumenTrabajador(){
     const _horDef=HORARIOS_DEF[dept+'|'+r.ei];
     if(_horDef){
       const _hMan=_horDef.MAN, _hTar=_horDef.TAR, _hPar=_horDef.PAR;
-      const _mainSch=_hMan||_hTar||_hPar;
+      const _mainSch=(_hPar&&_hPar[3])?_hPar:(_hMan||_hTar||_hPar);
       if(_mainSch){
         const _sameMT=_hMan&&_hTar&&_hMan[0]===_hTar[0]&&_hMan[1]===_hTar[1];
         const _brk=_mainSch[2]!=null?_mainSch[2]:null;
@@ -7309,7 +7316,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 if('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js')
+    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js?v=3')
       .catch(function(err){ console.log('SW error:', err); });
   });
 }
