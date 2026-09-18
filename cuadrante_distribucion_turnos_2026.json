@@ -2,7 +2,7 @@
   "metadata": {
     "version": "2026.5.0",
     "descripcion": "Cuadrante y Distribución de Turnos 2026 - Catálogo Unificado Oficial de Horarios y Turnos",
-    "fecha_actualizacion": "2026-09-18T23:16:42.796Z",
+    "fecha_actualizacion": "2026-09-18T23:26:14.614Z",
     "total_trabajadores": 45,
     "departamentos": [
       "operaciones",
@@ -25666,11 +25666,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "80.0%",
       "totales_2026": {
-        "horas_proyectadas": 1363,
-        "dias_trabajados": 257,
+        "horas_proyectadas": 1337.5,
+        "dias_trabajados": 248,
         "dias_vacaciones": 31,
         "dias_baja": 5,
-        "dias_libre": 66,
+        "dias_libre": 75,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -26283,13 +26283,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-02-14": {
           "fecha": "2026-02-14",
@@ -26339,13 +26339,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 8.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-18": {
           "fecha": "2026-02-18",
@@ -26815,13 +26815,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 8.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-24": {
           "fecha": "2026-03-24",
@@ -26829,13 +26829,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 8.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-25": {
           "fecha": "2026-03-25",
@@ -26843,13 +26843,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-03-26": {
           "fecha": "2026-03-26",
@@ -27403,13 +27403,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-05": {
           "fecha": "2026-05-05",
@@ -27431,13 +27431,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-07": {
           "fecha": "2026-05-07",
@@ -27459,13 +27459,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-09": {
           "fecha": "2026-05-09",
@@ -28397,13 +28397,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-07-15": {
           "fecha": "2026-07-15",
@@ -30795,11 +30795,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "87.5%",
       "totales_2026": {
-        "horas_proyectadas": 859.8,
-        "dias_trabajados": 145,
+        "horas_proyectadas": 853.8,
+        "dias_trabajados": 143,
         "dias_vacaciones": 20,
         "dias_baja": 160,
-        "dias_libre": 38,
+        "dias_libre": 40,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -32854,13 +32854,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-28": {
           "fecha": "2026-05-28",
@@ -33582,13 +33582,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-07-19": {
           "fecha": "2026-07-19",
@@ -41053,11 +41053,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1730.9,
-        "dias_trabajados": 252,
+        "horas_proyectadas": 1709.1,
+        "dias_trabajados": 248,
         "dias_vacaciones": 29,
         "dias_baja": 0,
-        "dias_libre": 25,
+        "dias_libre": 29,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -41950,13 +41950,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.25,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-06": {
           "fecha": "2026-03-06",
@@ -41964,13 +41964,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.25,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-07": {
           "fecha": "2026-03-07",
@@ -41978,13 +41978,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-03-08": {
           "fecha": "2026-03-08",
@@ -42230,13 +42230,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.25,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-26": {
           "fecha": "2026-03-26",
@@ -46182,11 +46182,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "65.0%",
       "totales_2026": {
-        "horas_proyectadas": 1097,
-        "dias_trabajados": 259,
+        "horas_proyectadas": 1091,
+        "dias_trabajados": 256,
         "dias_vacaciones": 31,
         "dias_baja": 10,
-        "dias_libre": 10,
+        "dias_libre": 13,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -50313,13 +50313,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-10-23": {
           "fecha": "2026-10-23",
@@ -50481,13 +50481,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-11-04": {
           "fecha": "2026-11-04",
@@ -50733,13 +50733,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-11-22": {
           "fecha": "2026-11-22",
@@ -61569,11 +61569,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "50.0%",
       "totales_2026": {
-        "horas_proyectadas": 872.2,
-        "dias_trabajados": 215,
+        "horas_proyectadas": 833.2,
+        "dias_trabajados": 208,
         "dias_vacaciones": 31,
         "dias_baja": 4,
-        "dias_libre": 54,
+        "dias_libre": 61,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -62074,13 +62074,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-06": {
           "fecha": "2026-02-06",
@@ -62228,13 +62228,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-17": {
           "fecha": "2026-02-17",
@@ -62242,13 +62242,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-18": {
           "fecha": "2026-02-18",
@@ -62256,13 +62256,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-19": {
           "fecha": "2026-02-19",
@@ -62270,13 +62270,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-20": {
           "fecha": "2026-02-20",
@@ -62284,13 +62284,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-21": {
           "fecha": "2026-02-21",
@@ -62970,13 +62970,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-04-11": {
           "fecha": "2026-04-11",
@@ -66699,10 +66699,10 @@
       "porcentaje_jornada": "78.0%",
       "totales_2026": {
         "horas_proyectadas": 1315.6,
-        "dias_trabajados": 253,
+        "dias_trabajados": 251,
         "dias_vacaciones": 31,
         "dias_baja": 9,
-        "dias_libre": 66,
+        "dias_libre": 68,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -67483,13 +67483,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-02-26": {
           "fecha": "2026-02-26",
@@ -67609,13 +67609,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-03-07": {
           "fecha": "2026-03-07",
@@ -71827,11 +71827,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "94.85%",
       "totales_2026": {
-        "horas_proyectadas": 1714.6,
-        "dias_trabajados": 225,
+        "horas_proyectadas": 1691.6,
+        "dias_trabajados": 221,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 48,
+        "dias_libre": 52,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -71898,13 +71898,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.67,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-01-06": {
           "fecha": "2026-01-06",
@@ -72234,13 +72234,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-01-30": {
           "fecha": "2026-01-30",
@@ -72346,13 +72346,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.67,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-07": {
           "fecha": "2026-02-07",
@@ -75579,14 +75579,14 @@
           "dia_semana": "Viernes",
           "codigo_turno": "J",
           "codigo_base": "J",
-          "turno": "MAN",
-          "tipo_turno": "Manana",
-          "tipo_dia": "TRABAJO",
-          "horas": 7.7,
-          "hora_entrada": "08:30",
-          "hora_salida": "16:30",
-          "minutos_descanso": 18,
-          "clasificacion_descripcion": "Manana (08:30–16:30)"
+          "turno": "J",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
+          "minutos_descanso": 0,
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-09-26": {
           "fecha": "2026-09-26",
@@ -76957,10 +76957,10 @@
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
         "horas_proyectadas": 1352,
-        "dias_trabajados": 189,
+        "dias_trabajados": 186,
         "dias_vacaciones": 31,
         "dias_baja": 63,
-        "dias_libre": 39,
+        "dias_libre": 42,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -78791,13 +78791,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-12": {
           "fecha": "2026-05-12",
@@ -78805,13 +78805,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-13": {
           "fecha": "2026-05-13",
@@ -78819,13 +78819,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-05-14": {
           "fecha": "2026-05-14",
@@ -82086,10 +82086,10 @@
       "porcentaje_jornada": "80.0%",
       "totales_2026": {
         "horas_proyectadas": 1430,
-        "dias_trabajados": 261,
+        "dias_trabajados": 260,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 14,
+        "dias_libre": 15,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -85236,13 +85236,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-08-14": {
           "fecha": "2026-08-14",
@@ -102601,11 +102601,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1345.9,
-        "dias_trabajados": 197,
+        "horas_proyectadas": 1339.2,
+        "dias_trabajados": 196,
         "dias_vacaciones": 31,
         "dias_baja": 80,
-        "dias_libre": 52,
+        "dias_libre": 53,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -106760,13 +106760,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.67,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-10-25": {
           "fecha": "2026-10-25",
@@ -112859,11 +112859,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "70.0%",
       "totales_2026": {
-        "horas_proyectadas": 1234,
-        "dias_trabajados": 138,
+        "horas_proyectadas": 1230,
+        "dias_trabajados": 137,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 0,
+        "dias_libre": 1,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -116569,14 +116569,14 @@
           "dia_semana": "Martes",
           "codigo_turno": "JA",
           "codigo_base": "JA",
-          "turno": "TAR",
-          "tipo_turno": "Tarde",
-          "tipo_dia": "TRABAJO",
-          "horas": 4,
-          "hora_entrada": "18:00",
-          "hora_salida": "22:00",
+          "turno": "JA",
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "Tarde (18:00–22:00)"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-09-23": {
           "fecha": "2026-09-23",
@@ -117989,10 +117989,10 @@
       "porcentaje_jornada": "91.2%",
       "totales_2026": {
         "horas_proyectadas": 1606.7,
-        "dias_trabajados": 264,
+        "dias_trabajados": 260,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 9,
+        "dias_libre": 13,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -120677,13 +120677,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-07-12": {
           "fecha": "2026-07-12",
@@ -121643,13 +121643,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-09-19": {
           "fecha": "2026-09-19",
@@ -121727,13 +121727,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-09-25": {
           "fecha": "2026-09-25",
@@ -121741,13 +121741,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-09-26": {
           "fecha": "2026-09-26",
@@ -128246,11 +128246,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "91.2%",
       "totales_2026": {
-        "horas_proyectadas": 1430.5,
-        "dias_trabajados": 263,
+        "horas_proyectadas": 1414,
+        "dias_trabajados": 259,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 13,
+        "dias_libre": 17,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -129171,13 +129171,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 5.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-08": {
           "fecha": "2026-03-08",
@@ -129409,13 +129409,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 5.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-25": {
           "fecha": "2026-03-25",
@@ -129423,13 +129423,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 5.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-26": {
           "fecha": "2026-03-26",
@@ -131621,13 +131621,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-08-30": {
           "fecha": "2026-08-30",
@@ -143634,10 +143634,10 @@
       "porcentaje_jornada": "60.0%",
       "totales_2026": {
         "horas_proyectadas": 608.3,
-        "dias_trabajados": 132,
+        "dias_trabajados": 131,
         "dias_vacaciones": 31,
         "dias_baja": 4,
-        "dias_libre": 111,
+        "dias_libre": 112,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -147582,13 +147582,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-10-10": {
           "fecha": "2026-10-10",
@@ -159021,10 +159021,10 @@
       "porcentaje_jornada": "75.0%",
       "totales_2026": {
         "horas_proyectadas": 1350,
-        "dias_trabajados": 260,
+        "dias_trabajados": 259,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 68,
+        "dias_libre": 69,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -161989,13 +161989,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-08-01": {
           "fecha": "2026-08-01",
@@ -179536,11 +179536,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "30.0%",
       "totales_2026": {
-        "horas_proyectadas": 482.8,
-        "dias_trabajados": 59,
+        "horas_proyectadas": 476,
+        "dias_trabajados": 58,
         "dias_vacaciones": 33,
         "dias_baja": 0,
-        "dias_libre": 45,
+        "dias_libre": 46,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -182225,13 +182225,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.83,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-07-12": {
           "fecha": "2026-07-12",
@@ -194923,11 +194923,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1797.8,
-        "dias_trabajados": 264,
+        "horas_proyectadas": 1776.8,
+        "dias_trabajados": 261,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 63,
+        "dias_libre": 66,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -198857,42 +198857,42 @@
           "dia_semana": "Jueves",
           "codigo_turno": "J",
           "codigo_base": "J",
-          "turno": "MAN",
-          "tipo_turno": "Manana",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
-          "hora_entrada": "08:30",
-          "hora_salida": "15:30",
+          "turno": "J",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "Manana (08:30–15:30)"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-10-09": {
           "fecha": "2026-10-09",
           "dia_semana": "Viernes",
           "codigo_turno": "J",
           "codigo_base": "J",
-          "turno": "MAN",
-          "tipo_turno": "Manana",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
-          "hora_entrada": "08:30",
-          "hora_salida": "15:30",
+          "turno": "J",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "Manana (08:30–15:30)"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-10-10": {
           "fecha": "2026-10-10",
           "dia_semana": "Sábado",
           "codigo_turno": "J",
           "codigo_base": "J",
-          "turno": "MAN",
-          "tipo_turno": "Manana",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
-          "hora_entrada": "08:30",
-          "hora_salida": "15:30",
+          "turno": "J",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "Manana (08:30–15:30)"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-10-11": {
           "fecha": "2026-10-11",
@@ -200052,11 +200052,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "59.0%",
       "totales_2026": {
-        "horas_proyectadas": 872.5,
-        "dias_trabajados": 213,
+        "horas_proyectadas": 868,
+        "dias_trabajados": 211,
         "dias_vacaciones": 31,
         "dias_baja": 6,
-        "dias_libre": 15,
+        "dias_libre": 17,
         "dias_permiso": 0,
         "dias_traslado": 40
       },
@@ -203034,14 +203034,14 @@
           "dia_semana": "Sábado",
           "codigo_turno": "JA",
           "codigo_base": "JA",
-          "turno": "MAN",
-          "tipo_turno": "Manana",
-          "tipo_dia": "TRABAJO",
-          "horas": 4.5,
-          "hora_entrada": "09:00",
-          "hora_salida": "13:30",
+          "turno": "JA",
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
+          "hora_entrada": null,
+          "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "Manana (09:00–13:30)"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-08-02": {
           "fecha": "2026-08-02",
@@ -203609,13 +203609,13 @@
           "codigo_turno": "J",
           "codigo_base": "J",
           "turno": "J",
-          "tipo_turno": "J",
-          "tipo_dia": "TRABAJO",
+          "tipo_turno": "Libre (J)",
+          "tipo_dia": "DESCANSO",
           "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "J"
+          "clasificacion_descripcion": "Libre (J) (Exceso horas)"
         },
         "2026-09-12": {
           "fecha": "2026-09-12",
@@ -210310,11 +210310,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1799,
-        "dias_trabajados": 226,
+        "horas_proyectadas": 1766.5,
+        "dias_trabajados": 221,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 47,
+        "dias_libre": 52,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -211263,13 +211263,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-10": {
           "fecha": "2026-03-10",
@@ -211277,13 +211277,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-11": {
           "fecha": "2026-03-11",
@@ -211305,13 +211305,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-13": {
           "fecha": "2026-03-13",
@@ -211319,13 +211319,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-14": {
           "fecha": "2026-03-14",
@@ -211361,13 +211361,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-03-17": {
           "fecha": "2026-03-17",
@@ -220568,11 +220568,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1690.7,
-        "dias_trabajados": 249,
+        "horas_proyectadas": 1684.2,
+        "dias_trabajados": 248,
         "dias_vacaciones": 31,
         "dias_baja": 1,
-        "dias_libre": 25,
+        "dias_libre": 26,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -220989,13 +220989,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 6.5,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-01-31": {
           "fecha": "2026-01-31",
@@ -225697,11 +225697,11 @@
       "horas_anuales_objetivo": 1770,
       "porcentaje_jornada": "100.0%",
       "totales_2026": {
-        "horas_proyectadas": 1773.5,
-        "dias_trabajados": 253,
+        "horas_proyectadas": 1738.5,
+        "dias_trabajados": 248,
         "dias_vacaciones": 31,
         "dias_baja": 0,
-        "dias_libre": 22,
+        "dias_libre": 27,
         "dias_permiso": 0,
         "dias_traslado": 0
       },
@@ -226356,13 +226356,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-17": {
           "fecha": "2026-02-17",
@@ -226384,13 +226384,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-19": {
           "fecha": "2026-02-19",
@@ -226398,13 +226398,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-20": {
           "fecha": "2026-02-20",
@@ -226412,13 +226412,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-21": {
           "fecha": "2026-02-21",
@@ -226426,13 +226426,13 @@
           "codigo_turno": "JA",
           "codigo_base": "JA",
           "turno": "JA",
-          "tipo_turno": "JA",
-          "tipo_dia": "TRABAJO",
-          "horas": 7,
+          "tipo_turno": "Libre (JA)",
+          "tipo_dia": "DESCANSO",
+          "horas": 0,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "JA"
+          "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
         },
         "2026-02-22": {
           "fecha": "2026-02-22",
@@ -233941,13 +233941,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.67,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66408048": {
         "nombre": "JOSE MIGUEL OLMEDA",
@@ -251269,13 +251269,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66408048": {
         "nombre": "JOSE MIGUEL OLMEDA",
@@ -252455,13 +252455,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "79666046": {
         "nombre": "VICENTE RODENAS SANCHEZ",
@@ -256291,13 +256291,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -257045,13 +257045,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.67,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66408048": {
         "nombre": "JOSE MIGUEL OLMEDA",
@@ -261955,13 +261955,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -264233,13 +264233,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -264745,13 +264745,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       }
     },
     "2026-02-17": {
@@ -264843,13 +264843,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 8.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -264955,13 +264955,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -265677,13 +265677,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -266189,13 +266189,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       }
     },
     "2026-02-19": {
@@ -266399,13 +266399,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -266911,13 +266911,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       }
     },
     "2026-02-20": {
@@ -267121,13 +267121,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -267633,13 +267633,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       }
     },
     "2026-02-21": {
@@ -268355,13 +268355,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       }
     },
     "2026-02-22": {
@@ -270747,13 +270747,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66387820": {
         "nombre": "MIRELLA MARTINEZ ANDUJAR",
@@ -276443,13 +276443,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.25,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66314071": {
         "nombre": "M. VICTORIA SERRANO MONEDERO",
@@ -277165,13 +277165,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.25,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66314071": {
         "nombre": "M. VICTORIA SERRANO MONEDERO",
@@ -277245,13 +277245,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66387820": {
         "nombre": "MIRELLA MARTINEZ ANDUJAR",
@@ -277887,13 +277887,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66314071": {
         "nombre": "M. VICTORIA SERRANO MONEDERO",
@@ -278159,13 +278159,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 5.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "73603730": {
         "nombre": "ANTONIO FERNANDEZ GARCIA",
@@ -279859,13 +279859,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76204288": {
         "nombre": "M. ARANZAZU CELESTINO ROMERO",
@@ -280581,13 +280581,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76204288": {
         "nombre": "M. ARANZAZU CELESTINO ROMERO",
@@ -282025,13 +282025,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76204288": {
         "nombre": "M. ARANZAZU CELESTINO ROMERO",
@@ -282747,13 +282747,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76204288": {
         "nombre": "M. ARANZAZU CELESTINO ROMERO",
@@ -284913,13 +284913,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76204288": {
         "nombre": "M. ARANZAZU CELESTINO ROMERO",
@@ -289391,13 +289391,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 8.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -290113,13 +290113,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 8.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -290433,13 +290433,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 5.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "73603730": {
         "nombre": "ANTONIO FERNANDEZ GARCIA",
@@ -290835,13 +290835,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -290883,13 +290883,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.25,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66314071": {
         "nombre": "M. VICTORIA SERRANO MONEDERO",
@@ -291155,13 +291155,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 5.5,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "73603730": {
         "nombre": "ANTONIO FERNANDEZ GARCIA",
@@ -302499,13 +302499,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66379066": {
         "nombre": "M. JOSE ESCOBAR LOPEZ",
@@ -319715,13 +319715,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -321159,13 +321159,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -322603,13 +322603,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -324929,13 +324929,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66417650": {
         "nombre": "M. CORTES RODRIGUEZ HUESCAR",
@@ -325651,13 +325651,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66417650": {
         "nombre": "M. CORTES RODRIGUEZ HUESCAR",
@@ -326373,13 +326373,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66417650": {
         "nombre": "M. CORTES RODRIGUEZ HUESCAR",
@@ -336337,13 +336337,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66103169": {
         "nombre": "MIGUEL A. ALCAHUD CUARTERO",
@@ -369099,13 +369099,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73591430": {
         "nombre": "LUCAS HERNANDEZ DE AGUILAR",
@@ -369291,13 +369291,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.83,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "74396987": {
         "nombre": "SAMUEL CARRION TORRES",
@@ -370977,13 +370977,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66011479": {
         "nombre": "CARLA SILVESTRE MOLINA",
@@ -373881,13 +373881,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66103169": {
         "nombre": "MIGUEL A. ALCAHUD CUARTERO",
@@ -383667,13 +383667,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73760324": {
         "nombre": "ANA PILAR GARIJO MARTINEZ",
@@ -384516,14 +384516,14 @@
         "dia_semana": "Sábado",
         "codigo_turno": "JA",
         "codigo_base": "JA",
-        "turno": "MAN",
-        "tipo_turno": "Manana",
-        "tipo_dia": "TRABAJO",
-        "horas": 4.5,
-        "hora_entrada": "09:00",
-        "hora_salida": "13:30",
+        "turno": "JA",
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "Manana (09:00–13:30)"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "76202167": {
         "nombre": "J. PASCASIO QUILEZ SOTOS",
@@ -392813,13 +392813,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66425984": {
         "nombre": "J. PASCUAL GARCIA GARCIA",
@@ -404509,13 +404509,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73603730": {
         "nombre": "ANTONIO FERNANDEZ GARCIA",
@@ -414119,13 +414119,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "76202167": {
         "nombre": "J. PASCASIO QUILEZ SOTOS",
@@ -418917,13 +418917,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73591430": {
         "nombre": "LUCAS HERNANDEZ DE AGUILAR",
@@ -421788,14 +421788,14 @@
         "dia_semana": "Martes",
         "codigo_turno": "JA",
         "codigo_base": "JA",
-        "turno": "TAR",
-        "tipo_turno": "Tarde",
-        "tipo_dia": "TRABAJO",
-        "horas": 4,
-        "hora_entrada": "18:00",
-        "hora_salida": "22:00",
+        "turno": "JA",
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "Tarde (18:00–22:00)"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "73472235": {
         "nombre": "INMACULADA COLLADO SAERA",
@@ -423249,13 +423249,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73591430": {
         "nombre": "LUCAS HERNANDEZ DE AGUILAR",
@@ -423826,14 +423826,14 @@
         "dia_semana": "Viernes",
         "codigo_turno": "J",
         "codigo_base": "J",
-        "turno": "MAN",
-        "tipo_turno": "Manana",
-        "tipo_dia": "TRABAJO",
-        "horas": 7.7,
-        "hora_entrada": "08:30",
-        "hora_salida": "16:30",
-        "minutos_descanso": 18,
-        "clasificacion_descripcion": "Manana (08:30–16:30)"
+        "turno": "J",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
+        "minutos_descanso": 0,
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66408048": {
         "nombre": "JOSE MIGUEL OLMEDA",
@@ -423971,13 +423971,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73591430": {
         "nombre": "LUCAS HERNANDEZ DE AGUILAR",
@@ -433596,14 +433596,14 @@
         "dia_semana": "Jueves",
         "codigo_turno": "J",
         "codigo_base": "J",
-        "turno": "MAN",
-        "tipo_turno": "Manana",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
-        "hora_entrada": "08:30",
-        "hora_salida": "15:30",
+        "turno": "J",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "Manana (08:30–15:30)"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "76201987": {
         "nombre": "ISABEL ZAMORA SANCHEZ",
@@ -434159,13 +434159,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "73668691": {
         "nombre": "MARIA DEL PI RODENAS RODENAS",
@@ -434318,14 +434318,14 @@
         "dia_semana": "Viernes",
         "codigo_turno": "J",
         "codigo_base": "J",
-        "turno": "MAN",
-        "tipo_turno": "Manana",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
-        "hora_entrada": "08:30",
-        "hora_salida": "15:30",
+        "turno": "J",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "Manana (08:30–15:30)"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "76201987": {
         "nombre": "ISABEL ZAMORA SANCHEZ",
@@ -435040,14 +435040,14 @@
         "dia_semana": "Sábado",
         "codigo_turno": "J",
         "codigo_base": "J",
-        "turno": "MAN",
-        "tipo_turno": "Manana",
-        "tipo_dia": "TRABAJO",
-        "horas": 7,
-        "hora_entrada": "08:30",
-        "hora_salida": "15:30",
+        "turno": "J",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
+        "hora_entrada": null,
+        "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "Manana (08:30–15:30)"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "76201987": {
         "nombre": "ISABEL ZAMORA SANCHEZ",
@@ -443241,13 +443241,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66343542": {
         "nombre": "PEDRO LUIS MARTINEZ SORIA",
@@ -444861,13 +444861,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6.67,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "67529024": {
         "nombre": "RAFAEL MOTOS FERNANDEZ",
@@ -451905,13 +451905,13 @@
         "codigo_turno": "JA",
         "codigo_base": "JA",
         "turno": "JA",
-        "tipo_turno": "JA",
-        "tipo_dia": "TRABAJO",
-        "horas": 6,
+        "tipo_turno": "Libre (JA)",
+        "tipo_dia": "DESCANSO",
+        "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "JA"
+        "clasificacion_descripcion": "Libre (JA) (Ajuste anual)"
       },
       "66343542": {
         "nombre": "PEDRO LUIS MARTINEZ SORIA",
@@ -464901,13 +464901,13 @@
         "codigo_turno": "J",
         "codigo_base": "J",
         "turno": "J",
-        "tipo_turno": "J",
-        "tipo_dia": "TRABAJO",
+        "tipo_turno": "Libre (J)",
+        "tipo_dia": "DESCANSO",
         "horas": 0,
         "hora_entrada": null,
         "hora_salida": null,
         "minutos_descanso": 0,
-        "clasificacion_descripcion": "J"
+        "clasificacion_descripcion": "Libre (J) (Exceso horas)"
       },
       "66343542": {
         "nombre": "PEDRO LUIS MARTINEZ SORIA",
