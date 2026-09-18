@@ -1,8 +1,9 @@
 // Service Worker — Cuadrante Personal 2026
-const CACHE = 'cuadrante-v1';
+const CACHE = 'cuadrante-v2';
 const ASSETS = [
   '/Cuadrantepersonal/',
   '/Cuadrantepersonal/index.html',
+  '/Cuadrantepersonal/catalogo_turnos_completo.js',
   '/Cuadrantepersonal/manifest.json',
   '/Cuadrantepersonal/icon-192.png',
   '/Cuadrantepersonal/icon-512.png'
@@ -23,6 +24,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Para peticiones a Supabase, siempre red (datos en tiempo real)
   if(e.request.url.includes('supabase.co')) return;
+  // Network first con fallback a cache para garantizar que siempre se vean las últimas actualizaciones
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   );
