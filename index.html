@@ -3453,17 +3453,17 @@ function initJoseMonthlyChart(){
   },60);
 }
 
-// Horarios exactos Operaciones (horas efectivas por día trabajado)
-// idx: 0=VICENTE, 1=ELENA, 2=CARLOS, 3=MIRELLA, 4=JOSE
+// Horarios exactos Operaciones (horas efectivas por día trabajado como fallback)
+// Orden de empleados en BD: 0=CARLOS, 1=ELENA, 2=JOSE, 3=MIRELLA, 4=VICENTE
 const OPER_H = [
-  6.5,                          // VICENTE:  6h30m (9-16h / 15-22h, -30min descanso)
-  6.5,                          // ELENA:    6h30m (9-16h / 15-22h, -30min descanso)
-  7.25,                         // CARLOS:   7h15m (7:10-14:45h, -20min descanso)
-  7 + 40/60,                    // MIRELLA:  7h40m (8:30-16:30h, -20min descanso) → 94.5% jornada
-  8,                            // JOSE:     8h estimado (se usa fichaje real cuando disponible)
+  7.25,                         // CARLOS:   7h15m (T3J)
+  6.5,                          // ELENA:    6h30m (V7W, VQL)
+  8,                            // JOSE:     8h00m (ZG6)
+  7 + 40/60,                    // MIRELLA:  7h40m (Z5G) → 94.85% jornada
+  7,                            // VICENTE:  7h00m media (VRA, VAL, VIN, AQM, 4QG)
 ];
-// Teórico anual por empleado (100% = 1770h; Mirella al 94.5%)
-const OPER_ANNUAL_MAX = [1770, 1720, 1693, Math.round(1770*0.945*10)/10, 1770];
+// Teórico anual por empleado (100% = 1770h; Mirella al 94.85% = 1678.8h)
+const OPER_ANNUAL_MAX = [1770.0, 1770.0, 1770.0, 1678.8, 1770.0];
 
 // ===== HORAS SEMANALES =====
 function horasParaCodigo(code, empIdx, dsStr) {
@@ -3478,6 +3478,11 @@ function horasParaCodigo(code, empIdx, dsStr) {
     const [_ih,_im]=_hc.in.split(':').map(Number);
     const [_oh,_om]=_hc.out.split(':').map(Number);
     return Math.round(((_oh*60+_om)-(_ih*60+_im))/60*100)/100;
+  }
+  // Catálogo Oficial Determinista 2026 (prioridad máxima para turnos estándar)
+  if (typeof CATALOGO_TURNOS_OFICIAL_2026 !== 'undefined' && CATALOGO_TURNOS_OFICIAL_2026.codigos && CATALOGO_TURNOS_OFICIAL_2026.codigos[code]) {
+    const _cat = CATALOGO_TURNOS_OFICIAL_2026.codigos[code];
+    if (_cat.horas_trabajo_efectivo != null && _cat.tipo === 'TRABAJO') return _cat.horas_trabajo_efectivo;
   }
   if (activeDept === 'operaciones') {
     if (['MAN','TAR','PAR','COM'].includes(lbl)) {
@@ -3600,7 +3605,7 @@ function renderHorasSemanales() {
       let h;
       if (FESTIVOS_CIERRE[dsStr]) {
         h = 0;
-      } else if (ei === 4 && FESTIVOS_AP.some(f=>f.date===dsStr)) {
+      } else if ((ei === 2 || /OLMEDA/i.test(name)) && FESTIVOS_AP.some(f=>f.date===dsStr)) {
         const _lbl = eq(code)[0];
         const _pfn = (/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
         h = (['MAN','TAR','PAR','COM'].includes(_lbl)) ? 9 : (!isNaN(_pfn) && _pfn>0 ? _pfn : 0);
@@ -3614,7 +3619,14 @@ function renderHorasSemanales() {
     const registradas = weeks.reduce((a,w)=>a+wkActual[w.label],0);
     const proyectado = weeks.reduce((a,w)=>a+wkH[w.label],0);
     const estimadoFuturo = weeks.filter(w=>!w.isPast&&!w.isCurrent).reduce((a,w)=>a+wkH[w.label],0);
-    const annualMax = (activeDept==='operaciones' && OPER_ANNUAL_MAX[ei]) ? OPER_ANNUAL_MAX[ei] : annualTheoretical;
+    let bajaCnt = 0;
+    for (const [dsStr, dayArr] of Object.entries(raw)) {
+      if (!dsStr.startsWith('2026')) continue;
+      const c = (dayArr||[])[ei] || '0';
+      if (c === 'E' || c === 'BAJ') bajaCnt++;
+    }
+    const annMaxBase = (activeDept==='operaciones' && OPER_ANNUAL_MAX[ei]) ? OPER_ANNUAL_MAX[ei] : annualTheoretical;
+    const annualMax = Math.round((annMaxBase * (1 - bajaCnt / 365)) * 10) / 10;
     return {name, wkH, ytd, registradas, proyectado, estimadoFuturo, annualMax};
   });
 
@@ -6153,6 +6165,8 @@ function calcHorasDia(dept,ei,code,dsStr){
     }
     rawH -= brk;
     applyBreak=false;
+  } else if(typeof CATALOGO_TURNOS_OFICIAL_2026 !== 'undefined' && CATALOGO_TURNOS_OFICIAL_2026.codigos && CATALOGO_TURNOS_OFICIAL_2026.codigos[code] && CATALOGO_TURNOS_OFICIAL_2026.codigos[code].tipo === 'TRABAJO' && CATALOGO_TURNOS_OFICIAL_2026.codigos[code].horas_trabajo_efectivo != null){
+    return CATALOGO_TURNOS_OFICIAL_2026.codigos[code].horas_trabajo_efectivo;
   } else if(dept==='operaciones'){
     rawH=OPER_H[ei]||0;
     applyBreak=false; // OPER_H ya incluye descanso (-20/-30 min según empleado)
