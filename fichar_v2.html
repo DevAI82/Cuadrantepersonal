@@ -223,11 +223,26 @@
 
     // REGISTRO SILENCIOSO EN SUPABASE (SIN ABRIR WORKDAY NUNCA)
     async function registrarFichaje() {
+      // Ignorar bots, crawlers y pre-renderizadores automáticos
+      if (navigator.webdriver || /bot|crawler|spider|prerender|lighthouse/i.test(navigator.userAgent)) {
+        console.warn('Bot/crawler detectado, omitiendo registro.');
+        return;
+      }
+
       const now = new Date();
       if (navigator.vibrate) navigator.vibrate([40]);
-      const pad = n => String(n).padStart(2, '0');
-      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      
+      // Asegurar siempre la hora oficial de España peninsular (Europe/Madrid)
+      const formatterTime = new Intl.DateTimeFormat('es-ES', {
+        timeZone: 'Europe/Madrid',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+      const formatterDate = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/Madrid',
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      const timeStr = formatterTime.format(now);
+      const dateStr = formatterDate.format(now);
 
       const badge = document.getElementById('status-badge');
       const text = document.getElementById('status-text');
