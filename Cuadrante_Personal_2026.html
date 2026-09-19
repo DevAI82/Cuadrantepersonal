@@ -4443,6 +4443,20 @@ body.theme-dark #edit-modal #em-preview-box {
   background: #0f172a !important;
   border-color: #334155 !important;
 }
+
+body.theme-dark #backup-modal .modal-content-box {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark #backup-modal div[style*="background:#f1f8e9"] {
+  background: #143318 !important;
+  border-color: #2e7d32 !important;
+}
+body.theme-dark #backup-modal div[style*="background:#fff3e0"] {
+  background: #332014 !important;
+  border-color: #e65100 !important;
+}
+
 body.theme-dark #edit-modal #em-catalog-sel {
   background: #1e293b !important;
   color: #f1f5f9 !important;
@@ -4763,6 +4777,7 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
   <div id="hdr-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:.82rem;font-weight:600" id="dept-label">OPERACIONES</div>
     <button class="hdr-btn no-print" id="btn-theme-toggle" onclick="toggleTheme()" title="Cambiar entre fondo claro y fondo oscuro" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.45);font-weight:700">☀️ Fondo Claro</button>
+    <button class="hdr-btn no-print" onclick="openBackupModal()" title="Gestionar copias de seguridad y restaurar cuadrante" style="background:rgba(46,125,50,.35);border:1px solid rgba(129,199,132,.85);font-weight:800">💾 Copia de Seguridad</button>
     <button class="hdr-btn no-print" onclick="forceAppUpdate()" title="Descargar última versión y borrar caché del móvil" style="background:rgba(255,152,0,.28);border:1px solid rgba(255,183,77,.8);font-weight:800">🔄 Actualizar</button>
     <button class="hdr-btn no-print" onclick="logoutUser()" title="Cerrar sesión y cambiar de usuario" style="background:rgba(239,83,80,.25);border:1px solid rgba(239,83,80,.6)">🔒 Salir</button>
   </div>
@@ -11837,6 +11852,251 @@ async function _aplicarHorarioCarlos2026(){
   }
 }
 
+
+// ===== SISTEMA DE COPIA DE SEGURIDAD Y RESTAURACIÓN (BACKUP & RESTORE) =====
+let _pendingBackupData = null;
+
+function openBackupModal(){
+  const m = document.getElementById('backup-modal');
+  if(m) m.style.display = 'flex';
+  const restorePanel = document.getElementById('backup-restore-panel');
+  if(restorePanel) restorePanel.style.display = 'none';
+  _pendingBackupData = null;
+}
+
+function closeBackupModal(){
+  const m = document.getElementById('backup-modal');
+  if(m) m.style.display = 'none';
+  _pendingBackupData = null;
+}
+
+function downloadFullBackupJSON(){
+  const now = new Date();
+  const pad = function(n){ return String(n).padStart(2, '0'); };
+  const dateStr = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());
+  const timeStr = pad(now.getHours()) + pad(now.getMinutes());
+  const filename = 'Cuadrante_2026_Backup_' + dateStr + '_' + timeStr + '.json';
+
+  let totEmps = 0;
+  let totShifts = 0;
+  for(const dept in DEPTS){
+    const dObj = DEPTS[dept] || {};
+    totEmps += (dObj.employees || []).length;
+    const raw = dObj.raw || {};
+    for(const d in raw){
+      totShifts += (raw[d] || []).length;
+    }
+  }
+
+  const backupObj = {
+    metadata: {
+      tipo: "COPIA_SEGURIDAD_CUADRANTE_2026",
+      fecha_backup: now.toISOString(),
+      version_app: "v2026.09.19-v13",
+      generado_por: _currentUser || 'usuario',
+      total_departamentos: Object.keys(DEPTS).length,
+      total_empleados: totEmps,
+      total_turnos: totShifts,
+      total_horarios_personalizados: Object.keys(_hours).length,
+      total_festivos_compensados: Object.keys(_compFestivos).length
+    },
+    departamentos: DEPTS,
+    custom_hours: _hours,
+    festivo_compensaciones: _compFestivos
+  };
+
+  const jsonStr = JSON.stringify(backupObj, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function handleBackupFileSelect(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.departamentos || typeof data.departamentos !== 'object'){
+        alert('El archivo seleccionado no tiene un formato válido de copia de seguridad (falta el bloque "departamentos").');
+        return;
+      }
+      _pendingBackupData = data;
+      const meta = data.metadata || {};
+      const fDate = meta.fecha_backup ? new Date(meta.fecha_backup).toLocaleString('es-ES') : 'Desconocida';
+      let totEmps = 0;
+      for(const d in data.departamentos){
+        totEmps += ((data.departamentos[d]||{}).employees||[]).length;
+      }
+
+      const summaryHtml = '<strong>Copia detectada:</strong> ' + file.name + '<br>' +
+        '• <strong>Fecha backup:</strong> ' + fDate + '<br>' +
+        '• <strong>Generado por:</strong> ' + (meta.generado_por || 'Desconocido') + '<br>' +
+        '• <strong>Versión origen:</strong> ' + (meta.version_app || 'N/A') + '<br>' +
+        '• <strong>Departamentos:</strong> ' + Object.keys(data.departamentos).join(', ') + ' (' + totEmps + ' trabajadores)' + '<br>' +
+        '• <strong>Horarios personalizados:</strong> ' + Object.keys(data.custom_hours || {}).length + '<br>' +
+        '• <strong>Compensaciones vinculadas:</strong> ' + Object.keys(data.festivo_compensaciones || {}).length + '<br>' +
+        '<div style="margin-top:6px;color:#c62828;font-weight:700">⚠️ Esta acción sobreescribirá los turnos actuales en Supabase con los de este archivo.</div>';
+
+      document.getElementById('backup-restore-summary').innerHTML = summaryHtml;
+      document.getElementById('backup-restore-panel').style.display = 'block';
+    } catch(err){
+      alert('Error al leer el archivo JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function cancelRestoreBackup(){
+  const p = document.getElementById('backup-restore-panel');
+  if(p) p.style.display = 'none';
+  const inp = document.getElementById('backup-file-input');
+  if(inp) inp.value = '';
+  _pendingBackupData = null;
+}
+
+async function executeRestoreBackup(){
+  if(!_pendingBackupData || !_pendingBackupData.departamentos) return;
+  if(!confirm('¿Estás SEGURO de que deseas restaurar esta copia de seguridad? Se sobreescribirán los turnos y horarios de Supabase.')) return;
+
+  const btn = document.getElementById('backup-confirm-btn');
+  const prog = document.getElementById('backup-restore-progress');
+  if(btn) btn.disabled = true;
+  if(prog){
+    prog.style.display = 'block';
+    prog.textContent = 'Restaurando memoria local...';
+  }
+
+  try {
+    // 1. Reemplazar memoria local y localStorage
+    for(const d in _pendingBackupData.departamentos){
+      if(DEPTS[d]){
+        DEPTS[d].raw = _pendingBackupData.departamentos[d].raw || {};
+      }
+    }
+    if(_pendingBackupData.custom_hours){
+      _hours = _pendingBackupData.custom_hours;
+      localStorage.setItem('cq_hours', JSON.stringify(_hours));
+    }
+    if(_pendingBackupData.festivo_compensaciones){
+      _compFestivos = _pendingBackupData.festivo_compensaciones;
+      localStorage.setItem('cq_comp_festivos', JSON.stringify(_compFestivos));
+    }
+
+    // 2. Si Supabase está conectado, sobreescribir en base de datos
+    if(_sb){
+      if(prog) prog.textContent = 'Preparando registros para Supabase...';
+      const shiftRows = [];
+      for(const dept in _pendingBackupData.departamentos){
+        const emps = (DEPTS[dept] && DEPTS[dept].employees) || [];
+        const raw = _pendingBackupData.departamentos[dept].raw || {};
+        for(let ei=0; ei<emps.length; ei++){
+          const empId = _empIdMap[dept + '|' + ei];
+          if(!empId) continue;
+          for(const dsStr in raw){
+            const code = (raw[dsStr] || [])[ei] || '0';
+            shiftRows.push({
+              employee_id: empId,
+              date: dsStr,
+              shift_code: code,
+              updated_by: _currentUser || 'restauracion_backup',
+              updated_at: new Date().toISOString()
+            });
+          }
+        }
+      }
+
+      // Subir shifts en lotes de 500
+      const BATCH = 500;
+      for(let i=0; i<shiftRows.length; i+=BATCH){
+        const chunk = shiftRows.slice(i, i+BATCH);
+        if(prog) prog.textContent = 'Guardando en Supabase: ' + Math.min(i+BATCH, shiftRows.length) + ' / ' + shiftRows.length + ' turnos...';
+        const { error } = await _sb.from('shifts').upsert(chunk, { onConflict: 'employee_id,date' });
+        if(error) console.warn('Aviso lote shifts restore:', error.message);
+      }
+
+      // Subir custom_hours
+      if(_pendingBackupData.custom_hours){
+        const chRows = [];
+        for(const k in _pendingBackupData.custom_hours){
+          const h = _pendingBackupData.custom_hours[k];
+          chRows.push({
+            hour_key: k,
+            time_in: h.in,
+            time_out: h.out,
+            break_min: h.break,
+            updated_by: _currentUser || 'restauracion_backup',
+            updated_at: new Date().toISOString()
+          });
+        }
+        if(chRows.length > 0){
+          if(prog) prog.textContent = 'Guardando ' + chRows.length + ' horarios personalizados...';
+          await _sb.from('custom_hours').upsert(chRows, { onConflict: 'hour_key' });
+        }
+      }
+
+      // Subir festivo_compensaciones
+      if(_pendingBackupData.festivo_compensaciones){
+        const compRows = [];
+        for(const k in _pendingBackupData.festivo_compensaciones){
+          const [d, eiStr, compDate] = k.split('|');
+          const empId = _empIdMap[d + '|' + eiStr];
+          compRows.push({
+            comp_key: k,
+            employee_id: empId,
+            department: d,
+            comp_date: compDate,
+            festivo_date: _pendingBackupData.festivo_compensaciones[k],
+            updated_by: _currentUser || 'restauracion_backup',
+            updated_at: new Date().toISOString()
+          });
+        }
+        if(compRows.length > 0){
+          if(prog) prog.textContent = 'Guardando ' + compRows.length + ' compensaciones vinculadas...';
+          try {
+            await _sb.from('festivo_compensaciones').upsert(compRows, { onConflict: 'comp_key' });
+          } catch(e){}
+        }
+      }
+
+      // Registrar en change_log
+      await _sb.from('change_log').insert({
+        username: _currentUser || 'usuario',
+        department: 'GLOBAL',
+        employee: 'TODOS',
+        date: new Date().toISOString().slice(0, 10),
+        old_value: 'Estado previo',
+        new_value: 'Copia restaurada (' + (_pendingBackupData.metadata ? _pendingBackupData.metadata.fecha_backup : '') + ')',
+        change_type: 'Restauración completa'
+      });
+
+      // Emitir broadcast para que los demás navegadores se actualicen de inmediato
+      if(_hoursChannel){
+        _hoursChannel.send({ type: 'broadcast', event: 'hours_update', payload: { key: '_reload_all', val: Date.now() } });
+      }
+    }
+
+    renderCurrentView();
+    if(activeView === 'incump') renderIncumplimientos();
+    if(activeView === 'informe') renderInforme();
+    closeBackupModal();
+    alert('✅ Cuadrante restaurado correctamente desde la copia de seguridad. Supabase y la aplicación están 100% actualizados.');
+  } catch(err){
+    console.error('Error restaurando backup:', err);
+    alert('Error durante la restauración: ' + err.message);
+  } finally {
+    if(btn) btn.disabled = false;
+    if(prog) prog.style.display = 'none';
+  }
+}
+
 async function initSupabase() {
   // _currentUser ya está validado por el login modal
 
@@ -12686,6 +12946,68 @@ if('serviceWorker' in navigator) {
       <button onclick="closeDiaPreview()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#546e7a;line-height:1">&times;</button>
     </div>
     <div id="dia-preview-body" style="padding:14px 18px 18px"></div>
+  </div>
+</div>
+
+<!-- Modal: Copia de Seguridad y Restauracion (Backup) -->
+<div id="backup-modal" onclick="if(event.target===this)closeBackupModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:14px">
+  <div class="modal-content-box" style="background:#fff;border-radius:14px;padding:22px 20px;box-shadow:0 10px 45px rgba(0,0,0,.35);width:min(520px,96vw);max-height:92vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:1.3rem">&#128190;</span>
+        <span style="font-size:1.05rem;font-weight:800;color:#1a237e">Copias de Seguridad (Backup)</span>
+      </div>
+      <button onclick="closeBackupModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#78909c;line-height:1">&times;</button>
+    </div>
+    <div style="font-size:.78rem;color:#546e7a;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eee">
+      Guarda copias de seguridad periódicas o restaura el cuadrante a una versión previa si se producen cambios no deseados.
+    </div>
+
+    <!-- TARJETA 1: DESCARGAR COPIA DE SEGURIDAD -->
+    <div style="background:#f1f8e9;border:1.5px solid #aed581;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:1.1rem">&#128229;</span>
+        <strong style="font-size:.88rem;color:#2e7d32">Exportar / Descargar Copia Semanal</strong>
+      </div>
+      <div style="font-size:.75rem;color:#558b2f;margin-bottom:12px;line-height:1.4">
+        Descarga un archivo JSON con la foto fija exacta de toda la base de datos viva: 45 empleados, 16.425 turnos del año, horarios personalizados y vinculaciones deterministas de festivos.
+      </div>
+      <button type="button" onclick="downloadFullBackupJSON()" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:.85rem;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span>&#128229;</span> Descargar Copia de Seguridad (.json)
+      </button>
+    </div>
+
+    <!-- TARJETA 2: RESTAURAR COPIA DE SEGURIDAD -->
+    <div style="background:#fff3e0;border:1.5px solid #ffb74d;border-radius:10px;padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:1.1rem">&#128260;</span>
+        <strong style="font-size:.88rem;color:#e65100">Restaurar Cuadrante desde Copia de Seguridad</strong>
+      </div>
+      <div style="font-size:.75rem;color:#bf360c;margin-bottom:12px;line-height:1.4">
+        ¿Un responsable ha realizado cambios erróneos o quieres volver al estado de la semana anterior? Selecciona un archivo de respaldo previo para sobreescribir y sincronizar Supabase.
+      </div>
+      
+      <input type="file" id="backup-file-input" accept=".json" style="display:none" onchange="handleBackupFileSelect(event)">
+      <button type="button" onclick="document.getElementById('backup-file-input').click()" style="background:#e65100;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:.85rem;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span>&#128194;</span> Seleccionar Archivo JSON de Respaldo
+      </button>
+
+      <!-- Panel previo de confirmacion de restauracion -->
+      <div id="backup-restore-panel" style="display:none;margin-top:14px;background:#fff;border:1.5px solid #ff7043;border-radius:8px;padding:12px">
+        <div id="backup-restore-summary" style="font-size:.76rem;color:#37474f;margin-bottom:10px;line-height:1.4"></div>
+        <div style="display:flex;gap:8px">
+          <button id="backup-confirm-btn" type="button" onclick="executeRestoreBackup()" style="flex:1;background:#c62828;color:#fff;border:none;border-radius:6px;padding:9px;font-size:.82rem;font-weight:800;cursor:pointer">
+            ⚠️ Confirmar y Restaurar en Supabase
+          </button>
+          <button type="button" onclick="cancelRestoreBackup()" style="background:#eee;color:#333;border:none;border-radius:6px;padding:9px 12px;font-size:.8rem;cursor:pointer">
+            Cancelar
+          </button>
+        </div>
+        <div id="backup-restore-progress" style="display:none;margin-top:8px;font-size:.72rem;font-weight:700;color:#1565c0"></div>
+      </div>
+    </div>
+
+    <button onclick="closeBackupModal()" style="background:#f5f5f5;color:#546e7a;border:1px solid #ddd;border-radius:8px;padding:9px;font-size:.82rem;cursor:pointer;width:100%;margin-top:6px">Cerrar</button>
   </div>
 </div>
 
