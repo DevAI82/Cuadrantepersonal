@@ -6668,9 +6668,19 @@ function renderWeekly(){
       const _wHasFR=!!(FICHAJE_REAL[activeDept]&&FICHAJE_REAL[activeDept][EMPS()[ei]]);
       const _isPastCell=_hoDs<dsFromDate(new Date());
       let _hrsBadge='';
+      const _det=fRealDetalle(activeDept,EMPS()[ei],_hoDs);
+      const _detTitle=_det?(' · Entrada: '+(_det.f1_in||_det.inicio)+' | Salida: '+(_det.f2_out||_det.fin)):'';
       if(_frDay!==null){
-        _hrsBadge='<div style="font-size:.62rem;font-weight:800;color:#0d47a1;background:#e3f2fd;border-radius:3px;padding:1px 5px;margin-top:3px;letter-spacing:.1px">'+Math.round(_frDay*10)/10+'h ✓</div>';
-      } else if(!(_wHasFR&&_isPastCell)&&sInf.horasNum>0){
+        const _diffH=Math.round((_frDay-sInf.horasNum)*10)/10;
+        const _diffTxt=_diffH>0?('(+'+_diffH+'h)'):(_diffH<0?('('+_diffH+'h)'):'');
+        const _isLWork=(lbl==='LIB'||lbl==='DL'||code==='0'||code==='L'||code==='DL');
+        if(_isLWork){
+          _hrsBadge='<div style="font-size:.56rem;font-weight:800;color:#c62828;background:#ffebee;border:0.5px solid #ef9a9a;border-radius:3px;padding:1px 4px;margin-top:2px" title="Trabajado en descanso: '+_frDay+'h'+_detTitle+'">⚠️ Real: '+Math.round(_frDay*10)/10+'h</div>';
+        } else {
+          _hrsBadge='<div style="font-size:.54rem;color:'+(cls==='s-TAR'?'#e0e0e0':'#546e7a')+';margin-top:1px">Teór: ~'+sInf.horasNum+'h</div>'+
+                    '<div style="font-size:.58rem;font-weight:800;color:#0d47a1;background:#e3f2fd;border-radius:3px;padding:1px 4px;margin-top:1px;letter-spacing:.1px" title="Fichaje real Workday: '+_frDay+'h'+_detTitle+'">Real: '+Math.round(_frDay*10)/10+'h '+_diffTxt+' ✓</div>';
+        }
+      } else if(sInf.horasNum>0){
         const hrsCol=(cls==='s-TAR')?'#e8f5e9':'#0d47a1';
         _hrsBadge='<div style="font-size:.58rem;font-weight:800;color:'+hrsCol+';margin-top:2px">~'+sInf.horasNum+'h</div>';
       }
@@ -6691,8 +6701,26 @@ function renderWeekly(){
       }
       h+='<td class="wshift '+cls+' ed-cell" data-dept="'+activeDept+'" data-ds="'+_hoDs+'" data-ei="'+ei+'" style="'+_amplSt+'" title="'+_cellTitle+'"><div>'+sInf.text+'</div><div class="code">'+(code&&code!=='0'&&code!=='--'?'('+code+')':'')+'</div>'+_hoInd+_hrsBadge+_compBadgeW+'</td>';
     }
+    let _wThTot=0;
+    for(let k=0;k<7;k++){
+      const _d2=new Date(ws.getTime()+k*86400000);
+      const _c2=(getCode(_d2.getFullYear(),_d2.getMonth()+1,_d2.getDate())||[])[ei]||'0';
+      _wThTot+=calcHorasDia(activeDept,ei,_c2,dsFromDate(_d2));
+    }
+    _wThTot=Math.round(_wThTot*10)/10;
     const _fRWk=fRealWeek(activeDept,EMPS()[ei],ws);
-    h+='<td style="text-align:center;padding:3px 2px;font-size:.78rem;font-weight:800;min-width:52px;border-left:2px solid #90caf9;'+(_fRWk!==null?'color:#0d47a1;background:#e3f2fd':'color:#bdbdbd;background:#fafafa')+'">'+(_fRWk!==null?_fRWk+'h':'—')+'</td>';
+    let _wkTotCell='';
+    if(_fRWk!==null){
+      const _wDiff=Math.round((_fRWk-_wThTot)*10)/10;
+      const _wDiffTxt=_wDiff>0?('+'+_wDiff+'h'):(_wDiff<0?(_wDiff+'h'):'0h');
+      const _diffColor=_wDiff>0?'#2e7d32':(_wDiff<0?'#c62828':'#546e7a');
+      _wkTotCell='<div style="font-size:.76rem;font-weight:800;color:#0d47a1">'+_fRWk+'h real</div>'+
+                 '<div style="font-size:.58rem;color:#78909c">Teór: '+_wThTot+'h</div>'+
+                 '<div style="font-size:.60rem;font-weight:700;color:'+_diffColor+'">('+_wDiffTxt+')</div>';
+    } else {
+      _wkTotCell='<div style="font-size:.74rem;font-weight:700;color:#78909c">'+_wThTot+'h teór</div>';
+    }
+    h+='<td style="text-align:center;padding:3px 2px;min-width:60px;border-left:2px solid #90caf9;'+(_fRWk!==null?'background:#e3f2fd':'background:#fafafa')+'">'+_wkTotCell+'</td>';
     h+='</tr>';
     // Inyectar Carlos (Operaciones) dentro de RECEPCIÓN de Muelle, después de Miguel A. (idx 0)
     if(activeDept==='muelle'&&ei===0) h+=_crossIntRowW(ws);
@@ -7580,9 +7608,21 @@ function renderMonthBlock(y,m){
       const _mTh=!_mCl?sInf.horasNum:0;
       const _mWHasFR=!!(FICHAJE_REAL[activeDept]&&FICHAJE_REAL[activeDept][EMPS()[ei]]);
       const _mIsPast=_mDsStr<dsFromDate(new Date());
-      const _mHrsDiv=!_mCl?(_mFr!==null
-        ?'<div style="font-size:.48rem;font-weight:800;color:#0d47a1;line-height:1.3">'+Math.round(_mFr*10)/10+'h</div>'
-        :(!(_mWHasFR&&_mIsPast)&&_mTh>0?'<div style="font-size:.48rem;color:'+(cls==='s-TAR'?'#e8f5e9':'#0d47a1')+';line-height:1.3">~'+_mTh+'h</div>':'')):'';
+      let _mHrsDiv='';
+      if(!_mCl){
+        if(_mFr!==null){
+          const _mDet=fRealDetalle(activeDept,EMPS()[ei],_mDsStr);
+          const _mDetTitle=_mDet?(' · '+(_mDet.f1_in||_mDet.inicio)+'-'+(_mDet.f2_out||_mDet.fin)):'';
+          if(_mTh===0){
+            _mHrsDiv='<div style="font-size:.44rem;font-weight:800;color:#c62828;background:#ffebee;border-radius:2px;padding:0 1px;margin-top:1px" title="Libranza trabajada: '+_mFr+'h'+_mDetTitle+'">⚠️ '+Math.round(_mFr*10)/10+'h</div>';
+          } else {
+            _mHrsDiv='<div style="font-size:.42rem;color:'+(cls==='s-TAR'?'#cfd8dc':'#78909c')+';line-height:1">~'+_mTh+'h</div>'+
+                     '<div style="font-size:.46rem;font-weight:800;color:#0d47a1;line-height:1.2" title="Fichaje real: '+_mFr+'h'+_mDetTitle+'">'+Math.round(_mFr*10)/10+'h ✓</div>';
+          }
+        } else if(_mTh>0){
+          _mHrsDiv='<div style="font-size:.48rem;color:'+(cls==='s-TAR'?'#e8f5e9':'#0d47a1')+';line-height:1.3">~'+_mTh+'h</div>';
+        }
+      }
       let _mCompDiv='';
       let _mTitle=!_mCl&&code&&code!=='0'&&code!=='--'?(code+' | '+(sInf.horario||sInf.text)+(_mTh>0?' | ~'+_mTh+'h':'')):'';
       if(_mAmpl){
@@ -7599,8 +7639,25 @@ function renderMonthBlock(y,m){
       }
       h+='<td class="shift '+(_mCl?'wknd':cls+((!_mCl)?' ed-cell':''))+'"'+(!_mCl?' data-dept="'+activeDept+'" data-ds="'+_mDsStr+'" data-ei="'+ei+'"':'')+' style="'+_mAmplSt+';padding:2px 1px;line-height:1.2"'+(_mTitle?' title="'+_mTitle+'"':'')+'>'+(_mCl?'':'<div style="font-size:.62rem;font-weight:800">'+(sInf.text||lbl)+'</div>'+_mHrsDiv+_mCompDiv)+'</td>';
     }
+    let _mThTot=0;
+    for(let d=1;d<=days;d++){
+      const _c2=(getCode(y,m,d)||[])[ei]||'0';
+      _mThTot+=calcHorasDia(activeDept,ei,_c2,ds(y,m,d));
+    }
+    _mThTot=Math.round(_mThTot*10)/10;
     const _fRMon=fRealMonth(activeDept,EMPS()[ei],y,m);
-    h+='<td style="text-align:center;padding:2px;font-size:.72rem;font-weight:800;min-width:48px;position:sticky;right:0;border-left:2px solid #90caf9;'+(_fRMon!==null?'color:#0d47a1;background:#e3f2fd':'color:#bdbdbd;background:#fafafa')+'">'+(_fRMon!==null?_fRMon+'h':'—')+'</td>';
+    let _mTotCell='';
+    if(_fRMon!==null){
+      const _mDiff=Math.round((_fRMon-_mThTot)*10)/10;
+      const _mDiffTxt=_mDiff>0?('+'+_mDiff+'h'):(_mDiff<0?(_mDiff+'h'):'0h');
+      const _mDiffColor=_mDiff>0?'#2e7d32':(_mDiff<0?'#c62828':'#546e7a');
+      _mTotCell='<div style="font-size:.68rem;font-weight:800;color:#0d47a1">'+_fRMon+'h</div>'+
+                '<div style="font-size:.50rem;color:#78909c">T:'+_mThTot+'h</div>'+
+                '<div style="font-size:.52rem;font-weight:700;color:'+_mDiffColor+'">'+_mDiffTxt+'</div>';
+    } else {
+      _mTotCell='<div style="font-size:.66rem;font-weight:700;color:#78909c">'+_mThTot+'h</div>';
+    }
+    h+='<td style="text-align:center;padding:2px;min-width:48px;position:sticky;right:0;border-left:2px solid #90caf9;'+(_fRMon!==null?'background:#e3f2fd':'background:#fafafa')+'">'+_mTotCell+'</td>';
     h+='</tr>';
     // Inyectar Carlos (Operaciones) en RECEPCIÓN de Muelle, después de Miguel A. (idx 0)
     if(activeDept==='muelle'&&ei===0) h+=_crossIntRowM(y,m);
@@ -8005,20 +8062,36 @@ function renderEmpleado(){
     if(!FR) {
       h+='<div style="margin-bottom:16px;padding:10px 14px;background:#f5f5f5;border-radius:8px;font-size:.78rem;color:#9e9e9e">📋 Sin datos de fichaje para este empleado (1-Mar al 24-Jun)</div>';
     } else {
-      // Compute real hours per month
-      const MONTHS_DATA = [
-        {y:2026,m:3,label:'Marzo'},
-        {y:2026,m:4,label:'Abril'},
-        {y:2026,m:5,label:'Mayo'},
-        {y:2026,m:6,label:'Junio'}
+      // Compute real hours per month across 2026
+      const ALL_MONTHS = [
+        {y:2026,m:1,label:'Enero'}, {y:2026,m:2,label:'Febrero'}, {y:2026,m:3,label:'Marzo'},
+        {y:2026,m:4,label:'Abril'}, {y:2026,m:5,label:'Mayo'}, {y:2026,m:6,label:'Junio'},
+        {y:2026,m:7,label:'Julio'}, {y:2026,m:8,label:'Agosto'}, {y:2026,m:9,label:'Septiembre'},
+        {y:2026,m:10,label:'Octubre'}, {y:2026,m:11,label:'Noviembre'}, {y:2026,m:12,label:'Diciembre'}
       ];
-      // Real hours per month from fichaje
-      const realByMonth = {};
+      // Real hours and count per month from fichaje
+      const realByMonth = {}, countByMonth = {}, libWorkedByMonth = {};
+      let minFDate = '9999-99-99', maxFDate = '0000-00-00';
       Object.entries(FR).forEach(function(e){
-        const ym = e[0].slice(0,7);
-        realByMonth[ym] = (realByMonth[ym]||0) + e[1];
+        const dsStr = e[0], hVal = e[1];
+        if(dsStr < minFDate) minFDate = dsStr;
+        if(dsStr > maxFDate) maxFDate = dsStr;
+        const ym = dsStr.slice(0,7);
+        realByMonth[ym] = (realByMonth[ym]||0) + hVal;
+        countByMonth[ym] = (countByMonth[ym]||0) + 1;
+        const code = (RAW()[dsStr]||[])[ei]||'0';
+        const th = calcHorasDia(_dept, ei, code, dsStr);
+        if(th === 0 && hVal > 0) {
+          libWorkedByMonth[ym] = (libWorkedByMonth[ym]||0) + 1;
+        }
       });
-      // Theoretical hours per month from shift data
+      // Filter months that have real clock-in data
+      const MONTHS_DATA = ALL_MONTHS.filter(function(md){
+        const ym = md.y+'-'+String(md.m).padStart(2,'0');
+        return (countByMonth[ym]||0) > 0;
+      });
+
+      // Theoretical hours per month from shift data (only for days in range of fichajes or full month)
       function theoForMonth(y,m){
         const days = daysInMonth(y,m);
         let tot = 0;
@@ -8029,39 +8102,41 @@ function renderEmpleado(){
         }
         return Math.round(tot*10)/10;
       }
-      // Theoretical rest of year (Jun25-Dec31)
-      function theoRest(){
+      // Theoretical remaining from maxFDate + 1 day to Dec 31
+      function theoRemaining(){
         let tot = 0;
-        for(let m2=7;m2<=12;m2++){
-          const days2 = daysInMonth(2026,m2);
-          for(let d=1;d<=days2;d++){
-            const code2 = (RAW()[ds(2026,m2,d)]||[])[ei]||'0';
-            tot += calcHorasDia(_dept, ei, code2, ds(2026,m2,d));
+        const rawMap = RAW();
+        Object.keys(rawMap).sort().forEach(function(dsStr){
+          if(dsStr.startsWith('2026-') && dsStr > maxFDate){
+            if(!FESTIVOS_CIERRE[dsStr]){
+              const code = (rawMap[dsStr]||[])[ei]||'0';
+              tot += calcHorasDia(_dept, ei, code, dsStr);
+            }
           }
-        }
-        // Jun 25-30
-        for(let d=25;d<=30;d++){
-          const code3 = (RAW()[ds(2026,6,d)]||[])[ei]||'0';
-          tot += calcHorasDia(_dept, ei, code3, ds(2026,6,d));
-        }
+        });
         return Math.round(tot*10)/10;
       }
 
-      let totalReal=0, totalTheo=0;
+      let totalReal=0, totalTheo=0, totalLibreTrab=0;
       MONTHS_DATA.forEach(function(md){
         const ym = md.y+'-'+String(md.m).padStart(2,'0');
         const real = Math.round((realByMonth[ym]||0)*10)/10;
         const theo = theoForMonth(md.y, md.m);
         totalReal += real; totalTheo += theo;
+        totalLibreTrab += (libWorkedByMonth[ym]||0);
       });
       totalReal = Math.round(totalReal*10)/10;
       totalTheo = Math.round(totalTheo*10)/10;
       const diffTotal = Math.round((totalReal-totalTheo)*10)/10;
-      const theoRestVal = theoRest();
-      const projAnual = Math.round((totalReal + theoRestVal)*10)/10;
+      const theoRemVal = theoRemaining();
+      const projAnual = Math.round((totalReal + theoRemVal)*10)/10;
 
+      const fPeriodStr = fmtDate(new Date(minFDate)) + ' al ' + fmtDate(new Date(maxFDate)) + ' 2026';
       h+='<div style="margin-bottom:16px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1)">';
-      h+='<div style="background:#1565c0;color:#fff;padding:9px 14px;font-size:.82rem;font-weight:800">&#9203; Horas Reales vs Teóricas — Fichaje 1-Mar al 24-Jun 2026</div>';
+      h+='<div style="background:#1565c0;color:#fff;padding:9px 14px;font-size:.82rem;font-weight:800;display:flex;justify-content:space-between;align-items:center">';
+      h+='<span>&#9203; Horas Reales vs Teóricas — Fichaje Workday ('+fPeriodStr+')</span>';
+      h+='<span style="font-size:.7rem;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:12px">'+Object.keys(FR).length+' días registrados</span>';
+      h+='</div>';
       h+='<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:.78rem">';
       h+='<thead><tr style="background:#e3f2fd">';
       h+='<th style="padding:7px 12px;text-align:left;color:#1565c0;font-size:.72rem">Mes</th>';
@@ -8111,8 +8186,8 @@ function renderEmpleado(){
       h+='<div style="font-size:1.4rem;font-weight:800;color:'+projColor+'">'+projAnual+' h</div>';
       h+='</div>';
       h+='<div style="display:flex;gap:16px;flex-wrap:wrap">';
-      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Real (mar-jun)</div><div style="font-size:1rem;font-weight:700;color:#1565c0">'+totalReal+'h</div></div>';
-      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Pendiente (jul-dic)</div><div style="font-size:1rem;font-weight:700;color:#2e7d32">'+theoRestVal+'h</div></div>';
+      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Real fichado ('+fPeriodStr+')</div><div style="font-size:1rem;font-weight:700;color:#0d47a1">'+totalReal+'h</div></div>';
+      h+='<div style="text-align:center"><div style="font-size:.65rem;color:#546e7a">Teórico pendiente restante</div><div style="font-size:1rem;font-weight:700;color:#2e7d32">'+theoRemVal+'h</div></div>';
       h+='</div>';
       h+='</div>';
       h+='</div>';
@@ -9725,15 +9800,1017 @@ const OMNICANAL_PLANTILLA = [
   {nombre:'Juan',                          tipo:'refuerzo',  pct:60,   nota:'Refuerzo 60% · L-V (sábado libre) · pendiente definir periodo'},
 ];
 
-// ===== DATOS REALES DE FICHAJE (1-Mar-2026 al 24-Jun-2026) =====
-// Fuente: Registro_de_Fichaje 1.03 al 24.06.xlsx
-// Estructura: FICHAJE_REAL[dept][nombreApp][fecha] = horas reales trabajadas
-const FICHAJE_REAL = {}
+// ===== DATOS REALES DE FICHAJE WORKDAY (05-Mar-2026 al 17-Sep-2026) =====
+// Fuente: Registro_de_Fichaje JOSE MIGUEL OLMEDA 2026.xlsx
+const JOSE_MIGUEL_FICHAJES = {
+  "2026-03-05": 8.0,
+  "2026-03-06": 8.0,
+  "2026-03-07": 8.47,
+  "2026-03-09": 8.22,
+  "2026-03-10": 8.13,
+  "2026-03-11": 4.43,
+  "2026-03-12": 7.87,
+  "2026-03-13": 8.68,
+  "2026-03-14": 4.12,
+  "2026-03-16": 8.17,
+  "2026-03-17": 9.08,
+  "2026-03-18": 7.87,
+  "2026-03-19": 8.43,
+  "2026-03-20": 8.02,
+  "2026-03-23": 6.88,
+  "2026-03-24": 8.9,
+  "2026-03-25": 7.4,
+  "2026-03-27": 7.6,
+  "2026-03-28": 8.0,
+  "2026-03-30": 8.52,
+  "2026-04-06": 8.78,
+  "2026-04-13": 7.7,
+  "2026-04-20": 7.77,
+  "2026-04-21": 9.0,
+  "2026-04-22": 7.25,
+  "2026-04-23": 8.55,
+  "2026-04-24": 8.23,
+  "2026-04-27": 8.98,
+  "2026-04-28": 7.53,
+  "2026-04-29": 3.47,
+  "2026-04-30": 7.35,
+  "2026-05-02": 9.25,
+  "2026-05-04": 7.37,
+  "2026-05-05": 9.4,
+  "2026-05-06": 3.5,
+  "2026-05-07": 4.47,
+  "2026-05-08": 8.35,
+  "2026-05-09": 9.1,
+  "2026-05-18": 8.53,
+  "2026-05-19": 7.77,
+  "2026-05-20": 3.5,
+  "2026-05-21": 7.63,
+  "2026-05-22": 4.5,
+  "2026-05-23": 8.73,
+  "2026-05-25": 7.48,
+  "2026-05-26": 8.08,
+  "2026-05-27": 9.2,
+  "2026-05-28": 4.58,
+  "2026-06-01": 8.33,
+  "2026-06-02": 8.65,
+  "2026-06-05": 8.0,
+  "2026-06-06": 8.03,
+  "2026-06-08": 8.93,
+  "2026-06-09": 8.0,
+  "2026-06-10": 8.5,
+  "2026-06-15": 7.75,
+  "2026-06-16": 8.42,
+  "2026-06-17": 7.88,
+  "2026-06-19": 8.4,
+  "2026-06-22": 7.63,
+  "2026-06-23": 9.52,
+  "2026-06-25": 7.65,
+  "2026-06-29": 8.13,
+  "2026-06-30": 8.0,
+  "2026-07-13": 7.57,
+  "2026-07-14": 8.3,
+  "2026-07-15": 7.97,
+  "2026-07-17": 8.5,
+  "2026-07-18": 8.37,
+  "2026-07-20": 8.73,
+  "2026-07-21": 8.1,
+  "2026-07-22": 7.12,
+  "2026-07-24": 7.78,
+  "2026-07-25": 8.35,
+  "2026-07-27": 8.22,
+  "2026-07-28": 8.2,
+  "2026-07-29": 8.37,
+  "2026-07-30": 7.92,
+  "2026-07-31": 8.0,
+  "2026-08-03": 7.82,
+  "2026-08-04": 9.27,
+  "2026-08-05": 8.22,
+  "2026-08-07": 8.63,
+  "2026-08-08": 8.88,
+  "2026-08-10": 8.02,
+  "2026-08-11": 8.73,
+  "2026-08-12": 7.83,
+  "2026-08-13": 8.23,
+  "2026-08-14": 8.68,
+  "2026-09-07": 8.17,
+  "2026-09-09": 8.0,
+  "2026-09-10": 8.38,
+  "2026-09-11": 8.45,
+  "2026-09-12": 6.72,
+  "2026-09-14": 7.78,
+  "2026-09-15": 7.67,
+  "2026-09-16": 8.65,
+  "2026-09-17": 7.9
+};
+const JOSE_MIGUEL_DETALLES = {
+  "2026-03-05": {
+    "h": 8.0,
+    "inicio": "09:11",
+    "fin": "20:38",
+    "f1_in": "09:11",
+    "f1_out": "13:53",
+    "f2_in": "17:20",
+    "f2_out": "20:38"
+  },
+  "2026-03-06": {
+    "h": 8.0,
+    "inicio": "10:29",
+    "fin": "20:52",
+    "f1_in": "10:29",
+    "f1_out": "13:54",
+    "f2_in": "16:17",
+    "f2_out": "20:52"
+  },
+  "2026-03-07": {
+    "h": 8.47,
+    "inicio": "09:37",
+    "fin": "21:16",
+    "f1_in": "09:37",
+    "f1_out": "14:17",
+    "f2_in": "17:28",
+    "f2_out": "21:16"
+  },
+  "2026-03-09": {
+    "h": 8.22,
+    "inicio": "09:35",
+    "fin": "20:32",
+    "f1_in": "09:35",
+    "f1_out": "14:36",
+    "f2_in": "17:20",
+    "f2_out": "20:32"
+  },
+  "2026-03-10": {
+    "h": 8.13,
+    "inicio": "10:07",
+    "fin": "22:03",
+    "f1_in": "10:07",
+    "f1_out": "13:43",
+    "f2_in": "17:31",
+    "f2_out": "22:00"
+  },
+  "2026-03-11": {
+    "h": 4.43,
+    "inicio": "16:43",
+    "fin": "21:09",
+    "f1_in": "16:43",
+    "f1_out": "21:09",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-03-12": {
+    "h": 7.87,
+    "inicio": "09:45",
+    "fin": "21:21",
+    "f1_in": "09:45",
+    "f1_out": "13:51",
+    "f2_in": "17:35",
+    "f2_out": "21:21"
+  },
+  "2026-03-13": {
+    "h": 8.68,
+    "inicio": "09:56",
+    "fin": "20:50",
+    "f1_in": "09:56",
+    "f1_out": "14:07",
+    "f2_in": "16:20",
+    "f2_out": "20:50"
+  },
+  "2026-03-14": {
+    "h": 4.12,
+    "inicio": "09:40",
+    "fin": "13:47",
+    "f1_in": "09:40",
+    "f1_out": "13:47",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-03-16": {
+    "h": 8.17,
+    "inicio": "10:27",
+    "fin": "21:02",
+    "f1_in": "10:27",
+    "f1_out": "13:45",
+    "f2_in": "16:10",
+    "f2_out": "21:02"
+  },
+  "2026-03-17": {
+    "h": 9.08,
+    "inicio": "09:15",
+    "fin": "20:40",
+    "f1_in": "09:15",
+    "f1_out": "13:49",
+    "f2_in": "16:09",
+    "f2_out": "20:40"
+  },
+  "2026-03-18": {
+    "h": 7.87,
+    "inicio": "10:17",
+    "fin": "20:44",
+    "f1_in": "10:17",
+    "f1_out": "14:05",
+    "f2_in": "16:40",
+    "f2_out": "20:44"
+  },
+  "2026-03-19": {
+    "h": 8.43,
+    "inicio": "09:15",
+    "fin": "21:11",
+    "f1_in": "09:15",
+    "f1_out": "13:53",
+    "f2_in": "17:23",
+    "f2_out": "21:11"
+  },
+  "2026-03-20": {
+    "h": 8.02,
+    "inicio": "10:12",
+    "fin": "20:49",
+    "f1_in": "10:12",
+    "f1_out": "13:49",
+    "f2_in": "16:25",
+    "f2_out": "20:49"
+  },
+  "2026-03-23": {
+    "h": 6.88,
+    "inicio": "10:37",
+    "fin": "19:30",
+    "f1_in": "10:37",
+    "f1_out": "14:33",
+    "f2_in": "16:33",
+    "f2_out": "19:30"
+  },
+  "2026-03-24": {
+    "h": 8.9,
+    "inicio": "09:35",
+    "fin": "20:50",
+    "f1_in": "09:35",
+    "f1_out": "13:45",
+    "f2_in": "16:06",
+    "f2_out": "20:50"
+  },
+  "2026-03-25": {
+    "h": 7.4,
+    "inicio": "10:43",
+    "fin": "20:55",
+    "f1_in": "10:43",
+    "f1_out": "13:54",
+    "f2_in": "16:42",
+    "f2_out": "20:55"
+  },
+  "2026-03-27": {
+    "h": 7.6,
+    "inicio": "10:33",
+    "fin": "20:59",
+    "f1_in": "10:33",
+    "f1_out": "13:46",
+    "f2_in": "16:36",
+    "f2_out": "20:59"
+  },
+  "2026-03-28": {
+    "h": 8.0,
+    "inicio": "09:40",
+    "fin": "21:02",
+    "f1_in": "09:40",
+    "f1_out": "14:16",
+    "f2_in": "17:38",
+    "f2_out": "21:02"
+  },
+  "2026-03-30": {
+    "h": 8.52,
+    "inicio": "09:30",
+    "fin": "21:10",
+    "f1_in": "09:30",
+    "f1_out": "14:15",
+    "f2_in": "17:24",
+    "f2_out": "21:10"
+  },
+  "2026-04-06": {
+    "h": 8.78,
+    "inicio": "10:24",
+    "fin": "21:13",
+    "f1_in": "10:24",
+    "f1_out": "15:04",
+    "f2_in": "17:06",
+    "f2_out": "21:13"
+  },
+  "2026-04-13": {
+    "h": 7.7,
+    "inicio": "10:20",
+    "fin": "20:55",
+    "f1_in": "10:20",
+    "f1_out": "13:49",
+    "f2_in": "16:42",
+    "f2_out": "20:55"
+  },
+  "2026-04-20": {
+    "h": 7.77,
+    "inicio": "10:18",
+    "fin": "20:54",
+    "f1_in": "10:18",
+    "f1_out": "13:45",
+    "f2_in": "16:35",
+    "f2_out": "20:54"
+  },
+  "2026-04-21": {
+    "h": 9.0,
+    "inicio": "09:12",
+    "fin": "20:33",
+    "f1_in": "09:12",
+    "f1_out": "13:52",
+    "f2_in": "16:13",
+    "f2_out": "20:33"
+  },
+  "2026-04-22": {
+    "h": 7.25,
+    "inicio": "10:26",
+    "fin": "20:40",
+    "f1_in": "10:26",
+    "f1_out": "13:48",
+    "f2_in": "16:47",
+    "f2_out": "20:40"
+  },
+  "2026-04-23": {
+    "h": 8.55,
+    "inicio": "10:17",
+    "fin": "21:00",
+    "f1_in": "10:17",
+    "f1_out": "14:22",
+    "f2_in": "16:32",
+    "f2_out": "21:00"
+  },
+  "2026-04-24": {
+    "h": 8.23,
+    "inicio": "09:17",
+    "fin": "20:08",
+    "f1_in": "09:17",
+    "f1_out": "13:49",
+    "f2_in": "16:26",
+    "f2_out": "20:08"
+  },
+  "2026-04-27": {
+    "h": 8.98,
+    "inicio": "09:15",
+    "fin": "20:39",
+    "f1_in": "09:15",
+    "f1_out": "14:27",
+    "f2_in": "16:52",
+    "f2_out": "20:39"
+  },
+  "2026-04-28": {
+    "h": 7.53,
+    "inicio": "10:19",
+    "fin": "20:58",
+    "f1_in": "10:19",
+    "f1_out": "13:52",
+    "f2_in": "16:59",
+    "f2_out": "20:58"
+  },
+  "2026-04-29": {
+    "h": 3.47,
+    "inicio": "10:19",
+    "fin": "13:48",
+    "f1_in": "10:19",
+    "f1_out": "13:46",
+    "f2_in": "13:47",
+    "f2_out": "13:48"
+  },
+  "2026-04-30": {
+    "h": 7.35,
+    "inicio": "10:27",
+    "fin": "20:21",
+    "f1_in": "10:27",
+    "f1_out": "13:55",
+    "f2_in": "16:28",
+    "f2_out": "20:21"
+  },
+  "2026-05-02": {
+    "h": 9.25,
+    "inicio": "09:19",
+    "fin": "21:35",
+    "f1_in": "09:19",
+    "f1_out": "14:27",
+    "f2_in": "17:28",
+    "f2_out": "21:35"
+  },
+  "2026-05-04": {
+    "h": 7.37,
+    "inicio": "10:20",
+    "fin": "20:37",
+    "f1_in": "10:20",
+    "f1_out": "13:34",
+    "f2_in": "16:29",
+    "f2_out": "20:37"
+  },
+  "2026-05-05": {
+    "h": 9.4,
+    "inicio": "09:18",
+    "fin": "20:56",
+    "f1_in": "09:18",
+    "f1_out": "13:50",
+    "f2_in": "16:04",
+    "f2_out": "20:56"
+  },
+  "2026-05-06": {
+    "h": 3.5,
+    "inicio": "10:20",
+    "fin": "13:50",
+    "f1_in": "10:20",
+    "f1_out": "13:50",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-05-07": {
+    "h": 4.47,
+    "inicio": "09:21",
+    "fin": "13:49",
+    "f1_in": "09:21",
+    "f1_out": "13:49",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-05-08": {
+    "h": 8.35,
+    "inicio": "10:17",
+    "fin": "21:30",
+    "f1_in": "10:17",
+    "f1_out": "13:48",
+    "f2_in": "16:40",
+    "f2_out": "21:30"
+  },
+  "2026-05-09": {
+    "h": 9.1,
+    "inicio": "09:19",
+    "fin": "21:35",
+    "f1_in": "09:19",
+    "f1_out": "14:28",
+    "f2_in": "17:38",
+    "f2_out": "21:35"
+  },
+  "2026-05-18": {
+    "h": 8.53,
+    "inicio": "09:18",
+    "fin": "20:45",
+    "f1_in": "09:18",
+    "f1_out": "13:50",
+    "f2_in": "16:45",
+    "f2_out": "20:45"
+  },
+  "2026-05-19": {
+    "h": 7.77,
+    "inicio": "10:23",
+    "fin": "21:06",
+    "f1_in": "10:23",
+    "f1_out": "13:53",
+    "f2_in": "16:50",
+    "f2_out": "21:06"
+  },
+  "2026-05-20": {
+    "h": 3.5,
+    "inicio": "10:20",
+    "fin": "13:50",
+    "f1_in": "10:20",
+    "f1_out": "13:50",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-05-21": {
+    "h": 7.63,
+    "inicio": "10:07",
+    "fin": "21:09",
+    "f1_in": "10:07",
+    "f1_out": "13:49",
+    "f2_in": "17:13",
+    "f2_out": "21:09"
+  },
+  "2026-05-22": {
+    "h": 4.5,
+    "inicio": "09:17",
+    "fin": "13:47",
+    "f1_in": "09:17",
+    "f1_out": "13:47",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-05-23": {
+    "h": 8.73,
+    "inicio": "09:17",
+    "fin": "20:53",
+    "f1_in": "09:17",
+    "f1_out": "14:06",
+    "f2_in": "16:58",
+    "f2_out": "20:53"
+  },
+  "2026-05-25": {
+    "h": 7.48,
+    "inicio": "10:31",
+    "fin": "20:44",
+    "f1_in": "10:31",
+    "f1_out": "13:52",
+    "f2_in": "16:36",
+    "f2_out": "20:44"
+  },
+  "2026-05-26": {
+    "h": 8.08,
+    "inicio": "09:16",
+    "fin": "19:58",
+    "f1_in": "09:16",
+    "f1_out": "13:56",
+    "f2_in": "16:33",
+    "f2_out": "19:58"
+  },
+  "2026-05-27": {
+    "h": 9.2,
+    "inicio": "09:14",
+    "fin": "20:52",
+    "f1_in": "09:14",
+    "f1_out": "14:02",
+    "f2_in": "16:28",
+    "f2_out": "20:52"
+  },
+  "2026-05-28": {
+    "h": 4.58,
+    "inicio": "09:15",
+    "fin": "13:50",
+    "f1_in": "09:15",
+    "f1_out": "13:50",
+    "f2_in": "",
+    "f2_out": ""
+  },
+  "2026-06-01": {
+    "h": 8.33,
+    "inicio": "09:48",
+    "fin": "21:05",
+    "f1_in": "09:48",
+    "f1_out": "13:48",
+    "f2_in": "16:45",
+    "f2_out": "21:05"
+  },
+  "2026-06-02": {
+    "h": 8.65,
+    "inicio": "09:18",
+    "fin": "21:10",
+    "f1_in": "09:18",
+    "f1_out": "13:55",
+    "f2_in": "17:08",
+    "f2_out": "21:10"
+  },
+  "2026-06-05": {
+    "h": 8.0,
+    "inicio": "09:17",
+    "fin": "20:49",
+    "f1_in": "09:17",
+    "f1_out": "13:56",
+    "f2_in": "17:28",
+    "f2_out": "20:49"
+  },
+  "2026-06-06": {
+    "h": 8.03,
+    "inicio": "09:23",
+    "fin": "20:55",
+    "f1_in": "09:23",
+    "f1_out": "14:05",
+    "f2_in": "17:35",
+    "f2_out": "20:55"
+  },
+  "2026-06-08": {
+    "h": 8.93,
+    "inicio": "09:15",
+    "fin": "20:48",
+    "f1_in": "09:15",
+    "f1_out": "14:09",
+    "f2_in": "16:46",
+    "f2_out": "20:48"
+  },
+  "2026-06-09": {
+    "h": 8.0,
+    "inicio": "10:23",
+    "fin": "21:19",
+    "f1_in": "10:23",
+    "f1_out": "13:55",
+    "f2_in": "16:51",
+    "f2_out": "21:19"
+  },
+  "2026-06-10": {
+    "h": 8.5,
+    "inicio": "09:40",
+    "fin": "20:49",
+    "f1_in": "09:40",
+    "f1_out": "14:05",
+    "f2_in": "16:44",
+    "f2_out": "20:49"
+  },
+  "2026-06-15": {
+    "h": 7.75,
+    "inicio": "10:04",
+    "fin": "21:00",
+    "f1_in": "10:04",
+    "f1_out": "14:05",
+    "f2_in": "17:16",
+    "f2_out": "21:00"
+  },
+  "2026-06-16": {
+    "h": 8.42,
+    "inicio": "09:20",
+    "fin": "20:49",
+    "f1_in": "09:20",
+    "f1_out": "14:31",
+    "f2_in": "17:35",
+    "f2_out": "20:49"
+  },
+  "2026-06-17": {
+    "h": 7.88,
+    "inicio": "09:36",
+    "fin": "20:55",
+    "f1_in": "09:36",
+    "f1_out": "14:07",
+    "f2_in": "17:33",
+    "f2_out": "20:55"
+  },
+  "2026-06-19": {
+    "h": 8.4,
+    "inicio": "09:31",
+    "fin": "21:13",
+    "f1_in": "09:31",
+    "f1_out": "14:05",
+    "f2_in": "17:23",
+    "f2_out": "21:13"
+  },
+  "2026-06-22": {
+    "h": 7.63,
+    "inicio": "09:37",
+    "fin": "19:58",
+    "f1_in": "09:37",
+    "f1_out": "14:07",
+    "f2_in": "16:50",
+    "f2_out": "19:58"
+  },
+  "2026-06-23": {
+    "h": 9.52,
+    "inicio": "09:37",
+    "fin": "22:53",
+    "f1_in": "09:37",
+    "f1_out": "14:08",
+    "f2_in": "17:53",
+    "f2_out": "22:00"
+  },
+  "2026-06-25": {
+    "h": 7.65,
+    "inicio": "09:40",
+    "fin": "20:55",
+    "f1_in": "09:40",
+    "f1_out": "13:53",
+    "f2_in": "17:29",
+    "f2_out": "20:55"
+  },
+  "2026-06-29": {
+    "h": 8.13,
+    "inicio": "09:28",
+    "fin": "20:46",
+    "f1_in": "09:28",
+    "f1_out": "14:21",
+    "f2_in": "17:31",
+    "f2_out": "20:46"
+  },
+  "2026-06-30": {
+    "h": 8.0,
+    "inicio": "09:40",
+    "fin": "20:57",
+    "f1_in": "09:40",
+    "f1_out": "14:14",
+    "f2_in": "17:31",
+    "f2_out": "20:57"
+  },
+  "2026-07-13": {
+    "h": 7.57,
+    "inicio": "09:52",
+    "fin": "20:49",
+    "f1_in": "09:52",
+    "f1_out": "14:19",
+    "f2_in": "17:42",
+    "f2_out": "20:49"
+  },
+  "2026-07-14": {
+    "h": 8.3,
+    "inicio": "09:40",
+    "fin": "20:47",
+    "f1_in": "09:40",
+    "f1_out": "14:19",
+    "f2_in": "17:08",
+    "f2_out": "20:47"
+  },
+  "2026-07-15": {
+    "h": 7.97,
+    "inicio": "09:43",
+    "fin": "20:02",
+    "f1_in": "09:43",
+    "f1_out": "14:23",
+    "f2_in": "16:44",
+    "f2_out": "20:02"
+  },
+  "2026-07-17": {
+    "h": 8.5,
+    "inicio": "09:30",
+    "fin": "21:00",
+    "f1_in": "09:30",
+    "f1_out": "14:30",
+    "f2_in": "17:30",
+    "f2_out": "21:00"
+  },
+  "2026-07-18": {
+    "h": 8.37,
+    "inicio": "09:51",
+    "fin": "21:11",
+    "f1_in": "09:51",
+    "f1_out": "14:20",
+    "f2_in": "17:18",
+    "f2_out": "21:11"
+  },
+  "2026-07-20": {
+    "h": 8.73,
+    "inicio": "09:19",
+    "fin": "21:05",
+    "f1_in": "09:19",
+    "f1_out": "14:15",
+    "f2_in": "17:17",
+    "f2_out": "21:05"
+  },
+  "2026-07-21": {
+    "h": 8.1,
+    "inicio": "09:34",
+    "fin": "20:39",
+    "f1_in": "09:34",
+    "f1_out": "14:21",
+    "f2_in": "17:20",
+    "f2_out": "20:39"
+  },
+  "2026-07-22": {
+    "h": 7.12,
+    "inicio": "10:06",
+    "fin": "20:37",
+    "f1_in": "10:06",
+    "f1_out": "14:16",
+    "f2_in": "17:40",
+    "f2_out": "20:37"
+  },
+  "2026-07-24": {
+    "h": 7.78,
+    "inicio": "09:53",
+    "fin": "20:41",
+    "f1_in": "09:53",
+    "f1_out": "14:15",
+    "f2_in": "17:16",
+    "f2_out": "20:41"
+  },
+  "2026-07-25": {
+    "h": 8.35,
+    "inicio": "09:34",
+    "fin": "21:01",
+    "f1_in": "09:34",
+    "f1_out": "14:27",
+    "f2_in": "17:33",
+    "f2_out": "21:01"
+  },
+  "2026-07-27": {
+    "h": 8.22,
+    "inicio": "09:54",
+    "fin": "20:48",
+    "f1_in": "09:54",
+    "f1_out": "14:12",
+    "f2_in": "16:53",
+    "f2_out": "20:48"
+  },
+  "2026-07-28": {
+    "h": 8.2,
+    "inicio": "09:40",
+    "fin": "21:24",
+    "f1_in": "09:40",
+    "f1_out": "14:05",
+    "f2_in": "17:37",
+    "f2_out": "21:24"
+  },
+  "2026-07-29": {
+    "h": 8.37,
+    "inicio": "09:57",
+    "fin": "21:34",
+    "f1_in": "09:57",
+    "f1_out": "14:20",
+    "f2_in": "17:35",
+    "f2_out": "21:34"
+  },
+  "2026-07-30": {
+    "h": 7.92,
+    "inicio": "09:48",
+    "fin": "20:48",
+    "f1_in": "09:48",
+    "f1_out": "14:19",
+    "f2_in": "17:24",
+    "f2_out": "20:48"
+  },
+  "2026-07-31": {
+    "h": 8.0,
+    "inicio": "09:46",
+    "fin": "21:30",
+    "f1_in": "09:46",
+    "f1_out": "14:32",
+    "f2_in": "18:16",
+    "f2_out": "21:30"
+  },
+  "2026-08-03": {
+    "h": 7.82,
+    "inicio": "09:59",
+    "fin": "19:56",
+    "f1_in": "09:59",
+    "f1_out": "14:33",
+    "f2_in": "16:41",
+    "f2_out": "19:56"
+  },
+  "2026-08-04": {
+    "h": 9.27,
+    "inicio": "09:28",
+    "fin": "20:54",
+    "f1_in": "09:28",
+    "f1_out": "15:14",
+    "f2_in": "17:24",
+    "f2_out": "20:54"
+  },
+  "2026-08-05": {
+    "h": 8.22,
+    "inicio": "09:31",
+    "fin": "20:06",
+    "f1_in": "09:31",
+    "f1_out": "14:39",
+    "f2_in": "17:01",
+    "f2_out": "20:06"
+  },
+  "2026-08-07": {
+    "h": 8.63,
+    "inicio": "09:50",
+    "fin": "21:37",
+    "f1_in": "09:50",
+    "f1_out": "15:15",
+    "f2_in": "18:24",
+    "f2_out": "21:37"
+  },
+  "2026-08-08": {
+    "h": 8.88,
+    "inicio": "09:44",
+    "fin": "21:29",
+    "f1_in": "09:44",
+    "f1_out": "14:30",
+    "f2_in": "17:22",
+    "f2_out": "21:29"
+  },
+  "2026-08-10": {
+    "h": 8.02,
+    "inicio": "10:32",
+    "fin": "21:28",
+    "f1_in": "10:32",
+    "f1_out": "14:27",
+    "f2_in": "17:22",
+    "f2_out": "21:28"
+  },
+  "2026-08-11": {
+    "h": 8.73,
+    "inicio": "09:41",
+    "fin": "21:22",
+    "f1_in": "09:41",
+    "f1_out": "14:32",
+    "f2_in": "17:29",
+    "f2_out": "21:22"
+  },
+  "2026-08-12": {
+    "h": 7.83,
+    "inicio": "10:56",
+    "fin": "21:08",
+    "f1_in": "10:56",
+    "f1_out": "14:41",
+    "f2_in": "17:03",
+    "f2_out": "21:08"
+  },
+  "2026-08-13": {
+    "h": 8.23,
+    "inicio": "09:29",
+    "fin": "20:03",
+    "f1_in": "09:29",
+    "f1_out": "14:53",
+    "f2_in": "17:13",
+    "f2_out": "20:03"
+  },
+  "2026-08-14": {
+    "h": 8.68,
+    "inicio": "09:22",
+    "fin": "20:08",
+    "f1_in": "09:22",
+    "f1_out": "15:06",
+    "f2_in": "17:11",
+    "f2_out": "20:08"
+  },
+  "2026-09-07": {
+    "h": 8.17,
+    "inicio": "09:35",
+    "fin": "20:45",
+    "f1_in": "09:35",
+    "f1_out": "14:35",
+    "f2_in": "17:35",
+    "f2_out": "20:45"
+  },
+  "2026-09-09": {
+    "h": 8.0,
+    "inicio": "09:30",
+    "fin": "20:00",
+    "f1_in": "09:30",
+    "f1_out": "15:00",
+    "f2_in": "17:30",
+    "f2_out": "20:00"
+  },
+  "2026-09-10": {
+    "h": 8.38,
+    "inicio": "09:18",
+    "fin": "21:13",
+    "f1_in": "09:18",
+    "f1_out": "14:15",
+    "f2_in": "17:47",
+    "f2_out": "21:13"
+  },
+  "2026-09-11": {
+    "h": 8.45,
+    "inicio": "09:13",
+    "fin": "21:05",
+    "f1_in": "09:13",
+    "f1_out": "14:15",
+    "f2_in": "17:40",
+    "f2_out": "21:05"
+  },
+  "2026-09-12": {
+    "h": 6.72,
+    "inicio": "10:31",
+    "fin": "20:33",
+    "f1_in": "10:31",
+    "f1_out": "14:24",
+    "f2_in": "17:43",
+    "f2_out": "20:33"
+  },
+  "2026-09-14": {
+    "h": 7.78,
+    "inicio": "09:44",
+    "fin": "21:31",
+    "f1_in": "09:44",
+    "f1_out": "13:30",
+    "f2_in": "17:30",
+    "f2_out": "21:31"
+  },
+  "2026-09-15": {
+    "h": 7.67,
+    "inicio": "09:14",
+    "fin": "19:55",
+    "f1_in": "09:14",
+    "f1_out": "14:31",
+    "f2_in": "17:32",
+    "f2_out": "19:55"
+  },
+  "2026-09-16": {
+    "h": 8.65,
+    "inicio": "09:11",
+    "fin": "21:00",
+    "f1_in": "09:11",
+    "f1_out": "14:20",
+    "f2_in": "17:30",
+    "f2_out": "21:00"
+  },
+  "2026-09-17": {
+    "h": 7.9,
+    "inicio": "09:13",
+    "fin": "20:13",
+    "f1_in": "09:13",
+    "f1_out": "14:37",
+    "f2_in": "17:43",
+    "f2_out": "20:13"
+  }
+};
+
+const FICHAJE_REAL = {
+  operaciones: {
+    'JOSE MIGUEL OLMEDA': JOSE_MIGUEL_FICHAJES,
+    'JOSE MIGUEL OLMEDA PASCUAL': JOSE_MIGUEL_FICHAJES
+  }
+};
+
+const FICHAJE_DETALLES = {
+  operaciones: {
+    'JOSE MIGUEL OLMEDA': JOSE_MIGUEL_DETALLES,
+    'JOSE MIGUEL OLMEDA PASCUAL': JOSE_MIGUEL_DETALLES
+  }
+};
 
 // Helper: horas reales de un empleado en una fecha concreta
 function fReal(dept, empName, dsStr) {
   return (FICHAJE_REAL[dept] && FICHAJE_REAL[dept][empName] && FICHAJE_REAL[dept][empName][dsStr] != null)
     ? FICHAJE_REAL[dept][empName][dsStr] : null;
+}
+
+// Helper: detalle de fichajes reales de un empleado en una fecha concreta
+function fRealDetalle(dept, empName, dsStr) {
+  return (FICHAJE_DETALLES[dept] && FICHAJE_DETALLES[dept][empName] && FICHAJE_DETALLES[dept][empName][dsStr])
+    ? FICHAJE_DETALLES[dept][empName][dsStr] : null;
 }
 // Helper: horas reales totales de una semana (devuelve null si no hay datos)
 function fRealWeek(dept, empName, ws) {
@@ -11428,6 +12505,7 @@ function calcResumenTrabajador(dept){
     var hAmplPast=0,hAmplFut=0,horasPast=0,horasFut=0,calPast=0,calFut=0,workDays=0,horasReal=0,horasEstim=0;
     var bajaDias=0; // días de Baja/Excedencia en 2026 — reduce el máximo anual proporcionalmente
     var hAmplWeekMap={};  // weekKey(lunes) → nº días ampliados esa semana
+    var fRealTot=0, fRealTeorTot=0, fRealCount=0, fRealDiasLibreTrab=0, fRealHorasLibreTrab=0;
     const jMaxTeorico=jMaxArr[ei]||1770;
     Object.entries(raw).forEach(function(e2){
       const dsStr=e2[0],dayArr=e2[1];
@@ -11454,7 +12532,21 @@ function calcResumenTrabajador(dept){
         const _wk=_mon.getFullYear()+'-'+String(_mon.getMonth()+1).padStart(2,'0')+'-'+String(_mon.getDate()).padStart(2,'0');
         hAmplWeekMap[_wk]=(hAmplWeekMap[_wk]||0)+1;
       }
-      if(!FESTIVOS_CIERRE[dsStr]){const _fr=isPast?fReal(dept,name,dsStr):null;const _th=calcHorasDia(dept,ei,code,dsStr);const _wHFR=!!(FICHAJE_REAL[dept]&&FICHAJE_REAL[dept][name]);if(_fr!==null){horasReal+=_fr;horasPast+=_fr;}else if(!isPast||!_wHFR){horasEstim+=_th;isPast?horasPast+=_th:horasFut+=_th;}}
+      if(!FESTIVOS_CIERRE[dsStr]){
+        const _th=calcHorasDia(dept,ei,code,dsStr);
+        horasEstim+=_th;
+        isPast?horasPast+=_th:horasFut+=_th;
+        const _fr=fReal(dept,name,dsStr);
+        if(_fr!==null){
+          fRealTot+=_fr;
+          fRealCount++;
+          fRealTeorTot+=_th;
+          if(_th===0 && _fr>0){
+            fRealDiasLibreTrab++;
+            fRealHorasLibreTrab+=_fr;
+          }
+        }
+      }
       if(isSat&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')){isPast?calPast++:calFut++;}
     });
     // Semanas que superan el límite de 3 días ampliados
@@ -11479,7 +12571,18 @@ function calcResumenTrabajador(dept){
       comp:{past:compPast,fut:compFut,tot:compPast+compFut},
       hAmpl:{past:hAmplPast,fut:hAmplFut,tot:hAmplPast+hAmplFut,
              weeksKO:hAmplWeeksKO.length,maxWeek:hAmplMaxWeek,weekMap:hAmplWeekMap},
-      horas:{past:Math.round(horasPast*10)/10,fut:Math.round(horasFut*10)/10,tot:hTot,max:jMax,diff,real:Math.round(horasReal*10)/10,estim:Math.round(horasEstim*10)/10},
+      horas:{past:Math.round(horasPast*10)/10,fut:Math.round(horasFut*10)/10,tot:hTot,max:jMax,diff,real:Math.round(fRealTot*10)/10,estim:Math.round(horasEstim*10)/10},
+      fichaje:{
+        hasData: fRealCount>0,
+        count: fRealCount,
+        realTot: Math.round(fRealTot*10)/10,
+        teorTot: Math.round(fRealTeorTot*10)/10,
+        diff: Math.round((fRealTot-fRealTeorTot)*10)/10,
+        diasLibreTrab: fRealDiasLibreTrab,
+        horasLibreTrab: Math.round(fRealHorasLibreTrab*10)/10,
+        proyAnual: Math.round((hTot+(fRealTot-fRealTeorTot))*10)/10,
+        diffProy: Math.round(((hTot+(fRealTot-fRealTeorTot))-jMax)*10)/10
+      },
       cal:{past:calPast,fut:calFut,tot:calPast+calFut,obj:calObj}};
   });
 }
@@ -11680,6 +12783,44 @@ function renderResumenTrabajador(){
     h+='<span><b style="color:#1565c0">'+r.horas.past+'h</b> <span style="color:#90a4ae">past.</span>&nbsp;+&nbsp;<b style="color:#0288d1">'+r.horas.fut+'h</b> <span style="color:#90a4ae">fut.</span></span>';
     h+='<span style="font-weight:700;color:'+diffCol+'">'+hTot+'h / '+hMax+'h &nbsp;'+diffStr+'</span>';
     h+='</div></div>';
+
+    // ── Bloque complementario: Auditoría Fichaje Real Workday ──
+    if(r.fichaje && r.fichaje.hasData){
+      const _f=r.fichaje;
+      const _fDiffCol=_f.diff>=0?'#2e7d32':'#c62828';
+      const _fDiffStr=_f.diff>=0?('+'+_f.diff+'h'):(_f.diff+'h');
+      const _proyCol=_f.diffProy>=0?'#2e7d32':'#c62828';
+      const _proyStr=_f.diffProy>=0?('+'+_f.diffProy+'h'):(_f.diffProy+'h');
+      h+='<div style="margin:10px 16px 14px;padding:11px 14px;background:#eef6fc;border:1px solid #90caf9;border-radius:10px">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      h+='<span style="font-size:.74rem;font-weight:800;color:#0d47a1;display:flex;align-items:center;gap:5px">&#128203; AUDITORÍA FICHAJE REAL (WORKDAY)</span>';
+      h+='<span style="font-size:.65rem;background:#1565c0;color:#fff;font-weight:700;padding:2px 8px;border-radius:10px">'+_f.count+' días fichados</span>';
+      h+='</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+      h+='<div style="background:#fff;padding:7px 10px;border-radius:6px;border:0.5px solid #bbdefb">';
+      h+='<div style="color:#546e7a;font-size:.62rem;font-weight:600">Horas Reales Fichadas</div>';
+      h+='<div style="font-size:1.1rem;font-weight:800;color:#0d47a1;line-height:1.2">'+_f.realTot+'h <span style="font-size:.65rem;font-weight:500;color:#546e7a">(vs '+_f.teorTot+'h teór.)</span></div>';
+      h+='</div>';
+      h+='<div style="background:#fff;padding:7px 10px;border-radius:6px;border:0.5px solid #bbdefb">';
+      h+='<div style="color:#546e7a;font-size:.62rem;font-weight:600">Exceso Real Acumulado</div>';
+      h+='<div style="font-size:1.1rem;font-weight:800;color:'+_fDiffCol+';line-height:1.2">'+_fDiffStr+'</div>';
+      h+='</div>';
+      h+='</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+      h+='<div style="background:#fff;padding:7px 10px;border-radius:6px;border:0.5px solid #bbdefb">';
+      h+='<div style="color:#546e7a;font-size:.62rem;font-weight:600">Días libres trabajados</div>';
+      h+='<div style="font-size:.88rem;font-weight:700;color:#c62828">'+_f.diasLibreTrab+' días <span style="font-size:.65rem;font-weight:500;color:#546e7a">(+'+_f.horasLibreTrab+'h)</span></div>';
+      h+='</div>';
+      h+='<div style="background:#fff;padding:7px 10px;border-radius:6px;border:0.5px solid #bbdefb">';
+      h+='<div style="color:#546e7a;font-size:.62rem;font-weight:600">Proyección Cierre Real 2026</div>';
+      h+='<div style="font-size:.88rem;font-weight:800;color:'+_proyCol+'">~'+_f.proyAnual+'h <span style="font-size:.68rem;font-weight:700">('+_proyStr+')</span></div>';
+      h+='</div>';
+      h+='</div>';
+      h+='<div style="font-size:.62rem;color:#37474f;margin-top:7px;line-height:1.3">';
+      h+='&#8505;&#65039; Al ritmo real actual, cerrarás 2026 con <b>'+_proyStr+' de exceso</b> sobre tu máximo contractual ('+hMax+'h) debido a los '+_f.diasLibreTrab+' días de libranza trabajados y prolongaciones diarias.';
+      h+='</div>';
+      h+='</div>';
+    }
 
     // ── Métricas 4×2 ──
     h+='<div style="display:grid;grid-template-columns:repeat(4,1fr)">';
