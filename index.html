@@ -8485,7 +8485,7 @@ const OPER_H = [
   7,                            // VICENTE:  7h00m media (VRA, VAL, VIN, AQM, 4QG)
 ];
 // Teórico anual por empleado (100% = 1770h; Mirella al 94.85% = 1678.8h)
-const OPER_ANNUAL_MAX = [1770.0, 1770.0, 1770.0, 1678.8, 1770.0];
+const OPER_ANNUAL_MAX = [1705.1, 1696.7, 1770.0, 1678.8, 1770.0]; // Carlos (1705.1h), Elena (1696.7h), Jose (1770h), Mirella (1678.8h), Vicente (1770h)
 
 // ===== HORAS SEMANALES =====
 function horasParaCodigo(code, empIdx, dsStr) {
@@ -11246,7 +11246,7 @@ function initDiaPreviewChart(dsStr, dept) {
 
 // ── Jornada máxima anual (horas) por dept e índice de empleado
 const JORNADA_MAX_H={
-  operaciones:[1770.0, 1770.0, 1770.0, 1678.8, 1770.0],
+  operaciones:[1705.1, 1696.7, 1770.0, 1678.8, 1770.0], // Carlos: 87.5% hasta 17-abr (1705.1h), Elena: 87.5% hasta 1-may (1696.7h), Mirella: 94.85% (1678.8h)
   omnicanal:[1614.2, 1770.0, 885.0, 1614.2, 1593.0, 1614.2, 1614.2, 1044.3, 1770.0, 1593.0, 1062.0, 1239.0, 1614.2, 1495.7, 1416.0, 1150.5, 1614.2, 1770.0, 1770.0, 1770.0],
   cajasac:[1327.5, 1548.8, 1770.0, 531.0, 1770.0, 1380.6, 1631.9, 1416.0, 1631.9, 531.0, 1770.0],
   muelle:[1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
