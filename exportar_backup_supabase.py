@@ -93,8 +93,10 @@ def main():
         "festivo_compensaciones": festivo_comp
     }
 
-    os.makedirs("backups", exist_ok=True)
-    filename = f"backups/Cuadrante_2026_Backup_{now.strftime('%Y-%m-%d_%H%M')}.json"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    backups_dir = os.path.join(script_dir, "backups")
+    os.makedirs(backups_dir, exist_ok=True)
+    filename = os.path.join(backups_dir, f"Cuadrante_2026_Backup_{now.strftime('%Y-%m-%d_%H%M')}.json")
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(backup, f, ensure_ascii=False, indent=2)
 
