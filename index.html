@@ -4428,6 +4428,26 @@ body.theme-dark .lib-s {
 }
 
 /* Colores de turnos en Modo Oscuro adaptados para no deslumbrar y verse nítidos */
+body.theme-dark #edit-modal .modal-content-box {
+  background: #1e1e24 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark #edit-modal #em-title {
+  color: #93c5fd !important;
+}
+body.theme-dark #edit-modal #em-sub {
+  color: #94a3b8 !important;
+  border-bottom-color: #334155 !important;
+}
+body.theme-dark #edit-modal #em-preview-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+body.theme-dark #edit-modal #em-catalog-sel {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #475569 !important;
+}
 body.theme-dark .s-MAN {
   background: #0284c7 !important;
   color: #ffffff !important;
@@ -5524,180 +5544,144 @@ document.addEventListener('click',function(e){
   if(!cell) return;
   openEditModal(cell.dataset.dept,cell.dataset.ds,parseInt(cell.dataset.ei));
 });
+function closeEditModal(){document.getElementById('edit-modal').style.display='none';}
+
 function openEditModal(dept,dsStr,empIdx){
   const _dp=dsStr.split('-').map(Number);
   const emp=(DEPTS[dept]||{employees:[]}).employees[empIdx]||'?';
   const cur=((DEPTS[dept]||{raw:{}}).raw[dsStr]||[])[empIdx]||'0';
-  const curLbl=eq(cur)[0];
-  // Guardamos contexto de edición actual
-  window._emCtx={dept,dsStr,empIdx,selCode:cur,selLbl:curLbl};
+  const curRes=resolveShiftCell(dept,empIdx,cur,dsStr);
+
+  window._emCtx={dept,dsStr,empIdx,selCode:cur,curCode:cur};
+
   document.getElementById('em-title').textContent=emp+' · '+String(_dp[2]).padStart(2,'0')+'/'+String(_dp[1]).padStart(2,'0')+'/'+_dp[0];
-  document.getElementById('em-sub').textContent='Turno actual: '+curLbl+(cur&&cur!=='0'?' ('+cur+')':'');
-  const OPTS=[
-    ['M(AM)','MAN','s-MAN'],['T(TC)','TAR','s-TAR'],
-    ['P(TC)','PAR','s-PAR'],['C','COM','s-COM'],
-    ['FOR','FOR','s-FOR'],['L','LIB','s-LIB'],['J','J','s-J'],['JA','JA','s-JA'],
-    ['V','VAC','s-VAC'],['E','BAJ','s-ENF'],
-    ['SPS','SPS','s-SPS'],['PER','PER','s-PER'],['0','--','s-empty']
+  document.getElementById('em-sub').innerHTML='Turno actual: <strong style="color:#1a237e">'+(cur&&cur!=='0'?cur:'--')+'</strong> ('+curRes.lbl+')'+(curRes.horario?' · '+curRes.horario:'')+(curRes.horasNum?' · '+curRes.horasNum+'h':'');
+
+  // 1. Ausencias y descansos legales
+  const AUSENCIAS=[
+    ['L','LIB','s-LIB','Día Libre'],
+    ['V','VAC','s-VAC','Vacaciones'],
+    ['C','COM','s-COM','Compensado'],
+    ['J','J','s-J','Libre (J)'],
+    ['JA','JA','s-JA','Ajuste anual'],
+    ['BAJ','BAJ','s-BAJ','Baja médica'],
+    ['PER','PER','s-PER','Permiso'],
+    ['SPS','SPS','s-SPS','Sin Cto.'],
+    ['0','--','s-empty','Sin asignar']
   ];
-  let cd='';
-  for(const [code,lbl,cls] of OPTS){
-    const act=curLbl===lbl;
-    cd+='<button class="'+cls+'" data-code="'+code+'" data-lbl="'+lbl+'" style="padding:11px 4px;border:2px solid '+(act?'#1a237e':'transparent')+';border-radius:8px;cursor:pointer;font-weight:800;font-size:.82rem;font-family:inherit;width:100%">'+lbl+'</button>';
+  let cdAus='';
+  AUSENCIAS.forEach(function([code,lbl,cls,desc]){
+    const act=(cur===code||(code==='0'&&(!cur||cur==='0')));
+    cdAus+='<button type="button" class="'+cls+'" data-code="'+code+'" title="'+desc+'" style="padding:8px 3px;border:2px solid '+(act?'#1a237e':'transparent')+';border-radius:6px;cursor:pointer;font-weight:800;font-size:.76rem;font-family:inherit;width:100%">'+lbl+'</button>';
+  });
+  document.getElementById('em-codes-aus').innerHTML=cdAus;
+
+  // 2. Turnos habituales del trabajador en su cuadrante 2026
+  const empCodes=new Set();
+  const raw=(DEPTS[dept]||{}).raw||{};
+  for(const d in raw){
+    const c=(raw[d]||[])[empIdx];
+    if(c && c!=='0' && !['L','DL','LS','V','VAC','VA','C','COM','CM','CT','J','JA','DD','FF','FES','BAJ','E','ENF','AH','EI','SPS','SIN','S','PER','PM','EG'].includes(c.replace(/\*+$/,''))){
+      empCodes.add(c);
+    }
   }
-  document.getElementById('em-codes').innerHTML=cd;
-  // Al hacer clic en un turno: seleccionar visualmente y actualizar sección de horario
-  document.querySelectorAll('#em-codes button').forEach(function(b){
-    b.addEventListener('click',function(){
-      document.querySelectorAll('#em-codes button').forEach(function(btn){btn.style.border='2px solid transparent';});
+  // Añadir turnos estándar si no están ya
+  ['M(AM)','T(TC)','VSL','ZF8','P(TC)'].forEach(function(c){empCodes.add(c);});
+
+  let cdHab='';
+  Array.from(empCodes).slice(0,10).forEach(function(code){
+    const res=resolveShiftCell(dept,empIdx,code,dsStr);
+    const act=(cur===code);
+    const horTxt=res.horario?res.horario.replace(/\s+/g,''):'';
+    cdHab+='<button type="button" class="'+res.cls+'" data-code="'+code+'" style="padding:6px 3px;border:2px solid '+(act?'#1a237e':'transparent')+';border-radius:6px;cursor:pointer;font-weight:700;font-size:.73rem;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15">'+
+      '<span style="font-weight:800">'+code+'</span>'+
+      '<span style="font-size:.62rem;opacity:.9;font-weight:500">'+(horTxt||res.lbl)+'</span>'+
+    '</button>';
+  });
+  document.getElementById('em-codes-hab').innerHTML=cdHab;
+
+  // 3. Catálogo oficial completo en select
+  _emPopulateCatalogSelect(dept,empIdx,dsStr,cur);
+
+  // 4. Click en botones rápidos
+  document.querySelectorAll('#em-codes-aus button, #em-codes-hab button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('#em-codes-aus button, #em-codes-hab button').forEach(function(b){b.style.border='2px solid transparent';});
       this.style.border='2px solid #1a237e';
-      window._emCtx.selCode=this.dataset.code;
-      window._emCtx.selLbl=this.dataset.lbl;
-      _emRefreshHours(dept,dsStr,empIdx,this.dataset.lbl);
-      _emRefreshSaveBtn();
+      const c=this.dataset.code;
+      window._emCtx.selCode=c;
+      const catSel=document.getElementById('em-catalog-sel');
+      if(catSel) catSel.value=c;
+      _emUpdatePreview(dept,empIdx,dsStr,c);
     });
   });
-  // Cargar sección de horario para el turno actual
-  _emRefreshHours(dept,dsStr,empIdx,curLbl);
-  _emRefreshSaveBtn();
+
+  _emUpdatePreview(dept,empIdx,dsStr,cur);
   document.getElementById('edit-modal').style.display='flex';
 }
-// Actualiza la sección de horario según el turno seleccionado
-function _emRefreshHours(dept,dsStr,empIdx,lbl){
-  const _hasDef=!!(HORARIOS_DEF[dept+'|'+empIdx]);
-  const _canH=_hasDef&&['MAN','TAR','PAR'].includes(lbl);
-  const hsec=document.getElementById('em-hours-section');
-  if(_canH){
-    const _isCustom=_hoHas(dept,empIdx,dsStr);
-    const _hdata=_hoGet(dept,empIdx,dsStr,lbl);
-    const _defH=(HORARIOS_DEF[dept+'|'+empIdx]||{})[lbl];
-    hsec.style.display='';
-    document.getElementById('em-hours-label').innerHTML=
-      (_isCustom?'<span style="color:#e65100">⏰ Horario personalizado</span>':'<span style="color:#546e7a">🕐 Horario estándar</span>')+
-      (_defH?' <span style="font-size:.7rem;color:#90a4ae">(def: '+_defH[0]+'–'+_defH[1]+')</span>':'');
-    _setTimeSel('em-hours-in',_hdata?_hdata.in:(_defH?_defH[0]:''));
-    _setTimeSel('em-hours-out',_hdata?_hdata.out:(_defH?_defH[1]:''));
-    const breakSel=document.getElementById('em-hours-break');
-    const savedBreak=_hdata&&_hdata.break!=null?_hdata.break:(lbl==='PAR'?60:30);
-    breakSel.value=String(savedBreak);
-    document.getElementById('em-hours-in-h').onchange=_calcHorasEfectivas;
-    document.getElementById('em-hours-in-m').onchange=_calcHorasEfectivas;
-    document.getElementById('em-hours-out-h').onchange=_calcHorasEfectivas;
-    document.getElementById('em-hours-out-m').onchange=_calcHorasEfectivas;
-    _calcHorasEfectivas();
-    const clrBtn=document.getElementById('em-hours-clear');
-    clrBtn.style.display=_isCustom?'':'none';
-    clrBtn.onclick=function(){clearHours(dept,dsStr,empIdx);};
-  } else {
-    hsec.style.display='none';
+
+function _emPopulateCatalogSelect(dept,empIdx,dsStr,curCode){
+  const sel=document.getElementById('em-catalog-sel');
+  if(!sel) return;
+  sel.innerHTML='<option value="">-- O busca cualquier código del Catálogo Oficial 2026 --</option>';
+  if(typeof CATALOGO_TURNOS_OFICIAL_2026!=='undefined'&&CATALOGO_TURNOS_OFICIAL_2026.codigos){
+    const codes=Object.keys(CATALOGO_TURNOS_OFICIAL_2026.codigos).sort();
+    codes.forEach(function(c){
+      const info=CATALOGO_TURNOS_OFICIAL_2026.codigos[c];
+      const opt=document.createElement('option');
+      opt.value=c;
+      const desc=info.horario ? (c+' · '+info.horario+' ('+info.horas_trabajo_efectivo+'h) ['+(info.clasificacion||info.tipo)+']') : (c+' ['+info.tipo+']');
+      opt.textContent=desc;
+      if(c===curCode) opt.selected=true;
+      sel.appendChild(opt);
+    });
   }
-}
-// Actualiza el botón principal de guardar
-function _emRefreshSaveBtn(){
-  const ctx=window._emCtx;
-  if(!ctx) return;
-  const lbl=ctx.selLbl||'--';
-  const hsec=document.getElementById('em-hours-section');
-  const hoursVis=hsec&&hsec.style.display!=='none';
-  const btn=document.getElementById('em-save-btn');
-  if(!btn) return;
-  btn.textContent='💾 Guardar'+(lbl&&lbl!=='--'?' ('+lbl+')':'');
-  btn.onclick=function(){
-    // Guardar turno
-    saveEdit(ctx.dept,ctx.dsStr,ctx.empIdx,ctx.selCode);
-    // Guardar horario si la sección está visible (usando saveHours para persistir en Supabase)
-    if(hoursVis){
-      const breakMin=parseInt(document.getElementById('em-hours-break').value||'0');
-      const tIn=_getTimeSel('em-hours-in'),tOut=_getTimeSel('em-hours-out');
-      if(tIn&&tOut){
-        const key=_hoKey(ctx.dept,ctx.empIdx,ctx.dsStr);
-        const bk=breakMin!=null?breakMin:30;
-        const val={in:tIn,out:tOut,break:bk};
-        _hours[key]=val;
-        localStorage.setItem('cq_hours',JSON.stringify(_hours));
-        // Persistir en Supabase
-        if(_sb){
-          _sb.from('custom_hours').upsert(
-            {hour_key:key,time_in:tIn,time_out:tOut,break_min:bk,
-             updated_by:_currentUser||'usuario',updated_at:new Date().toISOString()},
-            {onConflict:'hour_key'}
-          ).then(function(r){if(r.error)console.error('Error horario Supabase:',r.error);});
-        }
-        if(_hoursChannel) _hoursChannel.send({type:'broadcast',event:'hours_update',payload:{key,val}});
-      }
+  sel.onchange=function(){
+    if(this.value){
+      document.querySelectorAll('#em-codes-aus button, #em-codes-hab button').forEach(function(b){
+        b.style.border=(b.dataset.code===sel.value)?'2px solid #1a237e':'2px solid transparent';
+      });
+      window._emCtx.selCode=this.value;
+      _emUpdatePreview(dept,empIdx,dsStr,this.value);
     }
   };
 }
 
-function _calcHorasEfectivas(){
-  const inVal  = _getTimeSel('em-hours-in');
-  const outVal = _getTimeSel('em-hours-out');
-  const breakMin = parseInt(document.getElementById('em-hours-break').value||'0');
-  const el = document.getElementById('em-horas-efectivas');
-  if(!inVal||!outVal||!el){if(el)el.textContent='';return;}
-  const [ih,im] = inVal.split(':').map(Number);
-  const [oh,om] = outVal.split(':').map(Number);
-  const totalMin = (oh*60+om) - (ih*60+im);
-  const efMin = totalMin - breakMin;
-  if(efMin<=0){el.textContent='⚠ Revisar horario';el.style.color='#c62828';return;}
-  const efH = Math.floor(efMin/60), efM = efMin%60;
-  el.style.color='#1b5e20';
-  el.textContent='⏱ '+efH+'h'+(efM?String(efM).padStart(2,'0')+'min':'')
-    +' efectivas'+(breakMin?' (−'+breakMin+'min descanso)':'');
-}
+function _emUpdatePreview(dept,empIdx,dsStr,code){
+  const prevBox=document.getElementById('em-preview-box');
+  const saveBtn=document.getElementById('em-save-btn');
+  if(!prevBox||!saveBtn) return;
 
-function _getTimeSel(prefix){
-  const h=document.getElementById(prefix+'-h');
-  const m=document.getElementById(prefix+'-m');
-  return h&&m ? h.value+':'+m.value : '';
-}
-function _setTimeSel(prefix, val){
-  if(!val) return;
-  const parts=val.split(':');
-  const hEl=document.getElementById(prefix+'-h');
-  const mEl=document.getElementById(prefix+'-m');
-  if(hEl) hEl.value=parts[0]||'00';
-  // Redondear minutos al múltiplo de 5 más cercano
-  if(mEl){ const rawM=parseInt(parts[1]||'0'); mEl.value=String(Math.round(rawM/5)*5%60).padStart(2,'0'); }
-}
-function closeEditModal(){document.getElementById('edit-modal').style.display='none';}
-function saveHours(dept,dsStr,empIdx,timeIn,timeOut,breakMin){
-  if(!timeIn||!timeOut){alert('Indica hora de entrada y salida.');return;}
-  const key=_hoKey(dept,empIdx,dsStr);
-  const bk=breakMin!=null?breakMin:30;
-  const val={in:timeIn,out:timeOut,break:bk};
-  _hours[key]=val;
-  localStorage.setItem('cq_hours',JSON.stringify(_hours));
-  // Persistir en Supabase (permanente, visible para todos los usuarios)
-  if(_sb){
-    _sb.from('custom_hours').upsert(
-      {hour_key:key,time_in:timeIn,time_out:timeOut,break_min:bk,
-       updated_by:_currentUser||'usuario',updated_at:new Date().toISOString()},
-      {onConflict:'hour_key'}
-    ).then(function(r){if(r.error)console.error('Error guardando horario en Supabase:',r.error);});
+  if(!code||code==='0'||code==='--'){
+    prevBox.innerHTML='<div style="color:#78909c;font-size:.78rem">Sin turno asignado (vacío)</div>';
+    saveBtn.textContent='💾 Guardar (Sin turno)';
+    saveBtn.onclick=function(){
+      saveEdit(window._emCtx.dept,window._emCtx.dsStr,window._emCtx.empIdx,'0');
+    };
+    return;
   }
-  // Broadcast para actualización inmediata en otros navegadores conectados
-  if(_hoursChannel){
-    _hoursChannel.send({type:'broadcast',event:'hours_update',payload:{key,val}});
+  const res=resolveShiftCell(dept,empIdx,code,dsStr);
+  let html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+    '<span style="font-weight:800;font-size:.88rem;color:#1a237e">'+code+' · '+(res.text||res.lbl)+'</span>'+
+    '<span class="'+res.cls+'" style="padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:800">'+res.lbl+'</span>'+
+  '</div>';
+  if(res.isWork){
+    html+='<div style="font-size:.78rem;color:#37474f;display:grid;grid-template-columns:1fr 1fr;gap:4px">'+
+      '<div><strong>Horario:</strong> '+(res.horario||'N/A')+'</div>'+
+      '<div><strong>Horas efectivas:</strong> '+res.horasNum+'h</div>'+
+      '<div><strong>Descanso:</strong> '+(res.breakMin!=null?res.breakMin+' min':'0 min')+'</div>'+
+      '<div><strong>Tipo:</strong> '+(res.lbl==='MAN'?'Mañana':res.lbl==='TAR'?'Tarde':'Partido')+'</div>'+
+    '</div>';
+  } else {
+    html+='<div style="font-size:.78rem;color:#546e7a">'+
+      'Día no laborable / ausencia justificada ('+(res.horario||'Sin cómputo de horas')+')'+
+    '</div>';
   }
-  closeEditModal();
-  renderCurrentView();
-}
-function clearHours(dept,dsStr,empIdx){
-  const key=_hoKey(dept,empIdx,dsStr);
-  delete _hours[key];
-  localStorage.setItem('cq_hours',JSON.stringify(_hours));
-  // Eliminar de Supabase
-  if(_sb){
-    _sb.from('custom_hours').delete().eq('hour_key',key)
-      .then(function(r){if(r.error)console.error('Error eliminando horario de Supabase:',r.error);});
-  }
-  // Broadcast para actualización inmediata
-  if(_hoursChannel){
-    _hoursChannel.send({type:'broadcast',event:'hours_delete',payload:{key}});
-  }
-  closeEditModal();
-  renderCurrentView();
+  prevBox.innerHTML=html;
+  saveBtn.textContent='💾 Guardar Turno ('+code+')';
+  saveBtn.onclick=function(){
+    saveEdit(window._emCtx.dept,window._emCtx.dsStr,window._emCtx.empIdx,window._emCtx.selCode);
+  };
 }
 function saveEdit(dept,dsStr,empIdx,code){
   if(!DEPTS[dept] || !DEPTS[dept].raw) return;
@@ -8312,6 +8296,8 @@ function horasParaCodigo(code, empIdx, dsStr) {
     return Math.round(((_oh*60+_om)-(_ih*60+_im))/60*100)/100;
   }
   // Catálogo Oficial Determinista 2026 (prioridad máxima para turnos estándar)
+  const res = resolveShiftCell(activeDept, empIdx, code, dsStr);
+  if (res && res.isWork && res.horasNum != null && res.horasNum > 0) return res.horasNum;
   if (typeof CATALOGO_TURNOS_OFICIAL_2026 !== 'undefined' && CATALOGO_TURNOS_OFICIAL_2026.codigos && CATALOGO_TURNOS_OFICIAL_2026.codigos[code]) {
     const _cat = CATALOGO_TURNOS_OFICIAL_2026.codigos[code];
     if (_cat.horas_trabajo_efectivo != null && _cat.tipo === 'TRABAJO') return _cat.horas_trabajo_efectivo;
@@ -8774,13 +8760,19 @@ const PENDING_NOTES = [
 ];
 
 // ── Regla descanso mínimo 12h ────────────────────────────────────────────────
-function timeToMin(t){const p=t.split(':').map(Number);return p[0]*60+p[1];}
+function timeToMin(t){if(!t)return null;const p=t.split(':').map(Number);return p[0]*60+p[1];}
 function getEmpEndMin(dept,ei,dsStr2,lbl){
+  const code=((DEPTS[dept]||{}).raw||{})[dsStr2]?DEPTS[dept].raw[dsStr2][ei]:null;
+  const res=resolveShiftCell(dept,ei,code,dsStr2);
+  if(res&&res.isWork&&res.timeOut) return timeToMin(res.timeOut);
   if(_hoHas(dept,ei,dsStr2)) return timeToMin(_hours[_hoKey(dept,ei,dsStr2)].out);
   const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
   return def?timeToMin(def[1]):null;
 }
 function getEmpStartMin(dept,ei,dsStr2,lbl){
+  const code=((DEPTS[dept]||{}).raw||{})[dsStr2]?DEPTS[dept].raw[dsStr2][ei]:null;
+  const res=resolveShiftCell(dept,ei,code,dsStr2);
+  if(res&&res.isWork&&res.timeIn) return timeToMin(res.timeIn);
   if(_hoHas(dept,ei,dsStr2)) return timeToMin(_hours[_hoKey(dept,ei,dsStr2)].in);
   const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
   return def?timeToMin(def[0]):null;
@@ -12356,51 +12348,34 @@ if('serviceWorker' in navigator) {
   <div class="sp-sub" id="sp-sub"></div>
 </div>
 
-<div id="edit-modal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:14px;padding:24px 22px;box-shadow:0 8px 40px rgba(0,0,0,.35);width:min(370px,92vw)">
-    <div id="em-title" style="font-size:1rem;font-weight:800;color:#1a237e;margin-bottom:3px"></div>
-    <div id="em-sub" style="font-size:.78rem;color:#546e7a;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #eee"></div>
-    <div id="em-codes" style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:14px"></div>
-    <div id="em-hours-section" style="display:none;border-top:1px solid #eee;margin:10px 0 14px;padding-top:12px">
-      <div id="em-hours-label" style="font-size:.78rem;font-weight:700;margin-bottom:9px"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div>
-          <div style="font-size:.72rem;color:#546e7a;margin-bottom:4px">Entrada</div>
-          <div style="display:flex;gap:4px;align-items:center">
-            <select id="em-hours-in-h" style="border:1px solid #cfd8dc;border-radius:6px;padding:4px 6px;font-size:.82rem;background:#fff;cursor:pointer"><option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option></select>
-            <span style="font-weight:700">:</span>
-            <select id="em-hours-in-m" style="border:1px solid #cfd8dc;border-radius:6px;padding:4px 6px;font-size:.82rem;background:#fff;cursor:pointer"><option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option></select>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:.72rem;color:#546e7a;margin-bottom:4px">Salida</div>
-          <div style="display:flex;gap:4px;align-items:center">
-            <select id="em-hours-out-h" style="border:1px solid #cfd8dc;border-radius:6px;padding:4px 6px;font-size:.82rem;background:#fff;cursor:pointer"><option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option></select>
-            <span style="font-weight:700">:</span>
-            <select id="em-hours-out-m" style="border:1px solid #cfd8dc;border-radius:6px;padding:4px 6px;font-size:.82rem;background:#fff;cursor:pointer"><option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option></select>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <label style="font-size:.72rem;color:#546e7a;white-space:nowrap">Descanso:</label>
-        <select id="em-hours-break" style="border:1px solid #cfd8dc;border-radius:6px;padding:4px 6px;font-size:.82rem;background:#fff;cursor:pointer">
-          <option value="0">0 min</option>
-          <option value="15">15 min</option>
-          <option value="20">20 min</option>
-          <option value="30">30 min</option>
-          <option value="45">45 min</option>
-          <option value="60">60 min</option>
-          <option value="90">90 min</option>
-          <option value="120">120 min</option>
-          <option value="180">180 min</option>
-          <option value="200">200 min</option>
-        </select>
-        <button id="em-hours-clear" style="display:none;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer">↩ Restablecer</button>
-      </div>
-      <div id="em-horas-efectivas" style="font-size:.78rem;color:#1565c0;font-weight:700;min-height:18px;margin-bottom:4px"></div>
+<div id="edit-modal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:12px">
+  <div class="modal-content-box" style="background:#fff;border-radius:14px;padding:20px 18px;box-shadow:0 8px 40px rgba(0,0,0,.35);width:min(440px,95vw);max-height:92vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+      <div id="em-title" style="font-size:1rem;font-weight:800;color:#1a237e"></div>
+      <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#78909c;line-height:1">&times;</button>
     </div>
-    <button id="em-save-btn" style="background:#1a237e;color:#fff;border:none;border-radius:8px;padding:11px;font-size:.88rem;font-weight:700;cursor:pointer;width:100%;margin-top:2px">💾 Guardar</button>
-    <button onclick="closeEditModal()" style="background:#f5f5f5;color:#546e7a;border:1px solid #ddd;border-radius:8px;padding:9px;font-size:.85rem;cursor:pointer;width:100%;margin-top:6px">Cerrar</button>
+    <div id="em-sub" style="font-size:.78rem;color:#546e7a;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #eee"></div>
+    
+    <!-- Turnos habituales de trabajo -->
+    <div style="font-size:.75rem;font-weight:800;color:#37474f;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+      <span>Turnos Habituales de Trabajo</span>
+      <span style="font-size:.68rem;color:#78909c;font-weight:400">Oficiales 2026</span>
+    </div>
+    <div id="em-codes-hab" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px"></div>
+
+    <!-- Ausencias y descansos -->
+    <div style="font-size:.75rem;font-weight:800;color:#37474f;margin-bottom:6px">Ausencias y Descansos</div>
+    <div id="em-codes-aus" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px"></div>
+
+    <!-- Catálogo oficial desplegable -->
+    <div style="font-size:.75rem;font-weight:800;color:#37474f;margin-bottom:4px">Todos los Códigos del Catálogo Oficial 2026</div>
+    <select id="em-catalog-sel" style="width:100%;border:1px solid #cfd8dc;border-radius:8px;padding:7px 8px;font-size:.8rem;background:#fff;cursor:pointer;margin-bottom:12px;font-family:inherit"></select>
+
+    <!-- Vista previa de confirmación determinista -->
+    <div id="em-preview-box" style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;margin-bottom:12px"></div>
+
+    <button id="em-save-btn" style="background:#1a237e;color:#fff;border:none;border-radius:8px;padding:11px;font-size:.88rem;font-weight:700;cursor:pointer;width:100%;margin-top:2px">💾 Guardar Turno</button>
+    <button onclick="closeEditModal()" style="background:#f5f5f5;color:#546e7a;border:1px solid #ddd;border-radius:8px;padding:9px;font-size:.85rem;cursor:pointer;width:100%;margin-top:6px">Cancelar</button>
   </div>
 </div>
 
