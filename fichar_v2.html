@@ -137,6 +137,21 @@
       background: #d32f2f;
       color: #fff;
     }
+    .btn-edit-mini {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      color: #ffd54f;
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-edit-mini:active {
+      background: #ff8f00;
+      color: #fff;
+    }
     .btn-undo {
       background: rgba(239, 83, 80, 0.16);
       border: 1.5px solid rgba(239, 83, 80, 0.6);
@@ -280,6 +295,24 @@
     </div>
   </div>
 
+  <!-- MODAL EDITAR HORA DE FICHAJE -->
+  <div id="modal-edit-fichaje" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)">
+    <div style="background:#1b263b;border:1.5px solid rgba(0,229,255,0.5);border-radius:24px;padding:24px 20px;max-width:340px;width:100%;box-shadow:0 16px 40px rgba(0,0,0,0.7);text-align:center">
+      <div style="font-size:2rem;margin-bottom:8px">✏️</div>
+      <h3 style="font-size:1.1rem;color:#00e5ff;margin-bottom:6px" id="edit-modal-title">Modificar Fichaje</h3>
+      <p style="font-size:0.8rem;color:#b0bec5;margin-bottom:18px" id="edit-modal-sub">Indica la hora correcta:</p>
+      
+      <div style="margin-bottom:20px">
+        <input type="time" id="edit-time-input" step="1" style="font-size:1.8rem;font-weight:800;color:#00e5ff;background:rgba(0,0,0,0.45);border:2px solid rgba(0,229,255,0.5);border-radius:14px;padding:12px 16px;text-align:center;width:100%;outline:none;font-family:inherit;box-shadow:0 4px 14px rgba(0,229,255,0.2)">
+      </div>
+      
+      <div style="display:flex;gap:10px">
+        <button type="button" onclick="guardarEdicionFichaje()" style="flex:1;background:linear-gradient(135deg,#00c853 0%,#009624 100%);color:#fff;border:none;border-radius:14px;padding:14px;font-size:0.95rem;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(0,200,83,0.35)">💾 Guardar</button>
+        <button type="button" onclick="cerrarModalEdicion()" style="flex:1;background:rgba(255,255,255,0.12);color:#cfd8dc;border:1px solid rgba(255,255,255,0.25);border-radius:14px;padding:14px;font-size:0.95rem;font-weight:700;cursor:pointer">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Configuración Supabase
     const SUPA_URL = 'https://unrpssxvivjhehamkfoe.supabase.co';
@@ -362,8 +395,13 @@
         logs.forEach((item, idx) => {
           const lbl = labels[idx] || `${idx + 1}️⃣ Fichaje`;
           html += `<div class="today-row">
-            <span>${lbl}: <b style="color:#00e5ff">${item.new_value}</b></span>
-            <button type="button" onclick="eliminarFichajePorId('${item.id}', '${item.new_value}', '${dateStr}')" class="btn-del-mini" title="Eliminar este fichaje de Supabase">🗑️ Borrar</button>
+            <div style="flex:1;text-align:left;padding-right:6px">
+              <span>${lbl}: <b style="color:#00e5ff">${item.new_value}</b></span>
+            </div>
+            <div style="display:flex;gap:5px;align-items:center">
+              <button type="button" onclick="abrirModalEdicion('${item.id}', '${item.new_value}', '${lbl.replace(/'/g, "\\'")}', '${dateStr}')" class="btn-edit-mini" title="Modificar hora">✏️ Editar</button>
+              <button type="button" onclick="eliminarFichajePorId('${item.id}', '${item.new_value}', '${dateStr}')" class="btn-del-mini" title="Eliminar de Supabase">🗑️ Borrar</button>
+            </div>
           </div>`;
         });
         listEl.innerHTML = html;
@@ -460,6 +498,85 @@
         }
       } catch(e) {
         alert('Error al comunicar con Supabase: ' + e.message);
+      }
+    }
+
+    // GESTIÓN DE EDICIÓN DE HORA DE FICHAJE
+    let _editTargetId = null;
+    let _editOldHora = '';
+    let _editDateStr = '';
+
+    function abrirModalEdicion(id, hora, label, dateStr) {
+      _editTargetId = id;
+      _editOldHora = hora;
+      _editDateStr = dateStr;
+
+      const modal = document.getElementById('modal-edit-fichaje');
+      const title = document.getElementById('edit-modal-title');
+      const sub = document.getElementById('edit-modal-sub');
+      const input = document.getElementById('edit-time-input');
+
+      if (title) title.textContent = `Modificar ${label}`;
+      if (sub) sub.textContent = `Hora registrada actual: ${hora}`;
+      if (input) input.value = hora.length >= 5 ? hora.slice(0, 8) : hora;
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function cerrarModalEdicion() {
+      const modal = document.getElementById('modal-edit-fichaje');
+      if (modal) modal.style.display = 'none';
+      _editTargetId = null;
+    }
+
+    async function guardarEdicionFichaje() {
+      if (!_editTargetId) return;
+      const input = document.getElementById('edit-time-input');
+      let val = (input ? input.value : '').trim();
+      if (!val) {
+        alert('Por favor, indica una hora válida.');
+        return;
+      }
+      if (val.length === 5) val += ':00';
+
+      const badge = document.getElementById('status-badge');
+      const text = document.getElementById('status-text');
+
+      try {
+        const patchRes = await fetch(`${SUPA_URL}/rest/v1/change_log?id=eq.${_editTargetId}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPA_KEY,
+            'Authorization': `Bearer ${SUPA_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            new_value: val,
+            changed_at: new Date().toISOString()
+          })
+        });
+
+        if (patchRes.ok) {
+          if (navigator.vibrate) navigator.vibrate([40]);
+          badge.className = 'status-badge';
+          badge.style.background = 'rgba(255, 193, 7, 0.22)';
+          badge.style.borderColor = 'rgba(255, 193, 7, 0.6)';
+          badge.style.color = '#ffd54f';
+          text.textContent = `✓ Fichaje modificado: ${val}`;
+
+          if (_ultimoFichajeId === _editTargetId) {
+            _ultimoFichajeHora = val;
+            const undoLabel = document.getElementById('undo-time-label');
+            if (undoLabel) undoLabel.textContent = val;
+          }
+
+          cerrarModalEdicion();
+          await cargarFichajesHoy(_editDateStr);
+        } else {
+          alert('Error al actualizar en Supabase.');
+        }
+      } catch(e) {
+        alert('Error de comunicación con Supabase: ' + e.message);
       }
     }
 
