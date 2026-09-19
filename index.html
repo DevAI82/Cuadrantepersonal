@@ -6,11 +6,20 @@
 <title>Cuadrante Personal 2026</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a237e">
+<meta name="color-scheme" content="light dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cuadrante">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script>
+(function() {
+  try {
+    var t = localStorage.getItem('cq_theme') || 'light';
+    document.documentElement.className = (t === 'dark' ? 'theme-dark' : 'theme-light');
+  } catch(e){}
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 window.CATALOGO_TURNOS_OFICIAL_2026 = {
@@ -4257,8 +4266,237 @@ window.CATALOGO_TURNOS_OFICIAL_2026 = {
 
 </script>
 <style>
-:root{color-scheme:light;--navy:#1a237e;--navy2:#283593;--navy3:#3949ab;--bg:#f0f2f5;--border:#e0e0e0;--r:8px}
+:root{--navy:#1a237e;--navy2:#283593;--navy3:#3949ab;--bg:#f0f2f5;--border:#e0e0e0;--r:8px}
 *{box-sizing:border-box;margin:0;padding:0}
+
+/* ── MODO CLARO (PREDETERMINADO / ORIGINAL) ── */
+:root, html.theme-light, body.theme-light {
+  color-scheme: light !important;
+}
+html.theme-light body, body.theme-light, body:not(.theme-dark) {
+  background: #f0f2f5 !important;
+  color: #1a1a2e !important;
+}
+body.theme-light table, body:not(.theme-dark) table {
+  background: #ffffff !important;
+}
+body.theme-light .tabs, body:not(.theme-dark) .tabs {
+  background: #ffffff !important;
+}
+body.theme-light .legend-bar, body:not(.theme-dark) .legend-bar {
+  background: #ffffff !important;
+}
+body.theme-light .td-emp, body:not(.theme-dark) .td-emp {
+  background: #e8eaf6 !important;
+  color: #1a237e !important;
+}
+body.theme-light .shift.wknd, body:not(.theme-dark) .shift.wknd {
+  background: #eceff1 !important;
+  color: #b0bec5 !important;
+}
+
+/* ── MODO OSCURO (ALTO CONTRASTE Y COLORES NÍTIDOS) ── */
+:root.theme-dark, html.theme-dark, body.theme-dark {
+  color-scheme: dark !important;
+}
+html.theme-dark body, body.theme-dark {
+  background: #0b1120 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .app-hdr {
+  background: linear-gradient(135deg, #070b14, #171c38) !important;
+  border-bottom: 1px solid #334155;
+}
+body.theme-dark .dept-bar {
+  background: #060911 !important;
+  border-bottom: 2px solid #1e293b !important;
+}
+body.theme-dark .dept-btn {
+  border-color: rgba(255,255,255,.2) !important;
+  color: rgba(255,255,255,.7) !important;
+}
+body.theme-dark .dept-btn.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+}
+body.theme-dark .tabs {
+  background: #111827 !important;
+  border-bottom: 2px solid #374151 !important;
+}
+body.theme-dark .tab {
+  color: #9ca3af !important;
+}
+body.theme-dark .tab:hover {
+  color: #f9fafb !important;
+  background: #1f2937 !important;
+}
+body.theme-dark .tab.active {
+  color: #60a5fa !important;
+  border-bottom-color: #3b82f6 !important;
+}
+body.theme-dark .legend-bar {
+  background: #111827 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+body.theme-dark .leg {
+  color: #d1d5db !important;
+}
+body.theme-dark .nav-title {
+  color: #93c5fd !important;
+}
+body.theme-dark .wrap {
+  box-shadow: 0 4px 20px rgba(0,0,0,.5) !important;
+}
+body.theme-dark table {
+  background: #111827 !important;
+  color: #f9fafb !important;
+}
+body.theme-dark th, body.theme-dark td {
+  border-color: #374151 !important;
+}
+body.theme-dark .th-emp {
+  background: #0f172a !important;
+  color: #93c5fd !important;
+}
+body.theme-dark .th-day {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+body.theme-dark .th-day.wk {
+  background: #334155 !important;
+  color: #94a3b8 !important;
+}
+body.theme-dark .td-emp {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border-color: #374151 !important;
+}
+body.theme-dark .td-emp .emp-ape {
+  color: #f9fafb !important;
+}
+body.theme-dark .td-emp .emp-num {
+  color: #93c5fd !important;
+}
+body.theme-dark .shift.wknd {
+  background: #030712 !important;
+  color: #6b7280 !important;
+}
+body.theme-dark .s-empty {
+  background: #111827 !important;
+  color: #4b5563 !important;
+}
+body.theme-dark .wshift .code {
+  color: rgba(255,255,255,0.7) !important;
+}
+body.theme-dark .lib-s {
+  background: #1e1e24 !important;
+  color: #a8a29e !important;
+}
+
+/* Colores de turnos en Modo Oscuro adaptados para no deslumbrar y verse nítidos */
+body.theme-dark .s-MAN {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+body.theme-dark .s-TAR {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+body.theme-dark .s-VAC {
+  background: #ea580c !important;
+  color: #ffffff !important;
+}
+body.theme-dark .s-LIB {
+  background: #a16207 !important;
+  color: #fef9c3 !important;
+}
+body.theme-dark .s-J {
+  background: #ca8a04 !important;
+  color: #fef08a !important;
+}
+body.theme-dark .s-JA {
+  background: #b45309 !important;
+  color: #ffedd5 !important;
+}
+body.theme-dark .s-PAR {
+  background: #9333ea !important;
+  color: #fae8ff !important;
+}
+body.theme-dark .s-COM {
+  background: #d97706 !important;
+  color: #fffbeb !important;
+}
+body.theme-dark .s-ENF {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+}
+body.theme-dark .s-BAJ, body.theme-dark .s-TRASLADO {
+  background: #b91c1c !important;
+  color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+}
+body.theme-dark .s-SPS {
+  background: #374151 !important;
+  color: #f3f4f6 !important;
+}
+body.theme-dark .s-PER {
+  background: #312e81 !important;
+  color: #c7d2fe !important;
+  border-color: #4f46e5 !important;
+}
+
+/* Filas de bloques en Modo Oscuro */
+body.theme-dark tr[style*="background:#f4f9fd"],
+body.theme-dark tr[style*="background: #f4f9fd"] {
+  background: #0c2340 !important;
+}
+body.theme-dark tr[style*="background:#f4fbf5"],
+body.theme-dark tr[style*="background: #f4fbf5"] {
+  background: #0a2916 !important;
+}
+body.theme-dark tr[style*="background:#fafafa"],
+body.theme-dark tr[style*="background: #fafafa"] {
+  background: #111c2e !important;
+}
+
+/* Modales y paneles en Modo Oscuro */
+body.theme-dark .login-box, body.theme-dark .pinpad-box, body.theme-dark .stats-box, body.theme-dark .changelog-box {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  box-shadow: 0 16px 60px rgba(0,0,0,.7) !important;
+}
+body.theme-dark .login-box h2, body.theme-dark .pinpad-box h3, body.theme-dark .stats-box h3, body.theme-dark .changelog-box h3 {
+  color: #93c5fd !important;
+}
+body.theme-dark .login-field label {
+  color: #9ca3af !important;
+}
+body.theme-dark .login-field select, body.theme-dark .login-field input {
+  background: #111827 !important;
+  color: #f9fafb !important;
+  border-color: #4b5563 !important;
+}
+body.theme-dark .pp-key {
+  background: #111827 !important;
+  color: #93c5fd !important;
+  border-color: #374151 !important;
+}
+body.theme-dark .pp-key:hover {
+  background: #374151 !important;
+}
+body.theme-dark .pp-key.del {
+  background: #1f2937 !important;
+  color: #9ca3af !important;
+}
+body.theme-dark .stats-table th, body.theme-dark .cl-table th {
+  background: #0f172a !important;
+  color: #93c5fd !important;
+}
+body.theme-dark .stats-table td, body.theme-dark .cl-table td {
+  border-bottom-color: #374151 !important;
+}
+
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a1a2e;min-height:100vh}
 .app-hdr{background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:wrap;gap:8px}
 .app-hdr h1{font-size:1.15rem;font-weight:700}
@@ -4457,10 +4695,11 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
 <div class="app-hdr">
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <h1>Cuadrante de Personal 2026</h1>
-    <span class="hdr-timer" style="background:rgba(255,255,255,.18);font-size:.7rem" title="Versión compilada">v2026.09.19-v7</span>
+    <span class="hdr-timer" style="background:rgba(255,255,255,.18);font-size:.7rem" title="Versión compilada">v2026.09.19-v8</span>
   </div>
   <div id="hdr-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:.82rem;font-weight:600" id="dept-label">OPERACIONES</div>
+    <button class="hdr-btn no-print" id="btn-theme-toggle" onclick="toggleTheme()" title="Cambiar entre fondo claro y fondo oscuro" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.45);font-weight:700">☀️ Fondo Claro</button>
     <button class="hdr-btn no-print" onclick="forceAppUpdate()" title="Descargar última versión y borrar caché del móvil" style="background:rgba(255,152,0,.28);border:1px solid rgba(255,183,77,.8);font-weight:800">🔄 Actualizar</button>
     <button class="hdr-btn no-print" onclick="logoutUser()" title="Cerrar sesión y cambiar de usuario" style="background:rgba(239,83,80,.25);border:1px solid rgba(239,83,80,.6)">🔒 Salir</button>
   </div>
@@ -11874,6 +12113,40 @@ function logoutUser() {
   document.getElementById('pinpad-modal').style.display='none';
 }
 
+function applyTheme(theme) {
+  if(!theme || (theme !== 'dark' && theme !== 'light')) {
+    try { theme = localStorage.getItem('cq_theme') || 'light'; } catch(e){ theme = 'light'; }
+  }
+  const root = document.documentElement;
+  const body = document.body;
+  if(theme === 'dark') {
+    root.classList.add('theme-dark');
+    root.classList.remove('theme-light');
+    if(body) { body.classList.add('theme-dark'); body.classList.remove('theme-light'); }
+  } else {
+    theme = 'light';
+    root.classList.add('theme-light');
+    root.classList.remove('theme-dark');
+    if(body) { body.classList.add('theme-light'); body.classList.remove('theme-dark'); }
+  }
+  try { localStorage.setItem('cq_theme', theme); } catch(e){}
+  const btn = document.getElementById('btn-theme-toggle');
+  if(btn) {
+    btn.innerHTML = theme === 'dark' ? '🌙 Fondo Oscuro' : '☀️ Fondo Claro';
+    btn.title = theme === 'dark' ? 'Fondo Oscuro activo (toca para cambiar a Fondo Claro)' : 'Fondo Claro activo (toca para cambiar a Fondo Oscuro)';
+  }
+  const btnLogin = document.getElementById('btn-login-theme');
+  if(btnLogin) {
+    btnLogin.innerHTML = theme === 'dark' ? '🌙 Fondo Oscuro' : '☀️ Fondo Claro';
+  }
+}
+
+function toggleTheme() {
+  let current = 'light';
+  try { current = localStorage.getItem('cq_theme') || 'light'; } catch(e){}
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
 async function forceAppUpdate() {
   if(confirm('¿Deseas forzar la actualización para descargar la última versión del cuadrante y limpiar la memoria caché del móvil?')) {
     try {
@@ -11906,6 +12179,10 @@ document.addEventListener('keydown', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', function(){
+  try {
+    const savedTheme = localStorage.getItem('cq_theme') || 'light';
+    applyTheme(savedTheme);
+  } catch(e){}
   localStorage.removeItem('cq_user');
   _currentUser = null;
   const sel = document.getElementById('login-user');
@@ -11924,7 +12201,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 if('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js?v=7')
+    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js?v=8')
       .then(function(reg){
         reg.update();
         reg.onupdatefound = function() {
@@ -11964,11 +12241,12 @@ if('serviceWorker' in navigator) {
       </select>
     </div>
     <div id="login-err" class="login-err"></div>
-    <div style="text-align:center;margin-top:20px;border-top:1px solid #eee;padding-top:14px">
-      <span style="font-size:.72rem;color:#90a4ae">Versión v2026.09.19-v7</span>
-      <div style="margin-top:8px">
-        <button onclick="forceAppUpdate()" style="background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:6px;padding:5px 12px;font-size:.76rem;font-weight:700;cursor:pointer">🔄 Actualizar versión / Borrar caché</button>
-      </div>
+    <div style="text-align:center;margin-top:20px;border-top:1px solid #eee;padding-top:14px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+      <button id="btn-login-theme" onclick="toggleTheme()" style="background:#f0f2f5;border:1px solid #cfd8dc;color:#37474f;border-radius:6px;padding:5px 12px;font-size:.76rem;font-weight:700;cursor:pointer">☀️ Modo Claro</button>
+      <button onclick="forceAppUpdate()" style="background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:6px;padding:5px 12px;font-size:.76rem;font-weight:700;cursor:pointer">🔄 Actualizar versión / Borrar caché</button>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:.72rem;color:#90a4ae">Versión v2026.09.19-v8</span>
     </div>
   </div>
 </div>
