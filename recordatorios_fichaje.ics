@@ -1,0 +1,104 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Cuadrante Personal//Recordatorios Fichaje//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Recordatorios Fichaje Workday
+X-WR-TIMEZONE:Europe/Madrid
+
+BEGIN:VTIMEZONE
+TZID:Europe/Madrid
+X-LIC-LOCATION:Europe/Madrid
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+
+BEGIN:VEVENT
+UID:fichaje-0900-2026@cuadrante
+DTSTAMP:20260919T120000Z
+DTSTART;TZID=Europe/Madrid:20260921T090000
+DTEND;TZID=Europe/Madrid:20260921T090500
+RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;UNTIL=20261231T235959Z
+SUMMARY:⏰ Fichar Entrada Mañana (09:00)
+DESCRIPTION:Recordatorio para registrar la entrada de la mañana en Workday.
+
+👉 Toca aquí para registrar fichaje:
+https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+URL:https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:⏰ Fichar Entrada Mañana en Workday
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:fichaje-1400-2026@cuadrante
+DTSTAMP:20260919T120000Z
+DTSTART;TZID=Europe/Madrid:20260921T140000
+DTEND;TZID=Europe/Madrid:20260921T140500
+RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;UNTIL=20261231T235959Z
+SUMMARY:⏰ Fichar Salida Comida (14:00)
+DESCRIPTION:Recordatorio para registrar la salida a comer en Workday.
+
+👉 Toca aquí para registrar fichaje:
+https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+URL:https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:⏰ Fichar Salida Comida en Workday
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:fichaje-1700-2026@cuadrante
+DTSTAMP:20260919T120000Z
+DTSTART;TZID=Europe/Madrid:20260921T170000
+DTEND;TZID=Europe/Madrid:20260921T170500
+RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;UNTIL=20261231T235959Z
+SUMMARY:⏰ Fichar Regreso Comida (17:00)
+DESCRIPTION:Recordatorio para registrar la vuelta de comer en Workday.
+
+👉 Toca aquí para registrar fichaje:
+https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+URL:https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:⏰ Fichar Regreso Comida en Workday
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+UID:fichaje-2030-2026@cuadrante
+DTSTAMP:20260919T120000Z
+DTSTART;TZID=Europe/Madrid:20260921T203000
+DTEND;TZID=Europe/Madrid:20260921T203500
+RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;UNTIL=20261231T235959Z
+SUMMARY:⏰ Fichar Salida Jornada (20:30)
+DESCRIPTION:Recordatorio para registrar el fin de jornada en Workday.
+
+👉 Toca aquí para registrar fichaje:
+https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+URL:https://devai82.github.io/Cuadrantepersonal/fichar_v2.html
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:⏰ Fichar Salida Jornada en Workday
+END:VALARM
+END:VEVENT
+
+END:VCALENDAR

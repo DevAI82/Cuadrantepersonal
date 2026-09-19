@@ -107,6 +107,48 @@
       font-size: 0.92rem;
       padding: 13px 16px;
     }
+    .btn-calendar {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      box-shadow: 0 4px 18px rgba(255, 152, 0, 0.35);
+      font-size: 0.88rem;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .btn-webnotif {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: #00e5ff;
+      font-size: 0.82rem;
+      padding: 10px 14px;
+      margin-bottom: 0;
+    }
+    .today-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+    .today-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .today-row:last-child { border-bottom: none; }
+    .reminder-card {
+      width: 100%;
+      background: rgba(255, 152, 0, 0.08);
+      border: 1px dashed rgba(255, 152, 0, 0.4);
+      border-radius: 18px;
+      padding: 14px;
+      margin-top: 14px;
+      text-align: left;
+    }
     .guide-box {
       margin-top: 14px;
       background: rgba(255, 255, 255, 0.08);
@@ -149,19 +191,45 @@
     <div class="time-display" id="clock">--:--:--</div>
     <div class="date-display" id="date-str">Cargando...</div>
 
+    <!-- PANEL DE FICHAJES REALIZADOS HOY (REGLA DE ORO 4 FICHAJES) -->
+    <div id="today-panel" class="today-box" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <strong style="color:#00e5ff;font-size:0.82rem">📋 Fichajes hoy</strong>
+        <span id="today-count" style="font-size:0.72rem;color:#81c784;font-weight:700">0/4</span>
+      </div>
+      <div id="today-list"></div>
+      <div id="today-total-hours" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.15);font-size:0.78rem;color:#ffd54f;font-weight:700;display:none"></div>
+    </div>
+
     <!-- BOTÓN MANUAL: Workday SOLO se abre si tocas aquí -->
     <button id="btn-workday" class="btn-action btn-workday" onclick="openWorkdayManual()">
       <span>👉 Abrir Workday</span>
     </button>
 
-    <!-- Botón directo para añadir al escritorio -->
-    <button id="btn-install" class="btn-action btn-install" onclick="triggerInstall()" style="display:none">
+    <!-- SECCIÓN DE RECORDATORIOS PARA NO OLVIDAR FICHAR -->
+    <div class="reminder-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:0.88rem;font-weight:800;color:#ffb74d">⏰ Recordatorios Móvil</span>
+        <span style="font-size:0.7rem;background:rgba(255,152,0,0.2);color:#ffcc80;padding:2px 8px;border-radius:10px;font-weight:700">4 franjas</span>
+      </div>
+      <div style="font-size:0.75rem;color:#cfd8dc;margin-bottom:10px;line-height:1.4">
+        Alarmas automáticas a las <b>09:00</b>, <b>14:00</b>, <b>17:00</b> y <b>20:30</b> con enlace directo para fichar:
+      </div>
+      <a href="recordatorios_fichaje.ics" download="recordatorios_fichaje.ics" class="btn-action btn-calendar">
+        <span>📅 Añadir Alarmas a Google Calendar</span>
+      </a>
+      <button onclick="solicitarNotificacionesWeb()" class="btn-action btn-webnotif" id="btn-webnotif">
+        <span>🔔 Activar Notificaciones en Pantalla</span>
+      </button>
+    </div>
+
+    <!-- Botón directo para añadir al escritorio si no está instalado -->
+    <button id="btn-install" class="btn-action btn-install" onclick="triggerInstall()" style="display:none;margin-top:12px">
       <span>📲 Añadir a Pantalla de Inicio</span>
     </button>
 
     <div id="browser-guide" class="guide-box">
-      <strong>Para guardarlo como icono en el móvil:</strong><br>
-      Pulsa los <strong>3 puntos (⋮)</strong> arriba a la derecha en Chrome y dale a <strong>"Añadir a pantalla de inicio"</strong>.
+      <strong>Regla de oro:</strong> Si abres la app varias veces en pocos minutos, el sistema guarda únicamente el más reciente y limpia duplicados.
     </div>
 
     <div class="subtitle">
@@ -221,7 +289,53 @@
       }
     }
 
-    // REGISTRO SILENCIOSO EN SUPABASE (SIN ABRIR WORKDAY NUNCA)
+    // CARGAR Y PINTAR FICHAJES DE HOY CON CÁLCULO DE HORAS
+    async function cargarFichajesHoy(dateStr) {
+      try {
+        const res = await fetch(
+          `${SUPA_URL}/rest/v1/change_log?employee=eq.JOSE%20MIGUEL%20OLMEDA&date=eq.${dateStr}&change_type=eq.fichaje_real&order=changed_at.asc`,
+          { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+        );
+        if (!res.ok) return;
+        const logs = await res.json();
+        if (!logs || logs.length === 0) return;
+
+        const panel = document.getElementById('today-panel');
+        const listEl = document.getElementById('today-list');
+        const countEl = document.getElementById('today-count');
+        const totalEl = document.getElementById('today-total-hours');
+
+        panel.style.display = 'block';
+        countEl.textContent = `${logs.length}/4`;
+
+        const labels = ['1️⃣ Entrada mañana', '2️⃣ Salida comida', '3️⃣ Vuelta comida', '4️⃣ Salida jornada'];
+        let html = '';
+        logs.forEach((item, idx) => {
+          const lbl = labels[idx] || `${idx + 1}️⃣ Fichaje`;
+          html += `<div class="today-row"><span>${lbl}</span><b style="color:#00e5ff">${item.new_value}</b></div>`;
+        });
+        listEl.innerHTML = html;
+
+        // Si hay 4 fichajes, calcular horas efectivas
+        if (logs.length >= 4) {
+          function toMin(s) {
+            const p = s.split(':');
+            return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+          }
+          const m1 = toMin(logs[1].new_value) - toMin(logs[0].new_value);
+          const m2 = toMin(logs[3].new_value) - toMin(logs[2].new_value);
+          const totalH = Math.round(((m1 + m2) / 60) * 10) / 10;
+          totalEl.style.display = 'block';
+          totalEl.textContent = `⏱ Total trabajado hoy: ${totalH} horas`;
+        } else {
+          totalEl.style.display = 'none';
+        }
+      } catch(e) {
+        console.warn('Error cargando fichajes hoy:', e);
+      }
+    }
+
+    // REGISTRO SILENCIOSO EN SUPABASE CON REGLA DE ORO 1 Y 2
     async function registrarFichaje() {
       // Ignorar bots, crawlers y pre-renderizadores automáticos
       if (navigator.webdriver || /bot|crawler|spider|prerender|lighthouse/i.test(navigator.userAgent)) {
@@ -249,7 +363,30 @@
       const spinner = document.getElementById('spinner');
 
       try {
-        const res = await fetch(`${SUPA_URL}/rest/v1/change_log`, {
+        // REGLA DE ORO 1: Si hay un fichaje en menos de 10 min, borrarlo y conservar solo el más reciente
+        const prevRes = await fetch(
+          `${SUPA_URL}/rest/v1/change_log?employee=eq.JOSE%20MIGUEL%20OLMEDA&date=eq.${dateStr}&change_type=eq.fichaje_real&order=changed_at.desc&limit=5`,
+          { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+        );
+        let reemplazado = false;
+        if (prevRes.ok) {
+          const logs = await prevRes.json();
+          const nowMs = now.getTime();
+          for (const l of logs) {
+            const lMs = new Date(l.changed_at).getTime();
+            const diffMin = (nowMs - lMs) / 60000;
+            if (diffMin >= 0 && diffMin < 10) {
+              await fetch(`${SUPA_URL}/rest/v1/change_log?id=eq.${l.id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+              });
+              reemplazado = true;
+            }
+          }
+        }
+
+        // Insertar el fichaje actual más reciente
+        await fetch(`${SUPA_URL}/rest/v1/change_log`, {
           method: 'POST',
           headers: {
             'apikey': SUPA_KEY,
@@ -270,13 +407,37 @@
 
         if (spinner) spinner.style.display = 'none';
         badge.className = 'status-badge';
-        text.textContent = `✓ Fichaje registrado: ${timeStr}`;
+        text.textContent = reemplazado 
+          ? `✓ Fichaje actualizado: ${timeStr}`
+          : `✓ Fichaje registrado: ${timeStr}`;
+
+        // Actualizar el resumen en pantalla
+        await cargarFichajesHoy(dateStr);
       } catch(err) {
         if (spinner) spinner.style.display = 'none';
         badge.className = 'status-badge';
         text.textContent = `✓ Fichaje guardado: ${timeStr}`;
       }
-      // NUNCA REDIRIGIR AUTOMÁTICAMENTE
+    }
+
+    // NOTIFICACIONES WEB EN PANTALLA
+    function solicitarNotificacionesWeb() {
+      if (!('Notification' in window)) {
+        alert('Este navegador no soporta notificaciones push. Utiliza el botón "Añadir Alarmas a Google Calendar", que te avisará puntualmente en el móvil.');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification('⏰ Recordatorio de Fichaje Configurado', {
+            body: '¡Notificaciones activadas! Recuerda fichar a las 09:00, 14:00, 17:00 y 20:30.',
+            icon: 'logo_fichaje.jpg'
+          });
+          const btn = document.getElementById('btn-webnotif');
+          if (btn) btn.textContent = '✓ Notificaciones en pantalla activas';
+        } else {
+          alert('Para que tu móvil suene sin falta, pulsa en "Añadir Alarmas a Google Calendar".');
+        }
+      });
     }
 
     window.addEventListener('DOMContentLoaded', registrarFichaje);

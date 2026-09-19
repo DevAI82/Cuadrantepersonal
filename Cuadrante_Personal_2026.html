@@ -13109,6 +13109,89 @@ async function _aplicarHorarioCarlos2026(){
   }
 }
 
+// ── Sincronización en vivo de Fichajes Reales desde Supabase (Reglas de Oro 1 y 2) ──
+async function _cargarFichajesRealesSupabase() {
+  if (!_sb) return;
+  try {
+    const { data: fichLog, error: fErr } = await _sb
+      .from('change_log')
+      .select('employee, date, new_value, changed_at')
+      .eq('change_type', 'fichaje_real')
+      .order('changed_at', { ascending: true });
+
+    if (!fErr && fichLog && fichLog.length > 0) {
+      const grouped = {};
+      for (const r of fichLog) {
+        const emp = r.employee;
+        const d = r.date;
+        if (!emp || !d || !r.new_value) continue;
+        const k = `${emp}:::${d}`;
+        if (!grouped[k]) grouped[k] = [];
+        grouped[k].push({ val: r.new_value, ts: new Date(r.changed_at).getTime() });
+      }
+
+      for (const k in grouped) {
+        const parts = k.split(':::');
+        const emp = parts[0];
+        const dateStr = parts[1];
+        const list = grouped[k];
+
+        // REGLA DE ORO 1: Si varios fichajes en lapso <= 10 min, conservar solo el más reciente
+        const deduped = [];
+        for (let i = 0; i < list.length; i++) {
+          if (i < list.length - 1 && (list[i+1].ts - list[i].ts) <= 10 * 60 * 1000) {
+            continue; // Se omite el anterior
+          }
+          deduped.push(list[i].val);
+        }
+
+        // REGLA DE ORO 2: Normalmente 4 fichajes diarios (entrada mañana, comida, regreso comida, salida)
+        function _toMin(s) {
+          if (!s) return 0;
+          const p = s.split(':');
+          return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+        }
+
+        let totalMin = 0;
+        let detalleStr = '';
+        if (deduped.length >= 4) {
+          const m1 = _toMin(deduped[1]) - _toMin(deduped[0]);
+          const m2 = _toMin(deduped[3]) - _toMin(deduped[2]);
+          totalMin = Math.max(0, m1) + Math.max(0, m2);
+          detalleStr = `${deduped[0]}-${deduped[1]} / ${deduped[2]}-${deduped[3]}`;
+        } else if (deduped.length === 2 || deduped.length === 3) {
+          const m1 = _toMin(deduped[1]) - _toMin(deduped[0]);
+          totalMin = Math.max(0, m1);
+          detalleStr = `${deduped[0]}-${deduped[1]}` + (deduped.length === 3 ? ` / ${deduped[2]}...` : '');
+        } else if (deduped.length === 1) {
+          detalleStr = `${deduped[0]} (en curso)`;
+        }
+
+        const totalHoras = Math.round((totalMin / 60) * 10) / 10;
+
+        const empVariants = [emp];
+        if (emp === 'JOSE MIGUEL OLMEDA') empVariants.push('JOSE MIGUEL OLMEDA PASCUAL');
+        if (emp === 'JOSE MIGUEL OLMEDA PASCUAL') empVariants.push('JOSE MIGUEL OLMEDA');
+
+        for (const v of empVariants) {
+          if (!FICHAJE_REAL.operaciones) FICHAJE_REAL.operaciones = {};
+          if (!FICHAJE_REAL.operaciones[v]) FICHAJE_REAL.operaciones[v] = {};
+          if (!FICHAJE_DETALLES.operaciones) FICHAJE_DETALLES.operaciones = {};
+          if (!FICHAJE_DETALLES.operaciones[v]) FICHAJE_DETALLES.operaciones[v] = {};
+
+          if (totalHoras > 0) {
+            FICHAJE_REAL.operaciones[v][dateStr] = totalHoras;
+          }
+          if (detalleStr) {
+            FICHAJE_DETALLES.operaciones[v][dateStr] = detalleStr;
+          }
+        }
+      }
+    }
+  } catch(eFich) {
+    console.warn('Error en _cargarFichajesRealesSupabase:', eFich);
+  }
+}
 
 // ===== SISTEMA DE COPIA DE SEGURIDAD Y RESTAURACIÓN (BACKUP & RESTORE) =====
 let _pendingBackupData = null;
@@ -13614,6 +13697,20 @@ async function initSupabase() {
     if(!localStorage.getItem('cq_carlos_h_2026')) {
       await _aplicarHorarioCarlos2026();
     }
+
+    // Sincronizar fichajes reales en vivo desde Supabase (Reglas de Oro 1 y 2)
+    await _cargarFichajesRealesSupabase();
+
+    // Suscripción en tiempo real a nuevos fichajes
+    _sb.channel('fichajes-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'change_log' }, async function(payload) {
+        if ((payload.new && payload.new.change_type === 'fichaje_real') || 
+            (payload.old && payload.old.change_type === 'fichaje_real')) {
+          await _cargarFichajesRealesSupabase();
+          renderCurrentView();
+        }
+      })
+      .subscribe();
 
     // Ocultar overlay y renderizar
     document.getElementById('supa-overlay').style.display = 'none';
