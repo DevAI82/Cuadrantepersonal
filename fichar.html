@@ -6,6 +6,7 @@
   <title>Fichar Workday — Jose Miguel Olmeda</title>
   <link rel="icon" type="image/jpeg" href="logo_fichaje.jpg">
   <link rel="apple-touch-icon" href="logo_fichaje.jpg">
+  <link rel="manifest" href="manifest_fichar.json">
   <meta name="theme-color" content="#1a237e">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,14 +20,14 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
     }
     .card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 24px;
-      padding: 32px 24px;
+      padding: 28px 20px;
       max-width: 380px;
       width: 100%;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
@@ -36,11 +37,11 @@
       align-items: center;
     }
     .logo-img {
-      width: 120px;
-      height: 120px;
+      width: 115px;
+      height: 115px;
       border-radius: 26px;
-      box-shadow: 0 8px 24px rgba(0, 229, 255, 0.3);
-      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0, 229, 255, 0.35);
+      margin-bottom: 16px;
       border: 2px solid rgba(0, 229, 255, 0.5);
     }
     .status-badge {
@@ -51,10 +52,15 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 700;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       background: rgba(46, 125, 50, 0.2);
       color: #81c784;
       border: 1px solid rgba(76, 175, 80, 0.4);
+    }
+    .status-badge.standby {
+      background: rgba(255, 167, 38, 0.2);
+      color: #ffb74d;
+      border-color: rgba(255, 152, 0, 0.4);
     }
     .status-badge.loading {
       background: rgba(25, 118, 210, 0.2);
@@ -62,40 +68,61 @@
       border-color: rgba(33, 150, 243, 0.4);
     }
     .time-display {
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       font-weight: 800;
       color: #00e5ff;
       letter-spacing: 1px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       text-shadow: 0 2px 10px rgba(0, 229, 255, 0.4);
     }
     .date-display {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #b0bec5;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      text-transform: capitalize;
     }
-    .btn-workday {
-      display: block;
+    .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       width: 100%;
-      background: linear-gradient(135deg, #00c853 0%, #009624 100%);
       color: #fff;
       text-decoration: none;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 800;
-      padding: 14px 20px;
+      padding: 13px 18px;
       border-radius: 14px;
-      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
       transition: transform 0.15s, box-shadow 0.15s;
       border: none;
       cursor: pointer;
+      margin-bottom: 10px;
     }
-    .btn-workday:active {
-      transform: scale(0.97);
+    .btn-action:active { transform: scale(0.97); }
+    .btn-install {
+      background: linear-gradient(135deg, #2979ff 0%, #1565c0 100%);
+      box-shadow: 0 6px 20px rgba(41, 121, 255, 0.4);
     }
+    .btn-workday {
+      background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+    }
+    .guide-box {
+      margin-top: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.76rem;
+      color: #cfd8dc;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .guide-box strong { color: #00e5ff; }
     .subtitle {
-      font-size: 0.72rem;
+      font-size: 0.70rem;
       color: #78909c;
-      margin-top: 18px;
+      margin-top: 16px;
       line-height: 1.4;
     }
     .spinner {
@@ -114,17 +141,29 @@
   <div class="card">
     <img src="logo_fichaje.jpg" alt="Logo Fichaje" class="logo-img">
     
-    <div id="status-badge" class="status-badge loading">
-      <div class="spinner" id="spinner"></div>
-      <span id="status-text">Registrando en Supabase...</span>
+    <div id="status-badge" class="status-badge standby">
+      <span id="status-icon">&#9201;</span>
+      <span id="status-text">Listo para fichar</span>
     </div>
 
     <div class="time-display" id="clock">--:--:--</div>
     <div class="date-display" id="date-str">Cargando...</div>
 
-    <button id="btn-wd" class="btn-workday" onclick="openWorkday()">
-      Abrir Workday ahora
+    <!-- Botón para instalar en la pantalla de inicio -->
+    <button id="btn-install" class="btn-action btn-install" onclick="triggerInstall()" style="display:none">
+      <span>&#128242; Instalar en Pantalla de Inicio</span>
     </button>
+
+    <!-- Botón para fichar y abrir Workday -->
+    <button id="btn-fichar" class="btn-action btn-workday" onclick="manualFichar()">
+      <span>&#9889; Fichar y Abrir Workday</span>
+    </button>
+
+    <!-- Guía para cuando está en Chrome -->
+    <div id="browser-guide" class="guide-box">
+      <strong>Para guardarlo como App en tu móvil:</strong><br>
+      Toca los <strong>3 puntos (&#8942;)</strong> arriba a la derecha en Chrome y pulsa en <strong>"Añadir a pantalla de inicio"</strong> o <em>"Instalar aplicación"</em>. Se creará el acceso con tu logo.
+    </div>
 
     <div class="subtitle">
       Jose Miguel Olmeda &middot; Operaciones<br>
@@ -136,33 +175,69 @@
     const SUPA_URL = 'https://unrpssxvivjhehamkfoe.supabase.co';
     const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVucnBzc3h2aXZqaGVoYW1rZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMjI3MzAsImV4cCI6MjA5NTY5ODczMH0.xV8YS4uLxE3WDCjO2TNRxSfRgUUBczYzS0X0Z1F3Ufg';
 
+    let deferredPrompt = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || urlParams.get('auto') === '1';
+
+    function updateClock() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      document.getElementById('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('date-str').textContent = now.toLocaleDateString('es-ES', opts);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Capturar evento nativo de instalación de Android Chrome
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('btn-install');
+      if (btn && !isStandalone) {
+        btn.style.display = 'flex';
+      }
+    });
+
+    function triggerInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            document.getElementById('btn-install').style.display = 'none';
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert('Para añadirlo a tu pantalla de inicio:\n\n1. Pulsa los 3 puntos (⋮) arriba a la derecha en Chrome.\n2. Toca en "Añadir a pantalla de inicio".');
+      }
+    }
+
     function openWorkday() {
-      // 1. Android Intent para abrir la app instalada de Workday
       const intentUrl = 'intent://#Intent;package=com.workday.workdroidapp;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end';
-      // 2. Fallback estándar URL scheme
       const schemeUrl = 'workday://';
-      
       try {
         window.location.href = intentUrl;
-        setTimeout(() => {
-          window.location.href = schemeUrl;
-        }, 300);
+        setTimeout(() => { window.location.href = schemeUrl; }, 300);
       } catch(e) {
         window.location.href = schemeUrl;
       }
     }
 
-    async function registrarFichaje() {
+    async function sendSupabaseLog() {
       const now = new Date();
-      if (navigator.vibrate) navigator.vibrate([50]);
-
+      if (navigator.vibrate) navigator.vibrate([40]);
       const pad = n => String(n).padStart(2, '0');
       const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
       const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
-      document.getElementById('clock').textContent = timeStr;
-      const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('date-str').textContent = now.toLocaleDateString('es-ES', opts);
+      const badge = document.getElementById('status-badge');
+      const text = document.getElementById('status-text');
+      const icon = document.getElementById('status-icon');
+
+      badge.className = 'status-badge loading';
+      icon.innerHTML = '<div class="spinner"></div>';
+      text.textContent = 'Enviando a Supabase...';
 
       try {
         const res = await fetch(`${SUPA_URL}/rest/v1/change_log`, {
@@ -184,30 +259,35 @@
           })
         });
 
-        const badge = document.getElementById('status-badge');
-        const text = document.getElementById('status-text');
-        const spinner = document.getElementById('spinner');
-
-        if (res.ok) {
-          badge.className = 'status-badge';
-          if (spinner) spinner.style.display = 'none';
-          text.textContent = '✓ Fichaje enviado a Supabase';
-        } else {
-          badge.className = 'status-badge';
-          badge.style.background = 'rgba(239, 83, 80, 0.2)';
-          badge.style.color = '#ef5350';
-          if (spinner) spinner.style.display = 'none';
-          text.textContent = 'Guardado localmente';
-        }
-      } catch (err) {
-        console.warn('Offline or fetch error:', err);
+        badge.className = 'status-badge';
+        icon.textContent = '✓';
+        text.textContent = `Fichaje guardado: ${timeStr}`;
+      } catch(err) {
+        console.warn('Error sending log:', err);
+        badge.className = 'status-badge';
+        icon.textContent = '✓';
+        text.textContent = `Fichaje registrado localmente: ${timeStr}`;
       }
-
-      // Abrir Workday automáticamente tras 400ms
-      setTimeout(openWorkday, 400);
     }
 
-    window.addEventListener('DOMContentLoaded', registrarFichaje);
+    async function manualFichar() {
+      await sendSupabaseLog();
+      setTimeout(openWorkday, 300);
+    }
+
+    // SI ESTÁ INSTALADO COMO APP (Standalone): Ficha y abre Workday automáticamente
+    // SI ESTÁ EN CHROME NAVEGADOR: No auto-redirige para que puedas instalarlo tranquilamente
+    if (isStandalone) {
+      const guide = document.getElementById('browser-guide');
+      if (guide) guide.style.display = 'none';
+      const btnInst = document.getElementById('btn-install');
+      if (btnInst) btnInst.style.display = 'none';
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        await sendSupabaseLog();
+        setTimeout(openWorkday, 500);
+      });
+    }
   </script>
 </body>
 </html>
