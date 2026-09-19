@@ -5852,15 +5852,25 @@ function _detectarIncumplimientos(dept){
     const nombre = emps[ei];
     const pct = _pctJornada(dept, ei);
     const esCien = pct >= 0.995; // tolerancia de redondeo para "100%"
-    // Construir la serie completa de días del año con su código y etiqueta
+    // Construir la serie completa de días del año con resolución determinista oficial
     const dias = [];
     for(let m=1;m<=12;m++){
       const nd = daysInMonth(year,m);
       for(let d=1;d<=nd;d++){
         const dsStr = ds(year,m,d);
         const code = (raw[dsStr]||[])[ei] || '0';
-        const [lbl] = eq(code);
-        dias.push({dsStr, code, lbl, date:new Date(year,m-1,d)});
+        const sInf = resolveShiftCell(dept, ei, code, dsStr);
+        dias.push({
+          dsStr,
+          code,
+          lbl: sInf.lbl,
+          isWork: sInf.isWork,
+          timeIn: sInf.timeIn,
+          timeOut: sInf.timeOut,
+          breakMin: sInf.breakMin,
+          horasNum: sInf.horasNum,
+          date: new Date(year,m-1,d)
+        });
       }
     }
 
@@ -5870,7 +5880,9 @@ function _detectarIncumplimientos(dept){
     let horasAnuales = 0;
     let bajaDiasInc = 0; // días de Baja en 2026 — reduce proporcionalmente el máximo exigible
     for(const dia of dias){
-      if(['MAN','TAR','PAR','PER','FOR','JA'].includes(dia.lbl) && !FESTIVOS_CIERRE[dia.dsStr]){
+      if(dia.isWork && !FESTIVOS_CIERRE[dia.dsStr]){
+        horasAnuales += (dia.horasNum || calcHorasDia(dept, ei, dia.code, dia.dsStr));
+      } else if(dia.lbl==='JA' && !FESTIVOS_CIERRE[dia.dsStr]){
         horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
       }
       if(dia.lbl==='BAJ') bajaDiasInc++;
@@ -5888,18 +5900,15 @@ function _detectarIncumplimientos(dept){
     // ── 3) Descanso diario mínimo entre jornadas (12h) ──
     for(let i=0;i<dias.length-1;i++){
       const hoy = dias[i], manana = dias[i+1];
-      if(!['MAN','TAR','PAR'].includes(hoy.lbl)) continue;
-      if(!['MAN','TAR','PAR'].includes(manana.lbl)) continue;
-      const hcHoy = _hours[_hoKey(dept,ei,hoy.dsStr)];
-      const hcManana = _hours[_hoKey(dept,ei,manana.dsStr)];
-      if(!hcHoy || !hcManana) continue;
-      const finHoyMin = timeToMin(hcHoy.out);
-      const inicioMananaMin = timeToMin(hcManana.in) + 24*60;
+      if(!hoy.isWork || !manana.isWork) continue;
+      if(!hoy.timeIn || !hoy.timeOut || !manana.timeIn || !manana.timeOut) continue;
+      const finHoyMin = timeToMin(hoy.timeOut);
+      const inicioMananaMin = timeToMin(manana.timeIn) + 24*60;
       const descansoH = (inicioMananaMin - finHoyMin)/60;
       if(descansoH < CONVENIO_DESCANSO_DIARIO_MIN_H){
         incidencias.push({
           tipo:'Descanso diario insuficiente', severidad:'alta', empleado:nombre,
-          detalle:`Solo ${descansoH.toFixed(1)}h de descanso entre el ${hoy.dsStr} (sale ${hcHoy.out}) y el ${manana.dsStr} (entra ${hcManana.in}) — mínimo legal 12h`,
+          detalle:`Solo ${descansoH.toFixed(1)}h de descanso entre el ${hoy.dsStr} (sale ${hoy.timeOut}) y el ${manana.dsStr} (entra ${manana.timeIn}) — mínimo legal 12h`,
           fecha:manana.dsStr
         });
       }
@@ -5909,7 +5918,7 @@ function _detectarIncumplimientos(dept){
     //      confirmado por el usuario) ──
     let racha = 0, inicioRacha = null;
     for(const dia of dias){
-      const trabaja = ['MAN','TAR','PAR'].includes(dia.lbl);
+      const trabaja = dia.isWork;
       if(trabaja){
         if(racha===0) inicioRacha = dia.dsStr;
         racha++;
@@ -5947,26 +5956,14 @@ function _detectarIncumplimientos(dept){
         }
         weekStart = dia.dsStr; weekLabel = dia.dsStr; workedAll = true; weekHasRest = false;
       }
-      if(['LIB','VAC','BAJ','J','SPS','COM','--'].includes(dia.lbl)) weekHasRest = true;
+      if(!dia.isWork || ['LIB','VAC','BAJ','J','JA','SPS','COM','--'].includes(dia.lbl)) weekHasRest = true;
     }
 
     // ── 2) Sábados de calidad: mínimo 9/año, UNA línea por empleado si falta ──
-    // Criterio: sábado con código Libre/Compensado (mismo criterio que la
-    // tarjeta de Resumen Trabajador, que el usuario usó como referencia al
-    // confirmar "Vicente solo tiene 7"). Vacaciones/Baja NO cuentan aquí:
-    // aunque son descanso, no son el "sábado de calidad" que exige el art.
-    // 30.5 (destinado a que quien trabaja regularmente los sábados tenga
-    // algunos completamente libres, no de vacaciones/baja).
     let sabadosLibres = 0;
-    for(let m=1;m<=12;m++){
-      const nd = daysInMonth(year,m);
-      for(let d=1;d<=nd;d++){
-        const dt = new Date(year,m-1,d);
-        if(dt.getDay()!==6) continue;
-        const dsSab = ds(year,m,d);
-        const codeSab = (raw[dsSab]||[])[ei] || '0';
-        const lblSab = eq(codeSab)[0];
-        if(['LIB','COM'].includes(lblSab)) sabadosLibres++;
+    for(const dia of dias){
+      if(dia.date.getDay()===6){
+        if(['LIB','COM','J','JA'].includes(dia.lbl) || (!dia.isWork && dia.lbl!=='VAC' && dia.lbl!=='BAJ')) sabadosLibres++;
       }
     }
     if(sabadosLibres < CONVENIO_FINDE_CALIDAD_MIN){
@@ -5983,9 +5980,9 @@ function _detectarIncumplimientos(dept){
     if(dept !== 'operaciones'){
       for(const dia of dias){
         if(dia.lbl !== 'PAR') continue;
-        const hc = _hours[_hoKey(dept,ei,dia.dsStr)];
-        if(!hc || hc.break==null) continue;
-        const brkH = hc.break/60;
+        const brkMin = dia.breakMin != null ? dia.breakMin : ((_hours[_hoKey(dept,ei,dia.dsStr)]||{}).break);
+        if(brkMin == null) continue;
+        const brkH = brkMin/60;
         if(brkH > CONVENIO_PARTIDO_MAX_H){
           incidencias.push({
             tipo:'Descanso de jornada partida excesivo', severidad:'baja', empleado:nombre,
@@ -6000,9 +5997,9 @@ function _detectarIncumplimientos(dept){
     // Agrupamos por semana ISO para el caso <100% (máx. 3 días de 9h/semana).
     const diasAmpliadosPorSemana = {}; // 'YYYY-Www' -> [{dsStr,h}]
     for(const dia of dias){
-      if(!['MAN','TAR','PAR'].includes(dia.lbl)) continue;
+      if(!dia.isWork) continue;
       if(FESTIVOS_CIERRE[dia.dsStr]) continue;
-      const h = calcHorasDia(dept, ei, dia.code, dia.dsStr);
+      const h = dia.horasNum || calcHorasDia(dept, ei, dia.code, dia.dsStr);
       const esFestivoAp = FESTIVOS_AP.some(f=>f.date===dia.dsStr);
       if(esCien){
         const tope = esFestivoAp ? CONVENIO_AMPL_100_FESTIVO_H : CONVENIO_AMPL_100_NORMAL_H;
@@ -6046,8 +6043,8 @@ function _detectarIncumplimientos(dept){
     const festivosTrabajados = [];
     for(const f of FESTIVOS_AP){
       const code = (raw[f.date]||[])[ei] || '0';
-      const lbl = eq(code)[0];
-      if(['MAN','TAR','PAR'].includes(lbl)) festivosTrabajados.push(f.date);
+      const sInfFes = resolveShiftCell(dept, ei, code, f.date);
+      if(sInfFes.isWork) festivosTrabajados.push(f.date);
     }
     if(festivosTrabajados.length > MAX_FESTIVOS){
       incidencias.push({
@@ -6059,14 +6056,12 @@ function _detectarIncumplimientos(dept){
     for(const fecha of festivosTrabajados){
       const fWk = getISOWeek(fecha);
       const fYear = new Date(fecha+'T00:00').getFullYear();
-      // Buscar un día 'COM' en la semana anterior, misma semana, o siguiente
       let compensado = false;
       for(const dia of dias){
         if(dia.lbl !== 'COM') continue;
         const dWk = getISOWeek(dia.dsStr);
         const dYear = dia.date.getFullYear();
         if(dYear===fYear && Math.abs(dWk-fWk)<=1){ compensado = true; break; }
-        // Manejar el borde de cambio de año (semana 1 vs semana 52/53)
         if(Math.abs(dWk-fWk)>=51){ compensado = true; break; }
       }
       if(!compensado){
@@ -11691,16 +11686,7 @@ async function initSupabase() {
       for(const ch of _chData) {
         _hours[ch.hour_key] = {in:ch.time_in, out:ch.time_out, break:ch.break_min};
       }
-      // Migración: subir a Supabase los horarios que solo están en localStorage
-      const _toMig = Object.entries(_hours).filter(function(e){return !_supaKeys.has(e[0]);});
-      if(_toMig.length > 0) {
-        const _migRows = _toMig.map(function(e){
-          return {hour_key:e[0], time_in:e[1].in, time_out:e[1].out,
-                  break_min:e[1].break||30, updated_by:_currentUser||'migración',
-                  updated_at:new Date().toISOString()};
-        });
-        await _sb.from('custom_hours').upsert(_migRows, {onConflict:'hour_key'});
-      }
+      // Migración automática deshabilitada: Supabase es la fuente canónica de verdad
       localStorage.setItem('cq_hours', JSON.stringify(_hours));
     }
 
