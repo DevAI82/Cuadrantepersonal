@@ -122,6 +122,43 @@
       padding: 10px 14px;
       margin-bottom: 0;
     }
+    .btn-del-mini {
+      background: rgba(239, 83, 80, 0.2);
+      border: 1px solid rgba(239, 83, 80, 0.45);
+      color: #ff8a80;
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-del-mini:active {
+      background: #d32f2f;
+      color: #fff;
+    }
+    .btn-undo {
+      background: rgba(239, 83, 80, 0.16);
+      border: 1.5px solid rgba(239, 83, 80, 0.6);
+      color: #ff8a80;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-undo:active {
+      background: rgba(239, 83, 80, 0.4);
+      transform: scale(0.98);
+    }
     .today-box {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
@@ -204,6 +241,11 @@
     <!-- BOTÓN MANUAL: Workday SOLO se abre si tocas aquí -->
     <button id="btn-workday" class="btn-action btn-workday" onclick="openWorkdayManual()">
       <span>👉 Abrir Workday</span>
+    </button>
+
+    <!-- BOTÓN DIRECTO PARA DESHACER TOQUE FANTASMA -->
+    <button id="btn-undo-fantasma" class="btn-undo" onclick="eliminarUltimoFichaje()" style="display:none">
+      <span>🗑️ ¿Toque fantasma? Eliminar fichaje (<span id="undo-time-label">--:--:--</span>)</span>
     </button>
 
     <!-- SECCIÓN DE RECORDATORIOS PARA NO OLVIDAR FICHAR -->
@@ -289,21 +331,28 @@
       }
     }
 
-    // CARGAR Y PINTAR FICHAJES DE HOY CON CÁLCULO DE HORAS
+    let _ultimoFichajeId = null;
+    let _ultimoFichajeHora = '';
+    let _ultimoFichajeDate = '';
+
+    // CARGAR Y PINTAR FICHAJES DE HOY CON CÁLCULO DE HORAS Y BOTÓN DE BORRADO INDIVIDUAL
     async function cargarFichajesHoy(dateStr) {
       try {
         const res = await fetch(
           `${SUPA_URL}/rest/v1/change_log?employee=eq.JOSE%20MIGUEL%20OLMEDA&date=eq.${dateStr}&change_type=eq.fichaje_real&order=changed_at.asc`,
           { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
         );
-        if (!res.ok) return;
-        const logs = await res.json();
-        if (!logs || logs.length === 0) return;
-
         const panel = document.getElementById('today-panel');
         const listEl = document.getElementById('today-list');
         const countEl = document.getElementById('today-count');
         const totalEl = document.getElementById('today-total-hours');
+
+        if (!res.ok) return;
+        const logs = await res.json();
+        if (!logs || logs.length === 0) {
+          panel.style.display = 'none';
+          return;
+        }
 
         panel.style.display = 'block';
         countEl.textContent = `${logs.length}/4`;
@@ -312,7 +361,10 @@
         let html = '';
         logs.forEach((item, idx) => {
           const lbl = labels[idx] || `${idx + 1}️⃣ Fichaje`;
-          html += `<div class="today-row"><span>${lbl}</span><b style="color:#00e5ff">${item.new_value}</b></div>`;
+          html += `<div class="today-row">
+            <span>${lbl}: <b style="color:#00e5ff">${item.new_value}</b></span>
+            <button type="button" onclick="eliminarFichajePorId('${item.id}', '${item.new_value}', '${dateStr}')" class="btn-del-mini" title="Eliminar este fichaje de Supabase">🗑️ Borrar</button>
+          </div>`;
         });
         listEl.innerHTML = html;
 
@@ -332,6 +384,82 @@
         }
       } catch(e) {
         console.warn('Error cargando fichajes hoy:', e);
+      }
+    }
+
+    // ELIMINAR EL ÚLTIMO FICHAJE (BOTÓN TOQUE FANTASMA)
+    async function eliminarUltimoFichaje() {
+      if (!_ultimoFichajeId) {
+        alert('No hay ningún fichaje reciente para eliminar.');
+        return;
+      }
+      if (!confirm(`¿Eliminar de Supabase el fichaje de las ${_ultimoFichajeHora}?\n\n(Se borrará inmediatamente para solucionar el toque fantasma).`)) {
+        return;
+      }
+
+      const badge = document.getElementById('status-badge');
+      const text = document.getElementById('status-text');
+      text.textContent = 'Eliminando de Supabase...';
+
+      try {
+        const delRes = await fetch(`${SUPA_URL}/rest/v1/change_log?id=eq.${_ultimoFichajeId}`, {
+          method: 'DELETE',
+          headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+        });
+        if (delRes.ok) {
+          if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+          badge.className = 'status-badge';
+          badge.style.background = 'rgba(239, 83, 80, 0.22)';
+          badge.style.borderColor = 'rgba(239, 83, 80, 0.6)';
+          badge.style.color = '#ff8a80';
+          text.textContent = `❌ Fichaje eliminado (${_ultimoFichajeHora})`;
+
+          const undoBtn = document.getElementById('btn-undo-fantasma');
+          if (undoBtn) undoBtn.style.display = 'none';
+          const savedDate = _ultimoFichajeDate;
+          _ultimoFichajeId = null;
+          _ultimoFichajeHora = '';
+
+          await cargarFichajesHoy(savedDate);
+        } else {
+          alert('No se ha podido eliminar el registro de Supabase.');
+        }
+      } catch(e) {
+        alert('Error al conectar con Supabase: ' + e.message);
+      }
+    }
+
+    // ELIMINAR UN FICHAJE ESPECÍFICO POR ID
+    async function eliminarFichajePorId(id, hora, dateStr) {
+      if (!confirm(`¿Deseas eliminar de Supabase el fichaje de las ${hora}?`)) {
+        return;
+      }
+      try {
+        const delRes = await fetch(`${SUPA_URL}/rest/v1/change_log?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+        });
+        if (delRes.ok) {
+          if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+          const badge = document.getElementById('status-badge');
+          const text = document.getElementById('status-text');
+          badge.className = 'status-badge';
+          badge.style.background = 'rgba(239, 83, 80, 0.22)';
+          badge.style.borderColor = 'rgba(239, 83, 80, 0.6)';
+          badge.style.color = '#ff8a80';
+          text.textContent = `❌ Fichaje eliminado (${hora})`;
+
+          if (_ultimoFichajeId === id) {
+            const undoBtn = document.getElementById('btn-undo-fantasma');
+            if (undoBtn) undoBtn.style.display = 'none';
+            _ultimoFichajeId = null;
+          }
+          await cargarFichajesHoy(dateStr);
+        } else {
+          alert('Error al eliminar de Supabase.');
+        }
+      } catch(e) {
+        alert('Error al comunicar con Supabase: ' + e.message);
       }
     }
 
@@ -386,7 +514,7 @@
         }
 
         // Insertar el fichaje actual más reciente
-        await fetch(`${SUPA_URL}/rest/v1/change_log`, {
+        const postRes = await fetch(`${SUPA_URL}/rest/v1/change_log`, {
           method: 'POST',
           headers: {
             'apikey': SUPA_KEY,
@@ -405,8 +533,28 @@
           })
         });
 
+        if (postRes.ok) {
+          const inserted = await postRes.json();
+          if (inserted && inserted.length > 0) {
+            _ultimoFichajeId = inserted[0].id;
+            _ultimoFichajeHora = timeStr;
+            _ultimoFichajeDate = dateStr;
+
+            // Mostrar botón para deshacer toque fantasma
+            const undoBtn = document.getElementById('btn-undo-fantasma');
+            const undoLabel = document.getElementById('undo-time-label');
+            if (undoBtn && undoLabel) {
+              undoLabel.textContent = timeStr;
+              undoBtn.style.display = 'flex';
+            }
+          }
+        }
+
         if (spinner) spinner.style.display = 'none';
         badge.className = 'status-badge';
+        badge.style.background = '';
+        badge.style.borderColor = '';
+        badge.style.color = '';
         text.textContent = reemplazado 
           ? `✓ Fichaje actualizado: ${timeStr}`
           : `✓ Fichaje registrado: ${timeStr}`;
