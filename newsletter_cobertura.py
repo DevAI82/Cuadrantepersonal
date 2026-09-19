@@ -69,6 +69,7 @@ SHIFT_COLORS = {
     'VAC':    ('#e8eaf6', '#3f51b5'),
     'C':      ('#fafafa', '#bdbdbd'),
     'BAJ':    ('#ffebee', '#c62828'),
+    'E':      ('#ffebee', '#c62828'),
     'SPS':    ('#ffebee', '#c62828'),
     'FOR':    ('#f3e5f5', '#6a1b9a'),
     'AP':     ('#fff8e1', '#f57f17'),

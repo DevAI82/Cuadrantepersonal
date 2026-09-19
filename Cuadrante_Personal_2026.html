@@ -5883,7 +5883,7 @@ function _clType(code){
   if(code==='V') return 'Vacaciones';
   if(code==='L') return 'Día libre';
   if(code==='C') return 'Compensado';
-  if(code==='E') return 'Baja/Enfermedad';
+  if(code==='E'||code==='BAJ') return 'Baja/Enfermedad';
   if(code==='FOR') return 'Formación';
   if(code==='PER') return 'Permiso';
   if(code==='SPS') return 'Sin contrato';
@@ -6398,24 +6398,20 @@ function cajaAlerts(y,m,d){
   const working=l=>['MAN','TAR','PAR','COM'].includes(l);
   const manWorking=l=>['MAN','PAR','COM'].includes(l);
   const tarWorking=l=>['TAR','PAR'].includes(l);
-  // Regla 1: Carla o Isabel deben cubrir mañana
+  // Regla CAJA: Siempre debe haber alguno de los 3 (Carla, Isabel o Pedro) trabajando en horario de mañana
   const carlaIdx = EMPS().findIndex(n=>n.toUpperCase().includes('CARLA'));
   const isabelIdx = EMPS().findIndex(n=>n.toUpperCase().includes('ISABEL'));
   const pedroIdx = EMPS().findIndex(n=>n.toUpperCase().includes('PEDRO'));
-  const carlaMan = carlaIdx!==-1 && manWorking(lbl(carlaIdx));
-  const isabelMan = isabelIdx!==-1 && manWorking(lbl(isabelIdx));
-  if(!carlaMan&&!isabelMan) a.push('⚠️ CAJA: Ni Carla ni Isabel cubren el turno de mañana');
-  // Regla 2: Al menos 1 cajero de mañana
   const cajaMan = [carlaIdx, isabelIdx, pedroIdx].filter(i=>i!==-1).some(i=>manWorking(lbl(i)));
-  if(!cajaMan) a.push('⚠️ CAJA: Ningún cajero cubre mañana (Carla/Pedro/Isabel)');
-  // Regla 3: Mínimo por turno en todo el dpto (mín. 3 por turno)
+  if(!cajaMan) a.push('⚠️ CAJA: Ningún cajero cubre el turno de mañana (Carla/Isabel/Pedro)');
+  // Regla 2: Mínimo por turno en todo el dpto (mín. 3 por turno)
   const allIdx = Array.from({length:N()}, (_,i)=>i);
   const manCnt = allIdx.filter(i=>manWorking(lbl(i))).length;
   const tarCnt = allIdx.filter(i=>tarWorking(lbl(i))).length;
   if(manCnt<3) a.push('⚠️ CAJA-SAC: Solo '+manCnt+' persona'+(manCnt===1?'':'s')+' de mañana (mín. 3)');
   if(tarCnt<3) a.push('⚠️ CAJA-SAC: Solo '+tarCnt+' persona'+(tarCnt===1?'':'s')+' de tarde (mín. 3)');
-  // Regla 4: Mínimo 2 personas del SAC trabajando
-  const sacIdx = allIdx.filter(i=>i!==carlaIdx && i!==isabelIdx);
+  // Regla 3: Mínimo 2 personas del SAC trabajando
+  const sacIdx = allIdx.filter(i=>i!==carlaIdx && i!==isabelIdx && i!==pedroIdx);
   const sacCnt = sacIdx.filter(i=>working(lbl(i))).length;
   if(sacCnt<2) a.push('⚠️ SAC: Solo '+sacCnt+' persona'+(sacCnt===1?'':'s')+' trabajando (mín. 2)');
   return a;
@@ -6934,8 +6930,8 @@ function renderReglas(){
             'Carla: fija de ma\u00f1ana 9:30\u201315:30. Cada 2 s\u00e1bados hace tarde 14:00\u201320:00.',
             'Pedro Luis: rotativo. Ma\u00f1ana 9:30\u201316:00 / Tarde 16:00\u201322:00.',
             'Isabel: rotativo. Ma\u00f1ana 8:30\u201315:40 / Tarde 15:15\u201322:15.',
-            'Carla o Isabel deben estar siempre al menos una de las dos en turno de ma\u00f1ana.',
-            'El sistema genera alerta cuando ning\u00fan cajero cubre la ma\u00f1ana o cuando ni Carla ni Isabel est\u00e1n en turno de ma\u00f1ana.'
+            'Siempre debe haber alguno de los 3 (Carla, Isabel o Pedro Luis) trabajando en horario de ma\u00f1ana.',
+            'El sistema genera alerta cuando ning\u00fan cajero cubre el turno de ma\u00f1ana.'
           ]
         },
         {
@@ -7473,12 +7469,15 @@ function buildIncidenciasPage(sy,sm){
       NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
       return out.join(', ');
     }
-    if(activeDept==='omnicanal'||activeDept==='cajasac'){
+    if(activeDept==='omnicanal'){
       const {man,tar}=countDay(y,m,d);
       const alerts=[];
       if(man<3) alerts.push('Mañana: '+man+' pers.');
       if(tar<3) alerts.push('Tarde: ' +tar+' pers.');
       return alerts.join(' | ');
+    }
+    if(activeDept==='cajasac'){
+      return cajaAlerts(y,m,d).join(' | ')||'—';
     }
     if(activeDept==='muelle'){
       const ma=muelleAlerts(y,m,d);
@@ -7492,7 +7491,7 @@ function buildIncidenciasPage(sy,sm){
   function criterioLabel(){
     if(activeDept==='operaciones') return 'Vicente y Elena coinciden sin trabajar el mismo día';
     if(activeDept==='omnicanal') return 'cobertura < mínimo (Valle: 3 pers. · Pico: 5 pers.) en franja 10:00-22:00';
-    if(activeDept==='cajasac') return 'menos de 3 personas en algún turno (M o T)';
+    if(activeDept==='cajasac') return 'mín. 1 cajero (Carla/Isabel/Pedro) de mañana · mín. 3 M/T · mín. 2 SAC';
     if(activeDept==='muelle') return 'L-V: menos de 4 personas / Sáb: menos de 3 + alertas de subgrupos (POSTVENTA, MOZOS, RECEPCIÓN)';
     return '';
   }
@@ -9254,7 +9253,8 @@ function buildInformeHTML(dk){
 
   function criterioLabel(){
     if(activeDept==='operaciones') return 'Vicente y Elena coinciden sin trabajar el mismo día';
-    if(activeDept==='omnicanal'||activeDept==='cajasac') return 'menos de 3 personas en algún turno (M o T)';
+    if(activeDept==='omnicanal') return 'menos de 3 personas en algún turno (M o T)';
+    if(activeDept==='cajasac') return 'mín. 1 cajero (Carla/Isabel/Pedro) de mañana · mín. 3 M/T · mín. 2 SAC';
     if(activeDept==='muelle') return 'Lunes 06:00–09:30: mín 2 · 06:00–07:30: mín 3 (Mar–Sáb) · 07:30–13:30: mín 4 (Mar-V)/3 (Sáb) · alertas de subgrupos';
     return '';
   }
