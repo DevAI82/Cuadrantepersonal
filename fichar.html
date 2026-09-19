@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fichar Workday — Jose Miguel Olmeda</title>
+  <link rel="icon" type="image/jpeg" href="logo_fichaje.jpg">
+  <link rel="apple-touch-icon" href="logo_fichaje.jpg">
+  <meta name="theme-color" content="#1a237e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .logo-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 26px;
+      box-shadow: 0 8px 24px rgba(0, 229, 255, 0.3);
+      margin-bottom: 20px;
+      border: 2px solid rgba(0, 229, 255, 0.5);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      background: rgba(46, 125, 50, 0.2);
+      color: #81c784;
+      border: 1px solid rgba(76, 175, 80, 0.4);
+    }
+    .status-badge.loading {
+      background: rgba(25, 118, 210, 0.2);
+      color: #90caf9;
+      border-color: rgba(33, 150, 243, 0.4);
+    }
+    .time-display {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #00e5ff;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 10px rgba(0, 229, 255, 0.4);
+    }
+    .date-display {
+      font-size: 0.85rem;
+      color: #b0bec5;
+      margin-bottom: 24px;
+    }
+    .btn-workday {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-workday:active {
+      transform: scale(0.97);
+    }
+    .subtitle {
+      font-size: 0.72rem;
+      color: #78909c;
+      margin-top: 18px;
+      line-height: 1.4;
+    }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <img src="logo_fichaje.jpg" alt="Logo Fichaje" class="logo-img">
+    
+    <div id="status-badge" class="status-badge loading">
+      <div class="spinner" id="spinner"></div>
+      <span id="status-text">Registrando en Supabase...</span>
+    </div>
+
+    <div class="time-display" id="clock">--:--:--</div>
+    <div class="date-display" id="date-str">Cargando...</div>
+
+    <button id="btn-wd" class="btn-workday" onclick="openWorkday()">
+      Abrir Workday ahora
+    </button>
+
+    <div class="subtitle">
+      Jose Miguel Olmeda &middot; Operaciones<br>
+      Sincronizado con Cuadrante Personal 2026
+    </div>
+  </div>
+
+  <script>
+    const SUPA_URL = 'https://unrpssxvivjhehamkfoe.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVucnBzc3h2aXZqaGVoYW1rZm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMjI3MzAsImV4cCI6MjA5NTY5ODczMH0.xV8YS4uLxE3WDCjO2TNRxSfRgUUBczYzS0X0Z1F3Ufg';
+
+    function openWorkday() {
+      // 1. Android Intent para abrir la app instalada de Workday
+      const intentUrl = 'intent://#Intent;package=com.workday.workdroidapp;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end';
+      // 2. Fallback estándar URL scheme
+      const schemeUrl = 'workday://';
+      
+      try {
+        window.location.href = intentUrl;
+        setTimeout(() => {
+          window.location.href = schemeUrl;
+        }, 300);
+      } catch(e) {
+        window.location.href = schemeUrl;
+      }
+    }
+
+    async function registrarFichaje() {
+      const now = new Date();
+      if (navigator.vibrate) navigator.vibrate([50]);
+
+      const pad = n => String(n).padStart(2, '0');
+      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+      document.getElementById('clock').textContent = timeStr;
+      const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('date-str').textContent = now.toLocaleDateString('es-ES', opts);
+
+      try {
+        const res = await fetch(`${SUPA_URL}/rest/v1/change_log`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPA_KEY,
+            'Authorization': `Bearer ${SUPA_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            username: 'mobile_shortcut',
+            department: 'operaciones',
+            employee: 'JOSE MIGUEL OLMEDA',
+            date: dateStr,
+            change_type: 'fichaje_real',
+            new_value: timeStr,
+            changed_at: now.toISOString()
+          })
+        });
+
+        const badge = document.getElementById('status-badge');
+        const text = document.getElementById('status-text');
+        const spinner = document.getElementById('spinner');
+
+        if (res.ok) {
+          badge.className = 'status-badge';
+          if (spinner) spinner.style.display = 'none';
+          text.textContent = '✓ Fichaje enviado a Supabase';
+        } else {
+          badge.className = 'status-badge';
+          badge.style.background = 'rgba(239, 83, 80, 0.2)';
+          badge.style.color = '#ef5350';
+          if (spinner) spinner.style.display = 'none';
+          text.textContent = 'Guardado localmente';
+        }
+      } catch (err) {
+        console.warn('Offline or fetch error:', err);
+      }
+
+      // Abrir Workday automáticamente tras 400ms
+      setTimeout(openWorkday, 400);
+    }
+
+    window.addEventListener('DOMContentLoaded', registrarFichaje);
+  </script>
+</body>
+</html>
