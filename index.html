@@ -4411,6 +4411,16 @@ body.theme-dark .td-emp .emp-ape {
 body.theme-dark .td-emp .emp-num {
   color: #93c5fd !important;
 }
+body.theme-dark .emp-pct.pct-100 {
+  background: rgba(46, 125, 50, 0.25) !important;
+  color: #a5d6a7 !important;
+  border: 1px solid rgba(76, 175, 80, 0.45) !important;
+}
+body.theme-dark .emp-pct.pct-part {
+  background: rgba(230, 81, 0, 0.25) !important;
+  color: #ffb74d !important;
+  border: 1px solid rgba(255, 183, 77, 0.45) !important;
+}
 body.theme-dark .shift.wknd {
   background: #030712 !important;
   color: #6b7280 !important;
@@ -4607,7 +4617,11 @@ th,td{border:1px solid #e0e0e0;text-align:center;font-size:.75rem}
 .th-day .dd{font-size:.85rem}
 .td-emp{text-align:left;padding:6px 8px;font-weight:700;background:#e8eaf6;font-size:.83rem;white-space:nowrap}
 .emp-ape{display:block}
-.emp-num{display:block;font-size:.62rem;font-weight:600;color:#5c6bc0;letter-spacing:.2px;margin-top:1px}
+.emp-num{display:inline-block;font-size:.62rem;font-weight:600;color:#5c6bc0;letter-spacing:.2px}
+.emp-sub{display:flex;align-items:center;gap:5px;margin-top:2px}
+.emp-pct{display:inline-block;font-size:.60rem;font-weight:700;padding:1px 5px;border-radius:4px;line-height:1.2;white-space:nowrap;letter-spacing:.2px}
+.emp-pct.pct-100{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}
+.emp-pct.pct-part{background:#fff8e1;color:#d84315;border:1px solid #ffcc80}
 .shift{padding:3px 1px;font-weight:700;font-size:.73rem;white-space:nowrap}
 .shift.wknd{background:#eceff1!important;color:#b0bec5!important}
 .s-MAN{background:#b3e5fc!important;color:#01579b!important;font-weight:700}
@@ -4878,12 +4892,39 @@ function apellido(nombreCompleto){
   if(parts.length===2) return parts[0]+' '+parts[1];
   return parts[0]||'';
 }
-// Celda de empleado: apellido a la izquierda + nº de empleado a la derecha,
-// en la misma celda (evita tener que ajustar colspans en todas las tablas).
+// (JORNADA_MAX_H definido arriba para acceso global)
+
+function _pctJornada(dept, ei){
+  const max = (JORNADA_MAX_H[dept]||[])[ei];
+  if(!max) return 1.0;
+  return max / 1770;
+}
+
+function _pctJornadaStr(dept, ei){
+  const max = (JORNADA_MAX_H[dept]||[])[ei];
+  if(!max) return '100%';
+  const pct = (max / 1770) * 100;
+  if(pct >= 99.5) return '100%';
+  const r1 = Math.round(pct * 10) / 10;
+  return (r1 % 1 === 0 ? r1.toFixed(0) : r1.toFixed(1)) + '%';
+}
+
+function _pctBadgeHTML(dept, ei){
+  const max = (JORNADA_MAX_H[dept]||[])[ei];
+  const isFull = !max || max >= 1770;
+  const pctStr = _pctJornadaStr(dept, ei);
+  const cls = isFull ? 'pct-100' : 'pct-part';
+  const title = isFull ? ('Jornada completa: ' + (max||1770) + 'h/año (100%)') : ('Jornada parcial: ' + max + 'h/año (' + pctStr + ')');
+  return '<span class="emp-pct ' + cls + '" title="' + title + '">' + pctStr + '</span>';
+}
+
+// Celda de empleado: apellido arriba + (nº de empleado y % de jornada abajo).
 function empCellHTML(ei){
   const num = EMP_NUMBER[activeDept+'|'+ei] || '';
   const nomApe = apellido(EMPS()[ei]);
-  return '<span class="emp-ape">' + nomApe + '</span>' + (num ? '<span class="emp-num">Nº ' + num + '</span>' : '');
+  const badge = _pctBadgeHTML(activeDept, ei);
+  const numHtml = num ? '<span class="emp-num">Nº ' + num + '</span>' : '';
+  return '<span class="emp-ape">' + nomApe + '</span><div class="emp-sub">' + numHtml + badge + '</div>';
 }
 
 const EQ = {
@@ -5939,11 +5980,7 @@ const CONVENIO_FINDE_CALIDAD_MIN = 9; // regla 2
 const CONVENIO_AMPL_100_FESTIVO_H = 9, CONVENIO_AMPL_100_NORMAL_H = 8; // regla 6, 100% jornada
 const CONVENIO_AMPL_PARCIAL_H = 9, CONVENIO_AMPL_PARCIAL_MAXDIAS_SEM = 3; // regla 6, <100% jornada
 
-function _pctJornada(dept, ei){
-  const max = (JORNADA_MAX_H[dept]||[])[ei];
-  if(!max) return 1;
-  return max / 1770;
-}
+// (_pctJornada definido arriba)
 
 // Recorre TODO el año 2026 de un departamento y detecta incidencias.
 function _detectarIncumplimientos(dept){
@@ -6640,6 +6677,11 @@ function renderWeekly(){
       
       let _compBadgeW='';
       let _cellTitle=code&&code!=='0'&&code!=='--'?(code+' | '+(sInf.horario||sInf.text)+(sInf.horasNum>0?' | ~'+sInf.horasNum+'h':'')):'';
+      if(_isAmpl){
+        const _hHab = getHabitualHours(activeDept, ei);
+        const _diffH = Math.round((sInf.horasNum - _hHab) * 10) / 10;
+        _cellTitle = '⏱️ Horario ampliado: ~' + sInf.horasNum + 'h (+' + _diffH + 'h sobre habitual de ' + _hHab + 'h)' + (_cellTitle ? ' | ' + _cellTitle : '');
+      }
       if(lbl==='COM'||code==='C'){
         const cf=getCompFestivo(activeDept,ei,_hoDs);
         if(cf){
@@ -7205,7 +7247,7 @@ function renderReglas(){
   h += `<div style="flex:0 0 32px;height:32px;background:#6a1b9a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem">2</div>`;
   h += `<div style="flex:1;min-width:220px">`;
   h += `<div style="font-weight:800;color:#6a1b9a;font-size:.88rem;margin-bottom:3px">Máximo 3 días con horario ampliado por semana</div>`;
-  h += `<div style="font-size:.78rem;color:#546e7a;margin-bottom:10px">Un día cuenta como H-Ampliado cuando el horario personalizado supera en más de 50 minutos la jornada base precargada. Máximo 3 días ampliados en la misma semana. Se muestran en morado en la vista semanal.</div>`;
+  h += `<div style="font-size:.78rem;color:#546e7a;margin-bottom:10px">Un día cuenta como H-Ampliado cuando la jornada trabajada supera en al menos 1 hora el horario habitual del trabajador. Máximo 3 días ampliados en la misma semana. Se identifican con un recuadro morado en las vistas semanal, mensual y anual.</div>`;
   if(_r2KO.length){
     h += `<div style="display:flex;gap:6px;flex-wrap:wrap">`;
     _r2KO.forEach(r => {
@@ -7533,7 +7575,7 @@ function renderMonthBlock(y,m){
       const lbl=sInf.lbl, cls=sInf.cls, dw=dow(y,m,d);
       const _mCl=isClosedDay(_mDsStr,dw);
       const _mAmpl=!_mCl&&isHoraAmpliada(activeDept,ei,code,_mDsStr);
-      const _mAmplSt=_mAmpl?'box-shadow:inset 0 0 0 1.5px #8e24aa;position:relative;':'';
+      const _mAmplSt=_mAmpl?'box-shadow:inset 0 0 0 2px #8e24aa;position:relative;':'';
       const _mFr=!_mCl?fReal(activeDept,EMPS()[ei],_mDsStr):null;
       const _mTh=!_mCl?sInf.horasNum:0;
       const _mWHasFR=!!(FICHAJE_REAL[activeDept]&&FICHAJE_REAL[activeDept][EMPS()[ei]]);
@@ -7542,11 +7584,20 @@ function renderMonthBlock(y,m){
         ?'<div style="font-size:.48rem;font-weight:800;color:#0d47a1;line-height:1.3">'+Math.round(_mFr*10)/10+'h</div>'
         :(!(_mWHasFR&&_mIsPast)&&_mTh>0?'<div style="font-size:.48rem;color:'+(cls==='s-TAR'?'#e8f5e9':'#0d47a1')+';line-height:1.3">~'+_mTh+'h</div>':'')):'';
       let _mCompDiv='';
+      let _mTitle=!_mCl&&code&&code!=='0'&&code!=='--'?(code+' | '+(sInf.horario||sInf.text)+(_mTh>0?' | ~'+_mTh+'h':'')):'';
+      if(_mAmpl){
+        const _mHab = getHabitualHours(activeDept, ei);
+        const _mDiffH = Math.round((_mTh - _mHab) * 10) / 10;
+        _mTitle = '⏱️ Horario ampliado: ~' + _mTh + 'h (+' + _mDiffH + 'h sobre habitual de ' + _mHab + 'h)' + (_mTitle ? ' | ' + _mTitle : '');
+      }
       if((lbl==='COM'||code==='C')&&!_mCl){
         const cf=getCompFestivo(activeDept,ei,_mDsStr);
-        if(cf) _mCompDiv='<div style="font-size:.46rem;font-weight:800;color:#bf360c;line-height:1">por '+cf.label+'</div>';
+        if(cf){
+          _mCompDiv='<div style="font-size:.46rem;font-weight:800;color:#bf360c;line-height:1">por '+cf.label+'</div>';
+          _mTitle+=' | Compensa festivo '+cf.label+' ('+cf.date+')';
+        }
       }
-      h+='<td class="shift '+(_mCl?'wknd':cls+((!_mCl)?' ed-cell':''))+'"'+(!_mCl?' data-dept="'+activeDept+'" data-ds="'+_mDsStr+'" data-ei="'+ei+'"':'')+' style="'+_mAmplSt+';padding:2px 1px;line-height:1.2">'+(_mCl?'':'<div style="font-size:.62rem;font-weight:800">'+(sInf.text||lbl)+'</div>'+_mHrsDiv+_mCompDiv)+'</td>';
+      h+='<td class="shift '+(_mCl?'wknd':cls+((!_mCl)?' ed-cell':''))+'"'+(!_mCl?' data-dept="'+activeDept+'" data-ds="'+_mDsStr+'" data-ei="'+ei+'"':'')+' style="'+_mAmplSt+';padding:2px 1px;line-height:1.2"'+(_mTitle?' title="'+_mTitle+'"':'')+'>'+(_mCl?'':'<div style="font-size:.62rem;font-weight:800">'+(sInf.text||lbl)+'</div>'+_mHrsDiv+_mCompDiv)+'</td>';
     }
     const _fRMon=fRealMonth(activeDept,EMPS()[ei],y,m);
     h+='<td style="text-align:center;padding:2px;font-size:.72rem;font-weight:800;min-width:48px;position:sticky;right:0;border-left:2px solid #90caf9;'+(_fRMon!==null?'color:#0d47a1;background:#e3f2fd':'color:#bdbdbd;background:#fafafa')+'">'+(_fRMon!==null?_fRMon+'h':'—')+'</td>';
@@ -7690,15 +7741,24 @@ function renderAnnual(){
         const dw=dow(2026,mo,d), code=(RAW()[ds(2026,mo,d)]||[])[ei]||'0';
         const [lbl,cls]=omniEduardoEq(ei,code);
         const _aCl=isClosedDay(ds(2026,mo,d),dw);
+        const _aDsStr=ds(2026,mo,d);
+        const _aAmpl=!_aCl&&isHoraAmpliada(activeDept,ei,code,_aDsStr);
+        const _aAmplSt=_aAmpl?'box-shadow:inset 0 0 0 2px #8e24aa;position:relative;':'';
         let _aTitle='', _aContent=_aCl||lbl==='--'?'':lbl;
         if((lbl==='COM'||code==='C')&&!_aCl){
-          const cf=getCompFestivo(activeDept,ei,ds(2026,mo,d));
+          const cf=getCompFestivo(activeDept,ei,_aDsStr);
           if(cf){
             _aTitle=' title="Compensa festivo '+cf.label+' ('+cf.date+')"';
             _aContent='C<span style="font-size:.5em;display:block;line-height:.85;color:#bf360c">'+cf.label+'</span>';
           }
         }
-        h+='<td class="shift'+(_aCl?' wknd':' '+cls+' ed-cell')+'"'+(!_aCl?' data-dept="'+activeDept+'" data-ds="'+ds(2026,mo,d)+'" data-ei="'+ei+'"':'')+_aTitle+'>'+_aContent+'</td>';
+        if(_aAmpl && !_aTitle){
+          const _aHTrab = calcHorasDia(activeDept, ei, code, _aDsStr);
+          const _aHab = getHabitualHours(activeDept, ei);
+          const _aDiffH = Math.round((_aHTrab - _aHab) * 10) / 10;
+          _aTitle=' title="⏱️ Horario ampliado: ~' + _aHTrab + 'h (+' + _aDiffH + 'h sobre habitual de ' + _aHab + 'h | ' + code + ')"';
+        }
+        h+='<td class="shift'+(_aCl?' wknd':' '+cls+' ed-cell')+'"'+(!_aCl?' data-dept="'+activeDept+'" data-ds="'+_aDsStr+'" data-ei="'+ei+'"':'')+' style="'+_aAmplSt+'"'+_aTitle+'>'+_aContent+'</td>';
       }
       h+='</tr>';
     }
@@ -7930,8 +7990,8 @@ function renderEmpleado(){
   h+='<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">';
   h+='<div style="font-size:1.1rem;font-weight:800;color:#1a237e">Calendario individual</div>';
   h+='<select onchange="S().curEmp=parseInt(this.value);renderEmpleado()" style="padding:7px 14px;border:2px solid #3949ab;border-radius:8px;font-size:.9rem;font-weight:600;color:#1a237e;background:#fff;cursor:pointer">';
-  for(let i=0;i<N();i++) h+='<option value="'+i+'"'+(i===ei?' selected':'')+'>'+EMPS()[i]+'</option>';
-  h+='</select></div>';
+  for(let i=0;i<N();i++) h+='<option value="'+i+'"'+(i===ei?' selected':'')+'>'+EMPS()[i]+' ('+_pctJornadaStr(activeDept, i)+')</option>';
+  h+='</select> <span style="margin-left:8px">'+_pctBadgeHTML(activeDept, ei)+'</span></div>';
   const chips=[['Mananas',totals.MAN,'s-MAN'],['Tardes',totals.TAR,'s-TAR'],['Partidos',totals.PAR,'s-PAR'],['Libres',totals.LIB,'s-LIB'],['Vacaciones',totals.VAC,'s-VAC'],['Compensados',totals.COM,'s-COM'],['Bajas/Enf.',totals.BAJ,'s-ENF'],['Sin Contrato',totals.SPS,'s-SPS']];
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">';
   for(const ch of chips){if(!ch[1]) continue; h+='<div class="'+ch[2]+'" style="padding:8px 14px;border-radius:8px;font-size:.82rem;font-weight:700">'+ch[0]+': <span style="font-size:1.1rem">'+ch[1]+'</span></div>';}
@@ -8956,7 +9016,7 @@ function renderFestivos(){
     const bclr=over?'#c62828':(nW>=MAX_FESTIVOS?'#e65100':'#2e7d32');
     h+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)">';
     h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">';
-    h+='<div style="font-size:1rem;font-weight:800;color:#1a237e">'+emp.name+'</div>';
+    h+='<div style="font-size:1rem;font-weight:800;color:#1a237e">'+emp.name+' '+_pctBadgeHTML(activeDept, ei)+'</div>';
     h+='<span style="background:'+bbg+';color:'+bclr+';padding:4px 12px;border-radius:12px;font-size:.78rem;font-weight:700">'+nW+' / '+MAX_FESTIVOS+' festivos trabajados'+(over?' EXCEDE LIMITE':'')+'</span>';
     if(nC>0) h+='<span style="background:#e3f2fd;color:#1565c0;padding:4px 12px;border-radius:12px;font-size:.78rem;font-weight:700">'+nC+' compensacion'+(nC!==1?'es':'')+' usada'+(nC!==1?'s':'')+'</span>';
     if(pend>0) h+='<span style="background:#fce4ec;color:#c62828;padding:4px 12px;border-radius:12px;font-size:.78rem;font-weight:700">'+pend+' pendiente'+(pend!==1?'s':'')+' de compensar</span>';
@@ -11272,17 +11332,34 @@ function calcHorasDia(dept,ei,code,dsStr){
   return Math.round(rawH*100)/100;
 }
 
-function isHoraAmpliada(dept,ei,code,dsStr){
-  if(!dsStr||!_hoHas(dept,ei,dsStr)) return false;
-  const lbl=eq(code)[0];
+function getHabitualHours(dept, ei){
+  const def = HORARIOS_DEF[dept + '|' + ei];
+  if(def){
+    // Turno habitual estándar de diario: mañana o tarde (evitando 'PAR' si es turno extendido)
+    const sch = def.MAN || def.TAR || def.PAR;
+    if(sch){
+      const [ih, im] = sch[0].split(':').map(Number);
+      const [oh, om] = sch[1].split(':').map(Number);
+      const durMin = (oh * 60 + om) - (ih * 60 + im);
+      const brk = sch[2] != null ? sch[2] : 0;
+      return Math.round(((durMin - brk) / 60) * 10) / 10;
+    }
+  }
+  const maxAnual = (JORNADA_MAX_H[dept] || [])[ei] || 1770;
+  return Math.round((maxAnual / 1770 * 7.0) * 10) / 10;
+}
+
+function isHoraAmpliada(dept, ei, code, dsStr){
+  if(!code || code === '0' || code === '--') return false;
+  const lbl = eq(code)[0];
   if(!['MAN','TAR','PAR'].includes(lbl)) return false;
-  const hc=_hours[_hoKey(dept,ei,dsStr)];
-  const[ih,im]=hc.in.split(':').map(Number);
-  const[oh,om]=hc.out.split(':').map(Number);
-  const customMin=(oh*60+om)-(ih*60+im);
-  const def=(HORARIOS_DEF[dept+'|'+ei]||{})[lbl];
-  if(!def) return false;
-  return(customMin-(timeToMin(def[1])-timeToMin(def[0])))>50;
+  
+  const hTrab = calcHorasDia(dept, ei, code, dsStr);
+  if(hTrab <= 0) return false;
+  
+  const hHab = getHabitualHours(dept, ei);
+  // Al menos 1 hora más de su horario habitual (ej: 6h habitual -> 7h o más)
+  return (hTrab - hHab) >= 0.95;
 }
 
 function calcResumenTrabajador(dept){
@@ -11442,7 +11519,7 @@ function renderResumenTrabajador(){
     const diffStr=(r.horas.diff>=0?'+':'')+r.horas.diff+'h';
     const calStr=r.cal.obj>0?r.cal.tot+'/'+r.cal.obj:String(r.cal.tot);
     h+='<tr style="background:'+bg+';border-bottom:0.5px solid #f0f0f0'+(nAlerts>0?';border-left:3px solid #ef5350':'')+'">';
-    h+='<td style="padding:7px 12px;font-weight:700;color:'+dc+';white-space:nowrap">'+'<span onclick="goToEmpleado('+r.ei+')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" title="Ver calendario de '+r.name+'">'+r.name+'</span>'+'<span onclick="goToEmpleado('+r.ei+')" style="cursor:pointer;font-size:.65rem;color:#90a4ae;margin-left:5px" title="Ir al calendario">&#128197;</span>'+'</td>';
+    h+='<td style="padding:7px 12px;font-weight:700;color:'+dc+';white-space:nowrap">'+'<span onclick="goToEmpleado('+r.ei+')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" title="Ver calendario de '+r.name+'">'+r.name+'</span> '+_pctBadgeHTML(dept, r.ei)+'<span onclick="goToEmpleado('+r.ei+')" style="cursor:pointer;font-size:.65rem;color:#90a4ae;margin-left:5px" title="Ir al calendario">&#128197;</span>'+'</td>';
     // Alertas badge
     if(nAlerts>0) h+='<td style="padding:6px 10px;text-align:center"><span style="background:#ffebee;color:#c62828;border-radius:10px;padding:2px 8px;font-size:.7rem;font-weight:700">&#9888; '+nAlerts+'</span></td>';
     else h+='<td style="padding:6px 10px;text-align:center"><span style="background:#e8f5e9;color:#2e7d32;border-radius:10px;padding:2px 8px;font-size:.7rem;font-weight:700">&#10003;</span></td>';
@@ -11457,7 +11534,8 @@ function renderResumenTrabajador(){
     h+=tdOK(r.horas.tot+'h');
     h+=tdNE(r.horas.max+'h');
     h+=(aH?tdAL(diffStr,'Exceso: debe compensar '+r.horas.diff+'h'):tdOK(diffStr));
-    h+=(aA?tdAL(r.hAmpl.maxWeek+'/3 sem',''+r.hAmpl.weeksKO+' semana'+(r.hAmpl.weeksKO!==1?'s':'')+' con >3 días ampliados'):tdOK(r.hAmpl.maxWeek>0?r.hAmpl.maxWeek+'/3':'0'));
+    const _amplTxt = r.hAmpl.tot > 0 ? (r.hAmpl.tot + ' d (' + r.hAmpl.maxWeek + '/3 sem)') : '0';
+    h+=(aA?tdAL(_amplTxt,''+r.hAmpl.weeksKO+' semana'+(r.hAmpl.weeksKO!==1?'s':'')+' con >3 días ampliados (total: '+r.hAmpl.tot+' días)'):tdOK(_amplTxt));
     h+=(aCal?tdAL(calStr,'Faltan '+(r.cal.obj-r.cal.tot)+' sáb. libres'):tdOK(calStr));
     h+=(aD?tdAL(d12,''+d12+' violaciones'):tdOK(d12===0?'&#10003;':d12));
     h+='</tr>';
@@ -11598,7 +11676,7 @@ function renderResumenTrabajador(){
 
     // H.Ampliado (regla: máx. 3 días ampliados por semana)
     const ampAlertStyle=aAmpl?'background:#fff5f5;border-left:3px solid #ef5350;':'';
-    const ampCol=aAmpl?'#c62828':r.hAmpl.maxWeek>0?'#8e24aa':'#90a4ae';
+    const ampCol=aAmpl?'#c62828':r.hAmpl.tot>0?'#8e24aa':'#90a4ae';
     // 3 dots = límite de 3 días por semana; se colorean según el máximo semanal
     const ampDots=[0,1,2].map(function(i){
       const over=i<r.hAmpl.maxWeek;
@@ -11606,13 +11684,13 @@ function renderResumenTrabajador(){
       return '<div style="width:8px;height:8px;border-radius:50%;background:'+(over?(ko?'#ef5350':'#8e24aa'):'#f0f0f0')+
              ';border:0.5px solid '+(over?(ko?'#ef5350':'#8e24aa'):'#ddd')+'"></div>';
     }).join('');
-    const ampLabel=aAmpl?r.hAmpl.weeksKO+' sem. con &gt;3 días':
-                   r.hAmpl.maxWeek>0?'Máx. '+r.hAmpl.maxWeek+'/3 por semana':'Sin días ampliados';
+    const ampLabel=aAmpl ? (r.hAmpl.weeksKO+' sem. con >3 días · máx. '+r.hAmpl.maxWeek+'/sem') :
+                   r.hAmpl.tot>0 ? (r.hAmpl.past+' past. · '+r.hAmpl.fut+' pend. (máx. '+r.hAmpl.maxWeek+'/3 sem)') : 'Sin días ampliados';
     h+='<div style="padding:10px 12px;border-right:0.5px solid #f0f0f0;border-bottom:0.5px solid #f0f0f0;'+ampAlertStyle+'">'+
-      '<div style="font-size:16px;color:'+(aAmpl?'#ef5350':'#90a4ae')+';margin-bottom:2px">&#9200;</div>'+
+      '<div style="font-size:16px;color:'+(aAmpl?'#ef5350':(r.hAmpl.tot>0?'#8e24aa':'#90a4ae'))+';margin-bottom:2px">&#9200;</div>'+
       '<div style="font-size:.68rem;color:#90a4ae;margin-bottom:1px">H. ampliado</div>'+
       '<div style="font-size:1.25rem;font-weight:500;color:'+ampCol+';line-height:1.1;display:flex;align-items:center">'+
-        r.hAmpl.maxWeek+'/3'+(aAmpl?'<span style="font-size:.7rem;color:#c62828;font-weight:700;margin-left:3px">&#9888;</span>':'')+
+        r.hAmpl.tot+(r.hAmpl.tot===1?' día':' días')+(aAmpl?'<span style="font-size:.7rem;color:#c62828;font-weight:700;margin-left:3px">&#9888;</span>':'')+
       '</div>'+
       '<div style="display:flex;gap:3px;margin:4px 0 2px">'+ampDots+'</div>'+
       '<div style="font-size:.62rem;color:'+(aAmpl?'#c62828':'#b0bec5')+';font-weight:'+(aAmpl?'600':'400')+'">'+ampLabel+
