@@ -4260,7 +4260,7 @@ window.CATALOGO_TURNOS_OFICIAL_2026 = {
 :root{color-scheme:light;--navy:#1a237e;--navy2:#283593;--navy3:#3949ab;--bg:#f0f2f5;--border:#e0e0e0;--r:8px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#1a1a2e;min-height:100vh}
-.app-hdr{background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;padding:16px 22px 12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.app-hdr{background:linear-gradient(135deg,#1a237e,#3949ab);color:#fff;padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:wrap;gap:8px}
 .app-hdr h1{font-size:1.15rem;font-weight:700}
 .dept-bar{display:flex;gap:8px;padding:12px 22px;background:#0d1757;border-bottom:2px solid rgba(255,255,255,.1);flex-wrap:wrap}
 .dept-btn{flex:1;max-width:220px;padding:10px 16px;border:2px solid rgba(255,255,255,.25);background:transparent;color:rgba(255,255,255,.6);border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:700;transition:all .18s;text-align:center}
@@ -4455,8 +4455,15 @@ body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:av
 </head>
 <body>
 <div class="app-hdr">
-  <div><h1>Cuadrante de Personal 2026</h1></div>
-  <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:.82rem;font-weight:600" id="dept-label">OPERACIONES</div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <h1>Cuadrante de Personal 2026</h1>
+    <span class="hdr-timer" style="background:rgba(255,255,255,.18);font-size:.7rem" title="Versión compilada">v2026.09.19-v7</span>
+  </div>
+  <div id="hdr-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="background:rgba(255,255,255,.15);border-radius:20px;padding:4px 14px;font-size:.82rem;font-weight:600" id="dept-label">OPERACIONES</div>
+    <button class="hdr-btn no-print" onclick="forceAppUpdate()" title="Descargar última versión y borrar caché del móvil" style="background:rgba(255,152,0,.28);border:1px solid rgba(255,183,77,.8);font-weight:800">🔄 Actualizar</button>
+    <button class="hdr-btn no-print" onclick="logoutUser()" title="Cerrar sesión y cambiar de usuario" style="background:rgba(239,83,80,.25);border:1px solid rgba(239,83,80,.6)">🔒 Salir</button>
+  </div>
 </div>
 <div class="dept-bar">
   <button class="dept-btn active" onclick="switchDept('operaciones',this)">OPERACIONES</button>
@@ -11518,35 +11525,35 @@ async function initSupabase() {
       });
 
     // Añadir badge de estado en el header
-    const hdr = document.querySelector('.app-hdr');
-    if(hdr) {
+    const actions = document.getElementById('hdr-actions') || document.querySelector('.app-hdr');
+    if(actions && !document.getElementById('supa-badge')) {
       const badge = document.createElement('div');
       badge.id = 'supa-badge';
       badge.className = 'supa-badge';
       badge.title = 'Conectado';
       badge.innerHTML = '<span id="supa-dot" class="supa-dot yellow"></span>LIVE · ' + (_currentUser || 'usuario');
-      hdr.appendChild(badge);
+      actions.insertBefore(badge, actions.firstChild);
 
       // Timer
       const timer = document.createElement('span');
       timer.id = 'hdr-timer';
       timer.className = 'hdr-timer';
       timer.textContent = '⏱ 00:00:00';
-      hdr.appendChild(timer);
+      actions.insertBefore(timer, badge.nextSibling);
 
       // Botón estadísticas
       const btnStats = document.createElement('button');
       btnStats.className = 'hdr-btn no-print';
       btnStats.textContent = '📊 Estadísticas';
       btnStats.onclick = openStats;
-      hdr.appendChild(btnStats);
+      actions.appendChild(btnStats);
 
       // Botón cambios
       const btnCl = document.createElement('button');
       btnCl.className = 'hdr-btn no-print';
       btnCl.textContent = '📋 Cambios';
       btnCl.onclick = openChangelog;
-      hdr.appendChild(btnCl);
+      actions.appendChild(btnCl);
     }
 
     // Aplicar horario especial de Carlos (12 ene – 18 abr 2026) — se ejecuta una vez por navegador
@@ -11563,9 +11570,10 @@ async function initSupabase() {
     _setBadge('err');
     document.getElementById('supa-overlay').innerHTML =
       '<div style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:16px">⚠️</div>' +
-      '<div style="font-size:1rem;font-weight:700;margin-bottom:8px">Error de conexión</div>' +
-      '<div style="font-size:.8rem;opacity:.7;margin-bottom:20px">' + err.message + '</div>' +
-      '<button onclick="initSupabase()" style="background:#fff;color:#1a237e;border:none;border-radius:8px;padding:10px 24px;font-weight:700;font-size:.9rem;cursor:pointer">🔄 Reintentar</button></div>';
+      '<div style="font-size:1rem;font-weight:700;margin-bottom:8px">Modo sin conexión</div>' +
+      '<div style="font-size:.8rem;opacity:.7;margin-bottom:20px">' + (err.message || 'Sin conexión con la nube') + '</div>' +
+      '<button onclick="document.getElementById(\'supa-overlay\').style.display=\'none\';renderWeekly();" style="background:#fff;color:#1a237e;border:none;border-radius:8px;padding:10px 24px;font-weight:700;font-size:.9rem;cursor:pointer;margin-right:10px">Continuar y ver cuadrante</button>' +
+      '<button onclick="initSupabase()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:10px 24px;font-weight:700;font-size:.9rem;cursor:pointer">🔄 Reintentar conexión</button></div>';
   }
 }
 
@@ -11853,7 +11861,41 @@ function ppCancel() {
   document.getElementById('pinpad-modal').style.display='none';
   _ppPin = '';
   _ppUpdateDots();
-  document.getElementById('login-user').value='';
+  const sel = document.getElementById('login-user');
+  if(sel) sel.value='';
+}
+
+function logoutUser() {
+  localStorage.removeItem('cq_user');
+  _currentUser = null;
+  const sel = document.getElementById('login-user');
+  if(sel) sel.value='';
+  document.getElementById('login-modal').style.display='flex';
+  document.getElementById('pinpad-modal').style.display='none';
+}
+
+async function forceAppUpdate() {
+  if(confirm('¿Deseas forzar la actualización para descargar la última versión del cuadrante y limpiar la memoria caché del móvil?')) {
+    try {
+      if('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for(let r of regs) {
+          try { r.active && r.active.postMessage('clearCache'); } catch(e){}
+          await r.unregister();
+        }
+      }
+      if('caches' in window) {
+        const keys = await caches.keys();
+        for(let k of keys) { await caches.delete(k); }
+      }
+      localStorage.removeItem('cq_user');
+    } catch(e) {
+      console.error('Error limpiando caché:', e);
+    }
+    const ts = Date.now();
+    const cleanUrl = window.location.origin + window.location.pathname + '?v=' + ts;
+    window.location.replace(cleanUrl);
+  }
 }
 
 document.addEventListener('keydown', function(e) {
@@ -11867,34 +11909,34 @@ document.addEventListener('DOMContentLoaded', function(){
   localStorage.removeItem('cq_user');
   _currentUser = null;
   const sel = document.getElementById('login-user');
-  USERS.forEach(function(u){ const o=document.createElement('option'); o.value=u; o.textContent=u; sel.appendChild(o); });
-});
-
-
-document.addEventListener('DOMContentLoaded', function(){
-  try {
-    const supaOverlay = document.getElementById('supa-overlay');
-    if(supaOverlay) supaOverlay.style.display = 'none';
-    const loginModal = document.getElementById('login-modal');
-    if(loginModal) loginModal.style.display = 'none';
-    const pinpadModal = document.getElementById('pinpad-modal');
-    if(pinpadModal) pinpadModal.style.display = 'none';
-    
-    if(!_currentUser) {
-      _currentUser = 'Jose';
-    }
-    
-    renderWeekly();
-  } catch(e) {
-    console.error('Error en inicialización local:', e);
+  if(sel) {
+    sel.innerHTML = '<option value="">— Selecciona tu nombre —</option>';
+    USERS.forEach(function(u){ const o=document.createElement('option'); o.value=u; o.textContent=u; sel.appendChild(o); });
+    sel.value = '';
   }
+  const loginModal = document.getElementById('login-modal');
+  if(loginModal) loginModal.style.display = 'flex';
+  const pinpadModal = document.getElementById('pinpad-modal');
+  if(pinpadModal) pinpadModal.style.display = 'none';
+  const supaOverlay = document.getElementById('supa-overlay');
+  if(supaOverlay) supaOverlay.style.display = 'none';
 });
-
 
 if('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js?v=6')
-      .then(function(reg){ reg.update(); })
+    navigator.serviceWorker.register('/Cuadrantepersonal/sw.js?v=7')
+      .then(function(reg){
+        reg.update();
+        reg.onupdatefound = function() {
+          var installing = reg.installing;
+          installing.onstatechange = function() {
+            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('Nueva versión disponible. Recargando...');
+              window.location.reload();
+            }
+          };
+        };
+      })
       .catch(function(err){ console.log('SW error:', err); });
   });
   var _swRefreshing = false;
@@ -11922,6 +11964,12 @@ if('serviceWorker' in navigator) {
       </select>
     </div>
     <div id="login-err" class="login-err"></div>
+    <div style="text-align:center;margin-top:20px;border-top:1px solid #eee;padding-top:14px">
+      <span style="font-size:.72rem;color:#90a4ae">Versión v2026.09.19-v7</span>
+      <div style="margin-top:8px">
+        <button onclick="forceAppUpdate()" style="background:#fff3e0;border:1px solid #ffb74d;color:#e65100;border-radius:6px;padding:5px 12px;font-size:.76rem;font-weight:700;cursor:pointer">🔄 Actualizar versión / Borrar caché</button>
+      </div>
+    </div>
   </div>
 </div>
 
