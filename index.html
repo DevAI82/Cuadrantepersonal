@@ -11362,6 +11362,61 @@ function isHoraAmpliada(dept, ei, code, dsStr){
   return (hTrab - hHab) >= 0.95;
 }
 
+// ── Horario habitual obtenido dinámicamente de los turnos más repetidos en el calendario ──
+function getHorarioHabitualResumen(dept, ei){
+  const raw = (DEPTS[dept]||{}).raw || {};
+  const manCounts = {}, tarCounts = {}, parCounts = {};
+  
+  Object.keys(raw).sort().forEach(date => {
+    const code = (raw[date] || [])[ei];
+    if(!code || ['0','L','DL','V','VAC','Z','C','SPS','BAJ','E','AH','TRASLADO'].includes(code)) return;
+    const res = resolveShiftCell(dept, ei, code, date);
+    if(!res || !res.horario) return;
+    
+    const lbl = res.lbl;
+    if(lbl === 'MAN'){
+      manCounts[res.horario] = (manCounts[res.horario] || 0) + 1;
+    } else if(lbl === 'TAR'){
+      tarCounts[res.horario] = (tarCounts[res.horario] || 0) + 1;
+    } else if(lbl === 'PAR'){
+      parCounts[res.horario] = (parCounts[res.horario] || 0) + 1;
+    }
+  });
+
+  function getTop(map, minCount){
+    minCount = minCount || 3;
+    const entries = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+    return (entries.length > 0 && entries[0][1] >= minCount) ? entries[0] : null;
+  }
+
+  const topMan = getTop(manCounts, 3);
+  const topTar = getTop(tarCounts, 3);
+  const topPar = getTop(parCounts, 1);
+
+  if(topMan && topTar){
+    return '&#127774; <b>' + topMan[0] + '</b> &nbsp; &#127763; <b>' + topTar[0] + '</b>';
+  }
+  if(topMan && !topTar){
+    return '&#127774; <b>' + topMan[0] + '</b>';
+  }
+  if(topTar && !topMan){
+    return '&#127763; <b>' + topTar[0] + '</b>';
+  }
+  if(topPar){
+    return '&#9200; <b>' + topPar[0] + '</b>';
+  }
+
+  const def = HORARIOS_DEF[dept + '|' + ei];
+  if(def){
+    if(def.MAN && def.TAR){
+      return '&#127774; <b>' + def.MAN[0] + '&ndash;' + def.MAN[1] + '</b> &nbsp; &#127763; <b>' + def.TAR[0] + '&ndash;' + def.TAR[1] + '</b>';
+    }
+    const s = def.MAN || def.TAR || def.PAR;
+    if(s) return '<b>' + s[0] + '&ndash;' + s[1] + '</b>';
+  }
+  return '';
+}
+
 function calcResumenTrabajador(dept){
   const today=new Date();today.setHours(0,0,0,0);
   const todayDs=dsFromDate(today);
@@ -11599,30 +11654,13 @@ function renderResumenTrabajador(){
     h+='<div style="background:'+badgeBg+';border:0.5px solid '+badgeBdr+';border-radius:12px;padding:3px 10px;font-size:.7rem;color:#fff;white-space:nowrap;font-weight:700;flex-shrink:0">'+badgeTxt+'</div>';
     h+='</div>';
 
-    // ── Horario habitual ──
-    const _horDef=HORARIOS_DEF[dept+'|'+r.ei];
-    if(_horDef){
-      const _hMan=_horDef.MAN, _hTar=_horDef.TAR, _hPar=_horDef.PAR;
-      const _mainSch=(_hPar&&_hPar[3])?_hPar:(_hMan||_hTar||_hPar);
-      if(_mainSch){
-        const _sameMT=_hMan&&_hTar&&_hMan[0]===_hTar[0]&&_hMan[1]===_hTar[1];
-        const _brk=_mainSch[2]!=null?_mainSch[2]:null;
-        const _brkStr=_brk!=null?' &middot; descanso: <b>'+_brk+' min</b>':'';
-        let _schStr='';
-        if(_mainSch[3]){
-          _schStr=_mainSch[3];
-        } else if(_sameMT||(!_hTar&&_hMan)){
-          _schStr='<b>'+_mainSch[0]+'</b> &rarr; <b>'+_mainSch[1]+'</b>'+_brkStr;
-        } else {
-          if(_hMan) _schStr+='&#127774; <b>'+_hMan[0]+'&ndash;'+_hMan[1]+'</b>';
-          if(_hTar) _schStr+=((_hMan)?' &nbsp; ':'')+'&#127763; <b>'+_hTar[0]+'&ndash;'+_hTar[1]+'</b>';
-          _schStr+=_brkStr;
-        }
-        h+='<div style="padding:8px 16px;background:#f8f9ff;border-bottom:0.5px solid #e8eaf6;display:flex;align-items:center;gap:6px;font-size:.72rem;color:#546e7a">';
-        h+='<span style="font-size:.85rem">&#9200;</span>';
-        h+='<span>Horario habitual: '+_schStr+'</span>';
-        h+='</div>';
-      }
+    // ── Horario habitual (calculado dinámicamente según los turnos más repetidos en su calendario) ──
+    const _schStr = getHorarioHabitualResumen(dept, r.ei);
+    if(_schStr){
+      h+='<div style="padding:8px 16px;background:#f8f9ff;border-bottom:0.5px solid #e8eaf6;display:flex;align-items:center;gap:6px;font-size:.72rem;color:#546e7a">';
+      h+='<span style="font-size:.85rem">&#9200;</span>';
+      h+='<span>Horario habitual: '+_schStr+'</span>';
+      h+='</div>';
     }
 
     // ── Barra horas ──
