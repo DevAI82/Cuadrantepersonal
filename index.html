@@ -4671,16 +4671,35 @@ body.print-global .app-hdr,
 body.print-global .dept-bar,
 body.print-global .tabs,
 body.print-global .legend-bar,
-body.print-global .no-print { display:none !important; }
-body.print-global .view:not(#view-global) { display:none !important; }
-body.print-global #view-global { display:block !important; padding:4px; }
-body.print-global #global-print-wrap { padding:6px; }
-body.print-global * {
+body.print-global .no-print,
+body.print-summary-only .app-hdr,
+body.print-summary-only .dept-bar,
+body.print-summary-only .tabs,
+body.print-summary-only .legend-bar,
+body.print-summary-only .no-print { display:none !important; }
+
+body.print-global .view:not(#view-global),
+body.print-summary-only .view:not(#view-global) { display:none !important; }
+
+body.print-global #view-global,
+body.print-summary-only #view-global { display:block !important; padding:4px; }
+
+body.print-global #global-print-wrap,
+body.print-summary-only #global-print-wrap { padding:4px; max-width:100% !important; }
+
+body.print-global *,
+body.print-summary-only * {
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
   color-adjust: exact !important;
 }
-body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:avoid; }
+
+body.print-global .global-summary-card { page-break-after:always; break-after:page; box-shadow:none !important; margin-bottom:0 !important; }
+body.print-global .dept-informe-block { break-inside:avoid; page-break-inside:avoid; page-break-after:always; break-after:page; box-shadow:none !important; }
+body.print-global .dept-informe-block:last-child { page-break-after:avoid; break-after:avoid; }
+
+body.print-summary-only .global-summary-card { page-break-after:avoid !important; break-after:avoid !important; box-shadow:none !important; margin:0 !important; }
+body.print-summary-only .dept-informe-block { display:none !important; }
 @page { size: A4 landscape; margin: 8mm; }
 
 /* ── Trimestral ── */
@@ -9257,22 +9276,31 @@ const DEPT_INFORME_PERIODS = {
   Q4:  { label: 'T4 (Oct - Dic 2026)', start: '2026-10-01', end: '2026-12-31', months: [10,11,12] }
 };
 
+function _reRenderCurrentInforme(){
+  const gView = document.getElementById('view-global');
+  if(gView && gView.classList.contains('active')){
+    renderGlobal();
+  } else {
+    renderInforme();
+  }
+}
+
 function setDeptInformeQuarter(q){
   _deptInformeQuarter = q;
   _deptIncumpTipo = 'all';
   _deptIncumpEmp = 'all';
-  renderInforme();
+  _reRenderCurrentInforme();
 }
 function setDeptIncumpTipo(t){
   _deptIncumpTipo = t;
-  renderInforme();
+  _reRenderCurrentInforme();
 }
 function setDeptIncumpEmp(e){
   _deptIncumpEmp = e;
-  renderInforme();
+  _reRenderCurrentInforme();
 }
 
-function buildInformeHTML(dk){
+function buildInformeHTML(dk, isGlobal){
   const _saved = activeDept; activeDept = dk;
   const dLabel = {operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[activeDept] || activeDept;
   const dColor = {operaciones:'#3949ab',omnicanal:'#00897b',cajasac:'#e53935',muelle:'#6d4c41',postventa:'#455a64'};
@@ -9380,65 +9408,75 @@ function buildInformeHTML(dk){
   }
 
   // RENDER
-  let h = '<div style="padding:14px 16px;max-width:960px">';
+  let h = '';
+  if(isGlobal){
+    h += '<div id="dept-sec-'+dk+'" class="dept-informe-block" style="background:#fff;border-radius:12px;border:1.5px solid '+dc+'44;margin-bottom:28px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">';
+    h += '<div style="background:'+dc+';color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">';
+    h += '<div style="font-size:1.05rem;font-weight:900;letter-spacing:.3px">&#127978; DEPARTAMENTO: '+dLabel.toUpperCase()+'</div>';
+    h += '<div style="display:flex;align-items:center;gap:10px">';
+    h += '<span style="font-size:.76rem;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:6px;font-weight:700">'+curPeriod.label+'</span>';
+    h += '<button class="no-print" onclick="exportInformeExcel(\''+dk+'\')" style="background:#fff;color:'+dc+';border:none;border-radius:6px;padding:5px 12px;font-size:.72rem;font-weight:800;cursor:pointer">&#128196; Exportar Excel Dpto.</button>';
+    h += '</div></div>';
+    h += '<div style="padding:16px 18px">';
+  } else {
+    h += '<div style="padding:14px 16px;max-width:960px">';
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">';
+    h += '<div style="width:6px;height:36px;background:'+dc+';border-radius:3px"></div>';
+    h += '<div>';
+    h += '<div style="font-size:1.1rem;font-weight:800;color:'+dc+'">&#9888;&#65039; Informe de Incidencias &mdash; '+dLabel+'</div>';
+    h += '<div style="font-size:.75rem;color:#78909c">'+curPeriod.label+' &nbsp;&middot;&nbsp; 3 bloques de an&aacute;lisis (Cobertura, Convenio, Personal)</div>';
+    h += '</div>';
+    h += '<button onclick="exportInformeExcel(\''+dk+'\')" style="margin-left:auto;background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:.76rem;font-weight:700;display:flex;align-items:center;gap:6px">&#128196; Exportar Excel</button>';
+    h += '</div>';
 
-  // Header
-  h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">';
-  h += '<div style="width:6px;height:36px;background:'+dc+';border-radius:3px"></div>';
-  h += '<div>';
-  h += '<div style="font-size:1.1rem;font-weight:800;color:'+dc+'">&#9888;&#65039; Informe de Incidencias &mdash; '+dLabel+'</div>';
-  h += '<div style="font-size:.75rem;color:#78909c">'+curPeriod.label+' &nbsp;&middot;&nbsp; 3 bloques de an&aacute;lisis (Cobertura, Convenio, Personal)</div>';
-  h += '</div>';
-  h += '<button onclick="exportInformeExcel(\\''+dk+'\\')" style="margin-left:auto;background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:.76rem;font-weight:700;display:flex;align-items:center;gap:6px">&#128196; Exportar Excel</button>';
-  h += '</div>';
+    // Selector de período
+    h += '<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center;background:#f8f9fa;padding:8px 12px;border-radius:10px;border:1px solid #e0e0e0">';
+    h += '<span style="font-size:.74rem;color:#546e7a;font-weight:800;margin-right:4px">PER&Iacute;ODO:</span>';
+    const _periodOptions = [
+      ['all', 'Todo el año'],
+      ['Q1', 'T1 (Ene-Mar)'],
+      ['Q2', 'T2 (Abr-Jun)'],
+      ['Q3', 'T3 (Jul-Sep)'],
+      ['Q4', 'T4 (Oct-Dic)']
+    ];
+    _periodOptions.forEach(function(opt){
+      const active = _deptInformeQuarter === opt[0];
+      h += '<button onclick="setDeptInformeQuarter(\''+opt[0]+'\')" style="padding:6px 14px;border-radius:8px;border:2px solid '+(active?dc:'#cfd8dc')+';background:'+(active?dc:'#fff')+';color:'+(active?'#fff':'#37474f')+';font-weight:700;font-size:.75rem;cursor:pointer;transition:all .15s">'+opt[1]+'</button>';
+    });
+    h += '</div>';
 
-  // Selector de período
-  h += '<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center;background:#f8f9fa;padding:8px 12px;border-radius:10px;border:1px solid #e0e0e0">';
-  h += '<span style="font-size:.74rem;color:#546e7a;font-weight:800;margin-right:4px">PER&Iacute;ODO:</span>';
-  const _periodOptions = [
-    ['all', 'Todo el año'],
-    ['Q1', 'T1 (Ene-Mar)'],
-    ['Q2', 'T2 (Abr-Jun)'],
-    ['Q3', 'T3 (Jul-Sep)'],
-    ['Q4', 'T4 (Oct-Dic)']
-  ];
-  _periodOptions.forEach(function(opt){
-    const active = _deptInformeQuarter === opt[0];
-    h += '<button onclick="setDeptInformeQuarter(\\''+opt[0]+'\\')" style="padding:6px 14px;border-radius:8px;border:2px solid '+(active?dc:'#cfd8dc')+';background:'+(active?dc:'#fff')+';color:'+(active?'#fff':'#37474f')+';font-weight:700;font-size:.75rem;cursor:pointer;transition:all .15s">'+opt[1]+'</button>';
-  });
-  h += '</div>';
-
-  // Cobertura diaria por horas — semana actual
-  {
-    const _i_today = new Date(); _i_today.setHours(0,0,0,0);
-    const _i_dw0 = _i_today.getDay() === 0 ? 6 : _i_today.getDay() - 1;
-    const _i_mon = new Date(_i_today.getTime() - _i_dw0 * 86400000);
-    const _I_DS = ['Lu','Ma','Mi','Ju','Vi','Sá'];
-    const _i_days = [];
-    for(let _j=0; _j<7; _j++){
-      const _d = new Date(_i_mon.getTime() + _j * 86400000);
-      const _ds2 = dsFromDate(_d);
-      const _dw2 = _d.getDay() === 0 ? 6 : _d.getDay() - 1;
-      if(isClosedDay(_ds2, _dw2)) continue;
-      _i_days.push({d:_d, ds:_ds2, dw:_dw2});
-    }
-    if(_i_days.length){
-      h += '<div style="background:#fff;border:1.5px solid '+dc+'33;border-radius:10px;padding:12px 14px;margin-bottom:18px">';
-      h += '<div style="font-size:.78rem;font-weight:800;color:'+dc+';margin-bottom:8px">&#9201; Cobertura por horas &mdash; semana actual</div>';
-      h += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
-      _i_days.forEach(function(day){
-        const _isT = day.d.getTime() === _i_today.getTime();
-        const _iInc = hayIncidencia(day.d.getFullYear(), day.d.getMonth()+1, day.d.getDate());
-        const _ibg = _isT ? dc : (_iInc ? '#ffebee' : '#f5f7ff');
-        const _icl = _isT ? '#fff' : (_iInc ? '#c62828' : '#37474f');
-        const _ibd = _isT ? dc : (_iInc ? '#ef9a9a' : '#c5cae9');
-        h += '<button onclick="showDiaPreview(\\''+day.ds+'\\',\\''+dk+'\\')" style="background:'+_ibg+';color:'+_icl+';border:1.5px solid '+_ibd+';border-radius:8px;padding:7px 10px;cursor:pointer;font-size:.76rem;font-weight:700;font-family:inherit;min-width:66px;text-align:center">';
-        h += '<div style="font-size:.68rem;opacity:.85">'+_I_DS[day.dw]+'</div>';
-        h += '<div style="font-size:.85rem;font-weight:900">'+String(day.d.getDate()).padStart(2,'0')+'/'+String(day.d.getMonth()+1).padStart(2,'0')+'</div>';
-        h += '<div style="font-size:.6rem;margin-top:2px">&#128202;</div>';
-        h += '</button>';
-      });
-      h += '</div></div>';
+    // Cobertura diaria por horas — semana actual
+    {
+      const _i_today = new Date(); _i_today.setHours(0,0,0,0);
+      const _i_dw0 = _i_today.getDay() === 0 ? 6 : _i_today.getDay() - 1;
+      const _i_mon = new Date(_i_today.getTime() - _i_dw0 * 86400000);
+      const _I_DS = ['Lu','Ma','Mi','Ju','Vi','Sá'];
+      const _i_days = [];
+      for(let _j=0; _j<7; _j++){
+        const _d = new Date(_i_mon.getTime() + _j * 86400000);
+        const _ds2 = dsFromDate(_d);
+        const _dw2 = _d.getDay() === 0 ? 6 : _d.getDay() - 1;
+        if(isClosedDay(_ds2, _dw2)) continue;
+        _i_days.push({d:_d, ds:_ds2, dw:_dw2});
+      }
+      if(_i_days.length){
+        h += '<div style="background:#fff;border:1.5px solid '+dc+'33;border-radius:10px;padding:12px 14px;margin-bottom:18px">';
+        h += '<div style="font-size:.78rem;font-weight:800;color:'+dc+';margin-bottom:8px">&#9201; Cobertura por horas &mdash; semana actual</div>';
+        h += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+        _i_days.forEach(function(day){
+          const _isT = day.d.getTime() === _i_today.getTime();
+          const _iInc = hayIncidencia(day.d.getFullYear(), day.d.getMonth()+1, day.d.getDate());
+          const _ibg = _isT ? dc : (_iInc ? '#ffebee' : '#f5f7ff');
+          const _icl = _isT ? '#fff' : (_iInc ? '#c62828' : '#37474f');
+          const _ibd = _isT ? dc : (_iInc ? '#ef9a9a' : '#c5cae9');
+          h += '<button onclick="showDiaPreview(\''+day.ds+'\',\''+dk+'\')" style="background:'+_ibg+';color:'+_icl+';border:1.5px solid '+_ibd+';border-radius:8px;padding:7px 10px;cursor:pointer;font-size:.76rem;font-weight:700;font-family:inherit;min-width:66px;text-align:center">';
+          h += '<div style="font-size:.68rem;opacity:.85">'+_I_DS[day.dw]+'</div>';
+          h += '<div style="font-size:.85rem;font-weight:900">'+String(day.d.getDate()).padStart(2,'0')+'/'+String(day.d.getMonth()+1).padStart(2,'0')+'</div>';
+          h += '<div style="font-size:.6rem;margin-top:2px">&#128202;</div>';
+          h += '</button>';
+        });
+        h += '</div></div>';
+      }
     }
   }
 
@@ -9492,7 +9530,7 @@ function buildInformeHTML(dk){
         h += '<td style="padding:6px 10px;text-align:center;font-weight:700;color:#37474f">'+r.slMin+'</td>';
         h += '<td style="padding:6px 10px;font-size:.71rem;color:#546e7a">'+r.worstSlots+'</td>';
         h += '<td style="padding:6px 10px;font-size:.71rem;color:#37474f;max-width:200px" title="'+r.workersInFail+'">'+r.workersInFail+'</td>';
-        h += '<td style="padding:6px 10px;text-align:center"><button onclick="toggleOmniInformeChart(\\''+r.dsStr+'\\',\\'oic-'+i+'\\')" style="background:#00897b;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;color:#fff;font-size:.72rem;font-weight:700">&#128202; Ver</button></td>';
+        h += '<td style="padding:6px 10px;text-align:center"><button onclick="toggleOmniInformeChart(\''+r.dsStr+'\',\'oic-'+i+'\')" style="background:#00897b;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;color:#fff;font-size:.72rem;font-weight:700">&#128202; Ver</button></td>';
         h += '</tr>';
         h += '<tr id="oic-'+i+'" style="display:none"><td colspan="9" style="padding:12px 16px;background:#e8f5e9;border-bottom:2px solid #a5d6a7">';
         h += '<canvas id="oic-canvas-'+i+'" style="max-height:180px"></canvas>';
@@ -9506,7 +9544,7 @@ function buildInformeHTML(dk){
         h += '<td style="padding:6px 10px;font-size:.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.trabajan+'">'+r.trabajan+'</td>';
         h += '<td style="padding:6px 10px;font-size:.72rem;font-weight:700;color:#c62828;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.motivo+'">'+r.motivo+'</td>';
         if(activeDept==='cajasac'){
-          h += '<td style="padding:6px 10px;text-align:center"><button onclick="toggleCajaInformeChart(\\''+r.dsStr+'\\',\\'cjinf-'+i+'\\')" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.72rem;font-weight:700">&#128202; Ver</button></td>';
+          h += '<td style="padding:6px 10px;text-align:center"><button onclick="toggleCajaInformeChart(\''+r.dsStr+'\',\'cjinf-'+i+'\')" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.72rem;font-weight:700">&#128202; Ver</button></td>';
         }
         h += '</tr>';
         if(activeDept==='cajasac'){
@@ -9573,7 +9611,7 @@ function buildInformeHTML(dk){
   });
   h += '</select>';
   if(_deptIncumpTipo!=='all' || _deptIncumpEmp!=='all'){
-    h += '<button onclick="_deptIncumpTipo=\\'all\\';_deptIncumpEmp=\\'all\\';renderInforme()" style="padding:5px 10px;border-radius:8px;border:1px solid #ef9a9a;background:#fff;color:#c62828;font-size:.72rem;font-weight:700;cursor:pointer">&times; Quitar filtros</button>';
+    h += '<button onclick="_deptIncumpTipo=\'all\';_deptIncumpEmp=\'all\';renderInforme()" style="padding:5px 10px;border-radius:8px;border:1px solid #ef9a9a;background:#fff;color:#c62828;font-size:.72rem;font-weight:700;cursor:pointer">&times; Quitar filtros</button>';
   }
   h += '</div>';
 
@@ -9677,176 +9715,467 @@ function buildInformeHTML(dk){
     h += '<div style="font-size:.7rem;color:#90a4ae;margin-top:6px">'+_issues.length+' trabajador'+(+_issues.length!==1?'es':'')+' con incidencias &mdash; pulsa &ldquo;Ver calendario&rdquo; para acceder al detalle individual</div>';
   }
 
-  h += '</div>';
+  if(isGlobal){
+    h += '</div></div>';
+  } else {
+    h += '</div>';
+  }
   activeDept = _saved;
   return h;
 }
 
-
 function renderInforme(){
-  document.getElementById('view-informe').innerHTML=buildInformeHTML(activeDept);
+  document.getElementById('view-informe').innerHTML = buildInformeHTML(activeDept, false);
 }
 
 // ===== GLOBAL =====
 const DEPT_KEYS=['operaciones','omnicanal','cajasac','muelle','postventa'];
 const DEPT_LABEL={'operaciones':'Operaciones','omnicanal':'Omnicanal','cajasac':'Caja-SAC','muelle':'Muelle','postventa':'Postventa'};
-const DEPT_COLOR={'operaciones':'#3949ab','omnicanal':'#00897b','cajasac':'#e53935','muelle':'#6d4c41','postventa':'#8e24aa'};
+const DEPT_COLOR={'operaciones':'#3949ab','omnicanal':'#00897b','cajasac':'#e53935','muelle':'#6d4c41','postventa':'#455a64'};
 
-function buildWeeklyCoverage(){
-  const _sv=activeDept;
-  const today=new Date();today.setHours(0,0,0,0);
-  const _dw0=today.getDay()===0?6:today.getDay()-1;
-  const mon0=new Date(today.getTime()-_dw0*86400000);
-  const DAY_SH=['Lu','Ma','Mi','Ju','Vi','Sá'];
-  const MONTHS_SH2=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const weeks=[
-    {label:'Esta semana',start:mon0},
-    {label:'Semana siguiente',start:new Date(mon0.getTime()+7*86400000)}
-  ];
+function getDeptInformeData(dk){
+  const _sv = activeDept; activeDept = dk;
+  const curPeriod = DEPT_INFORME_PERIODS[_deptInformeQuarter] || DEPT_INFORME_PERIODS.all;
+  const dLabel = {operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[dk] || dk;
+  const dColor = {operaciones:'#3949ab',omnicanal:'#00897b',cajasac:'#e53935',muelle:'#6d4c41',postventa:'#455a64'};
+  const dc = dColor[dk] || '#1a237e';
 
-  // Min thresholds M and T per dept for color coding
-  const MIN_M={operaciones:1,omnicanal:3,cajasac:1,muelle:4,postventa:1};
-  const MIN_T={operaciones:0,omnicanal:3,cajasac:2,muelle:0,postventa:0};
+  // Bloque I: Cobertura
+  const rows = [];
+  for(const m of curPeriod.months){
+    const y = 2026;
+    const days = daysInMonth(y, m);
+    for(let d=1; d<=days; d++){
+      const dw = dow(y,m,d);
+      const dsStr2 = ds(y,m,d);
+      if(isClosedDay(dsStr2,dw)) continue;
 
-  function cellColor(val,minVal){
-    if(minVal===0) return val>0?['#e8f5e9','#1b5e20']:['#f5f5f5','#90a4ae'];
-    if(val===0) return ['#ffcdd2','#c62828'];
-    if(val<minVal) return ['#fff3e0','#e65100'];
-    return ['#e8f5e9','#2e7d32'];
-  }
-
-  let h='<div style="padding:18px 20px 24px;border-top:2px solid #e8eaf6;background:#fafafa">';
-  h+='<div style="font-size:.95rem;font-weight:800;color:#1a237e;margin-bottom:14px">&#128197; Cobertura semanal &mdash; vista r&aacute;pida</div>';
-
-  // Legend
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:.67rem;font-weight:700">';
-  h+='<span style="background:#e8f5e9;color:#2e7d32;padding:2px 10px;border-radius:10px">&#10003; Cobertura OK</span>';
-  h+='<span style="background:#fff3e0;color:#e65100;padding:2px 10px;border-radius:10px">&#9888; Por debajo del m&iacute;nimo</span>';
-  h+='<span style="background:#ffcdd2;color:#c62828;padding:2px 10px;border-radius:10px">&#128683; Sin cobertura</span>';
-  h+='<span style="background:#f5f5f5;color:#90a4ae;padding:2px 10px;border-radius:10px">&#8212; Cerrado / Festivo</span>';
-  h+='</div>';
-
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">';
-
-  for(const wk of weeks){
-    const wkEnd=new Date(wk.start.getTime()+5*86400000);
-    const wkLabelDate=String(wk.start.getDate()).padStart(2,'0')+'/'+String(wk.start.getMonth()+1).padStart(2,'0')+
-                      ' &ndash; '+String(wkEnd.getDate()).padStart(2,'0')+'/'+String(wkEnd.getMonth()+1).padStart(2,'0');
-    h+='<div style="background:#fff;border-radius:10px;border:1px solid #e0e0e0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)">';
-    h+='<div style="background:#1a237e;color:#fff;padding:8px 14px;display:flex;align-items:center;gap:10px">';
-    h+='<span style="font-size:.82rem;font-weight:800">'+wk.label+'</span>';
-    h+='<span style="font-size:.72rem;opacity:.8;background:rgba(255,255,255,.15);border-radius:8px;padding:1px 8px">'+wkLabelDate+'</span>';
-    h+='</div>';
-    h+='<div style="padding:10px 12px">';
-
-    // Day-header row
-    h+='<div style="display:grid;grid-template-columns:68px repeat(6,1fr);gap:3px;margin-bottom:5px">';
-    h+='<div></div>';
-    for(let i=0;i<6;i++){
-      const dd=new Date(wk.start.getTime()+i*86400000);
-      const isToday=dd.getTime()===today.getTime();
-      h+='<div style="text-align:center;font-size:.6rem;font-weight:700;'+(isToday?'color:#e53935;background:#fff8e1;border-radius:4px;padding:1px':'color:#546e7a')+'">'+DAY_SH[i]+'<br>'+dd.getDate()+'</div>';
-    }
-    h+='</div>';
-
-    // Dept rows
-    for(const dk of DEPT_KEYS){
-      activeDept=dk;
-      const isMuelle=dk==='muelle';
-      h+='<div style="display:grid;grid-template-columns:68px repeat(6,1fr);gap:3px;margin-bottom:3px;align-items:stretch">';
-      h+='<div style="font-size:.6rem;font-weight:800;color:'+DEPT_COLOR[dk]+';display:flex;align-items:center;line-height:1.2">'+DEPT_LABEL[dk]+'</div>';
-
-      for(let i=0;i<6;i++){
-        const dd=new Date(wk.start.getTime()+i*86400000);
-        const y=dd.getFullYear(),mo=dd.getMonth()+1,d=dd.getDate();
-        const dw=i; // 0=Mon..5=Sat
-        const dsStr=ds(y,mo,d);
-
-        if(isClosedDay(dsStr,dw)){
-          h+='<div style="background:#f0f0f0;border-radius:5px;min-height:34px;opacity:.45"></div>';
-          continue;
-        }
-
-        const hasAlert=hayIncidencia(y,mo,d);
-        const {man,tar}=countDay(y,mo,d);
-        const outerBorder=hasAlert?'#ef9a9a':'#e0e0e0';
-
-        h+='<div style="border:1.5px solid '+outerBorder+';border-radius:5px;overflow:hidden;min-height:34px">';
-
-        if(isMuelle){
-          // Muelle: all morning → show single total count
-          const total=man;
-          const satMin=dw===5?3:MIN_M[dk];
-          const [bg,tc]=cellColor(total,satMin);
-          h+='<div style="background:'+bg+';height:34px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:'+tc+'">'+total+'</div>';
-        } else {
-          const [bgM,tcM]=cellColor(man,MIN_M[dk]);
-          const [bgT,tcT]=cellColor(tar,MIN_T[dk]);
-          h+='<div style="background:'+bgM+';text-align:center;font-size:.62rem;font-weight:800;color:'+tcM+';padding:2px 0;border-bottom:1px solid rgba(0,0,0,.06)">M:'+man+'</div>';
-          h+='<div style="background:'+bgT+';text-align:center;font-size:.62rem;font-weight:800;color:'+tcT+';padding:2px 0">T:'+tar+'</div>';
-        }
-        h+='</div>';
+      if(activeDept==='omnicanal'){
+        const slots = omniSlotsForDay(dsStr2);
+        const failSlots = slots.filter(s=>s.fail);
+        if(failSlots.length < 2) continue;
+        const slMin = omniSlotMin(dsStr2);
+        const pico = isOmniPico(dsStr2);
+        const minCnt = Math.min(...failSlots.map(s=>s.cnt));
+        const _failNames = new Set();
+        failSlots.forEach(function(fs){ fs.names.forEach(function(n){ _failNames.add(n); }); });
+        rows.push({
+          y, m, d, dw, dsStr: dsStr2,
+          fecha: String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0'),
+          diaN: DAYS_ES[dw].slice(0,3)+'.', mes: MONTHS_ES[m-1],
+          slotsFail: failSlots.length, slMin, minCnt, pico,
+          worstSlots: failSlots.slice(0,3).map(s=>s.label).join(', ')+(failSlots.length>3?'…':''),
+          workersInFail: [..._failNames].sort().join(', ')||'—'
+        });
+      } else {
+        if(!hayIncidencia(y,m,d)) continue;
+        const {man,tar,names} = countDay(y,m,d);
+        const [,wk] = absentWorking(y,m,d);
+        rows.push({
+          y, m, d, dw, dsStr: dsStr2,
+          fecha: String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0'),
+          diaN: DAYS_ES[dw].slice(0,3)+'.',
+          mes: MONTHS_ES[m-1],
+          wk, man, tar,
+          trabajan: names.join(', ')||'—',
+          motivo: (function(){
+            if(activeDept==='operaciones'){
+              const codes=getCode(y,m,d)||[];
+              const WK=['MAN','TAR','PAR','COM'];
+              const out=[];
+              const NAMES=['Vicente','Elena','Carlos','Mirella','Jose'];
+              NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
+              return out.join(', ');
+            }
+            if(activeDept==='cajasac') return cajaAlerts(y,m,d).join(' | ')||'—';
+            if(activeDept==='muelle'){
+              const jsDw2=new Date(y,m-1,d).getDay();
+              const raw2=RAW()[ds(y,m,d)]||[];
+              const failing=[];
+              for(let t=360;t<810;t+=30){
+                const minimo2=muelleSlotMinimo(t,jsDw2);
+                if(minimo2===0) continue;
+                let count2=0;
+                for(let i=0;i<7;i++){
+                  const lbl2=eq(raw2[i]||'0')[0];
+                  if(lbl2==='MAN'||lbl2==='PAR'||lbl2==='COM'){
+                    if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count2++;
+                  }
+                }
+                if(count2<minimo2){
+                  const hh=Math.floor(t/60),mm=t%60;
+                  failing.push(String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+' ('+count2+'/'+minimo2+')');
+                }
+              }
+              const ma=muelleAlerts(y,m,d);
+              const all=[...failing,...ma];
+              return all.length?all.join(' · '):'—';
+            }
+            return '—';
+          })()
+        });
       }
-      h+='</div>';
     }
-
-    // Alert summary row
-    let alertDays=[];
-    for(let i=0;i<6;i++){
-      const dd=new Date(wk.start.getTime()+i*86400000);
-      const y=dd.getFullYear(),mo=dd.getMonth()+1,d=dd.getDate();
-      const dw=i;
-      if(isClosedDay(ds(y,mo,d),dw)) continue;
-      let nAlert=0;
-      for(const dk of DEPT_KEYS){activeDept=dk;if(hayIncidencia(y,mo,d)) nAlert++;}
-      if(nAlert>0) alertDays.push({label:DAY_SH[i]+' '+d,n:nAlert});
-    }
-    activeDept=_sv;
-    if(alertDays.length){
-      h+='<div style="margin-top:6px;padding:5px 8px;background:#fff3e0;border-radius:6px;font-size:.65rem;color:#e65100;font-weight:700">';
-      h+='&#9888; '+alertDays.map(function(a){return a.label+' ('+a.n+' dpto'+(a.n>1?'s':'')+')'}).join(' &middot; ');
-      h+='</div>';
-    } else {
-      h+='<div style="margin-top:6px;padding:5px 8px;background:#e8f5e9;border-radius:6px;font-size:.65rem;color:#2e7d32;font-weight:700">&#10003; Sin incidencias previstas esta semana</div>';
-    }
-
-    h+='</div></div>'; // end padding + week card
   }
 
-  h+='</div>'; // end grid
-  h+='</div>'; // end section wrapper
-  activeDept=_sv;
+  // Bloque II: Incumplimientos
+  const rawInc = _detectarIncumplimientos(dk);
+  let incPeriodo = rawInc;
+  if(_deptInformeQuarter !== 'all'){
+    const q = DEPT_INFORME_PERIODS[_deptInformeQuarter];
+    incPeriodo = rawInc.filter(i => i.fecha && i.fecha >= q.start && i.fecha <= q.end);
+  }
+  const bySev = { alta: 0, media: 0, baja: 0 };
+  incPeriodo.forEach(function(i){
+    if(bySev[i.severidad] !== undefined) bySev[i.severidad]++;
+    else bySev.baja++;
+  });
+
+  // Bloque III: Plantilla
+  const rsum = calcResumenTrabajador(dk);
+  const incByEmp = {};
+  incPeriodo.forEach(function(i){
+    incByEmp[i.empleado] = (incByEmp[i.empleado] || 0) + 1;
+  });
+
+  let workersWithIssues = 0;
+  rsum.forEach(function(r){
+    const hasHours = r.horas.diff > 0 || r.horas.diff < -20;
+    const hasVac = r.vac.tot < r.vacMin;
+    const hasComp = r.fest.tot > 0 && r.comp.tot < r.fest.tot;
+    const hasCal = r.cal.obj > 0 && r.cal.tot < r.cal.obj;
+    const hasAmpl = r.hAmpl.weeksKO > 0;
+    const hasConv = (incByEmp[r.name] || 0) > 0;
+    if(hasHours || hasVac || hasComp || hasCal || hasAmpl || hasConv) workersWithIssues++;
+  });
+
+  activeDept = _sv;
+  return {
+    dk,
+    dLabel,
+    dc,
+    rows,
+    incPeriodo,
+    bySev,
+    rsum,
+    incByEmp,
+    workersWithIssues
+  };
+}
+
+function buildGlobalSummaryA4HTML(){
+  const curPeriod = DEPT_INFORME_PERIODS[_deptInformeQuarter] || DEPT_INFORME_PERIODS.all;
+  const today = new Date();
+  const dateFmt = String(today.getDate()).padStart(2,'0')+'/'+String(today.getMonth()+1).padStart(2,'0')+'/'+today.getFullYear();
+
+  const dataByDept = {};
+  let totRows = 0;
+  let totInc = 0;
+  let totAlta = 0;
+  let totMedia = 0;
+  let totBaja = 0;
+  let totWorkersIssues = 0;
+  let totPlantilla = 0;
+
+  DEPT_KEYS.forEach(function(dk){
+    const data = getDeptInformeData(dk);
+    dataByDept[dk] = data;
+    totRows += data.rows.length;
+    totInc += data.incPeriodo.length;
+    totAlta += data.bySev.alta;
+    totMedia += data.bySev.media;
+    totBaja += data.bySev.baja;
+    totWorkersIssues += data.workersWithIssues;
+    totPlantilla += data.rsum.length;
+  });
+
+  let h = '<div class="global-summary-card" style="background:#fff;border-radius:12px;border:1.5px solid #d1d5db;padding:18px 22px;margin-bottom:24px;box-shadow:0 3px 12px rgba(0,0,0,.06)">';
+
+  // Cabecera del Cuadro de Mando
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1a237e;padding-bottom:12px;margin-bottom:14px;flex-wrap:wrap;gap:10px">';
+  h += '<div>';
+  h += '<div style="font-size:1.15rem;font-weight:900;color:#1a237e;letter-spacing:.3px">&#127760; CUADRO DE MANDO &mdash; INFORME GLOBAL DE INCIDENCIAS</div>';
+  h += '<div style="font-size:.76rem;color:#546e7a;font-weight:700;margin-top:2px">Tienda ECI Albacete &nbsp;&middot;&nbsp; <b>'+curPeriod.label+'</b> &nbsp;&middot;&nbsp; Generado: '+dateFmt+'</div>';
+  h += '</div>';
+  h += '<div style="background:#e8eaf6;border:1px solid #c5cae9;border-radius:8px;padding:4px 12px;font-size:.74rem;font-weight:800;color:#1a237e">';
+  h += 'CONTROL TRIMESTRAL DEPARTAMENTAL (A4)';
+  h += '</div>';
+  h += '</div>';
+
+  // KPI Pills Fila Superior
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px;margin-bottom:16px">';
+  
+  // Dptos auditados
+  h += '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center">';
+  h += '<div style="font-size:.65rem;color:#64748b;font-weight:700;text-transform:uppercase">Departamentos</div>';
+  h += '<div style="font-size:1.4rem;font-weight:900;color:#1e293b">5</div>';
+  h += '<div style="font-size:.65rem;color:#94a3b8">100% auditados</div>';
+  h += '</div>';
+
+  // Bloque I: Cobertura KO
+  const covBg = totRows > 0 ? '#fff7ed' : '#f0fdf4';
+  const covBd = totRows > 0 ? '#ffedd5' : '#dcfce7';
+  const covTc = totRows > 0 ? '#c2410c' : '#15803d';
+  h += '<div style="background:'+covBg+';border:1px solid '+covBd+';border-radius:8px;padding:10px;text-align:center">';
+  h += '<div style="font-size:.65rem;color:'+covTc+';font-weight:700;text-transform:uppercase">Cobertura M&iacute;nima (Bl. I)</div>';
+  h += '<div style="font-size:1.4rem;font-weight:900;color:'+covTc+'">'+totRows+' <span style="font-size:.75rem;font-weight:600">d&iacute;as KO</span></div>';
+  h += '<div style="font-size:.65rem;color:'+covTc+'">'+(totRows===0?'Cobertura 100% OK':'Falta presencia')+'</div>';
+  h += '</div>';
+
+  // Bloque II: Incumplimientos Convenio
+  const incBg = totInc > 0 ? '#fef2f2' : '#f0fdf4';
+  const incBd = totInc > 0 ? '#fee2e2' : '#dcfce7';
+  const incTc = totInc > 0 ? '#b91c1c' : '#15803d';
+  h += '<div style="background:'+incBg+';border:1px solid '+incBd+';border-radius:8px;padding:10px;text-align:center">';
+  h += '<div style="font-size:.65rem;color:'+incTc+';font-weight:700;text-transform:uppercase">Convenio (Bl. II)</div>';
+  h += '<div style="font-size:1.4rem;font-weight:900;color:'+incTc+'">'+totInc+' <span style="font-size:.75rem;font-weight:600">alertas</span></div>';
+  h += '<div style="font-size:.65rem;color:'+incTc+';font-weight:700">Alta: '+totAlta+' &middot; Med: '+totMedia+' &middot; Baj: '+totBaja+'</div>';
+  h += '</div>';
+
+  // Bloque III: Personal con incidencias
+  const empBg = totWorkersIssues > 0 ? '#fffbeb' : '#f0fdf4';
+  const empBd = totWorkersIssues > 0 ? '#fef3c7' : '#dcfce7';
+  const empTc = totWorkersIssues > 0 ? '#b45309' : '#15803d';
+  h += '<div style="background:'+empBg+';border:1px solid '+empBd+';border-radius:8px;padding:10px;text-align:center">';
+  h += '<div style="font-size:.65rem;color:'+empTc+';font-weight:700;text-transform:uppercase">Personal c/ Alerta (Bl. III)</div>';
+  h += '<div style="font-size:1.4rem;font-weight:900;color:'+empTc+'">'+totWorkersIssues+' / '+totPlantilla+'</div>';
+  h += '<div style="font-size:.65rem;color:'+empTc+'">'+(totWorkersIssues===0?'Plantilla al d&iacute;a':'Requiere ajuste')+'</div>';
+  h += '</div>';
+
+  h += '</div>'; // Fin KPI
+
+  // TABLA MATRIZ DEPARTAMENTAL
+  h += '<div style="overflow-x:auto;border-radius:8px;border:1px solid #e2e8f0">';
+  h += '<table style="width:100%;border-collapse:collapse;font-size:.76rem;text-align:left">';
+  h += '<thead>';
+  h += '<tr style="background:#1a237e;color:#fff">';
+  h += '<th style="padding:8px 12px;font-weight:800">DEPARTAMENTO</th>';
+  h += '<th style="padding:8px 12px;font-weight:800;text-align:center">BLOQUE I: COBERTURA</th>';
+  h += '<th style="padding:8px 12px;font-weight:800;text-align:center">BLOQUE II: CONVENIO</th>';
+  h += '<th style="padding:8px 12px;font-weight:800;text-align:center">DESGLOSE SEVERIDAD</th>';
+  h += '<th style="padding:8px 12px;font-weight:800;text-align:center">BLOQUE III: TRABAJADORES</th>';
+  h += '<th style="padding:8px 12px;font-weight:800;text-align:center">ESTADO</th>';
+  h += '<th class="no-print" style="padding:8px 12px;font-weight:800;text-align:center">DETALLE</th>';
+  h += '</tr>';
+  h += '</thead>';
+  h += '<tbody>';
+
+  DEPT_KEYS.forEach(function(dk, idx){
+    const d = dataByDept[dk];
+    const rowBg = idx % 2 === 0 ? '#fff' : '#f8fafc';
+
+    // Estado badge
+    let stBadge = '<span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#10003; CONFORME</span>';
+    if(d.bySev.alta > 0){
+      stBadge = '<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#9888; ALERTA ALTA</span>';
+    } else if(d.incPeriodo.length > 0 || d.rows.length > 0){
+      stBadge = '<span style="background:#fef3c7;color:#b45309;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#9888; REVISAR</span>';
+    }
+
+    // Cobertura badge
+    const cobBadge = d.rows.length === 0 
+      ? '<span style="color:#15803d;font-weight:700">&#10003; 0 d&iacute;as KO</span>' 
+      : '<span style="color:#c2410c;font-weight:800">&#9888; '+d.rows.length+' d&iacute;as KO</span>';
+
+    // Convenio badge
+    const convBadge = d.incPeriodo.length === 0
+      ? '<span style="color:#15803d;font-weight:700">&#10003; 0 alertas</span>'
+      : '<span style="color:#b91c1c;font-weight:900">'+d.incPeriodo.length+' alertas</span>';
+
+    // Desglose severidad
+    const desgl = '<span style="background:#fee2e2;color:#b91c1c;padding:1px 5px;border-radius:4px;font-weight:800;font-size:.66rem">A:'+d.bySev.alta+'</span> ' +
+                  '<span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:4px;font-weight:800;font-size:.66rem">M:'+d.bySev.media+'</span> ' +
+                  '<span style="background:#f1f5f9;color:#475569;padding:1px 5px;border-radius:4px;font-weight:800;font-size:.66rem">B:'+d.bySev.baja+'</span>';
+
+    // Personal badge
+    const persBadge = d.workersWithIssues === 0
+      ? '<span style="color:#15803d;font-weight:700">&#10003; 0 c/ incidencia ('+d.rsum.length+')</span>'
+      : '<span style="color:#b45309;font-weight:800">'+d.workersWithIssues+' de '+d.rsum.length+' c/ alerta</span>';
+
+    h += '<tr style="background:'+rowBg+';border-bottom:1px solid #e2e8f0">';
+    h += '<td style="padding:7px 12px;font-weight:800;color:'+d.dc+';display:flex;align-items:center;gap:6px">';
+    h += '<div style="width:8px;height:8px;border-radius:50%;background:'+d.dc+'"></div>';
+    h += d.dLabel;
+    h += '</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+cobBadge+'</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+convBadge+'</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+desgl+'</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+persBadge+'</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+stBadge+'</td>';
+    h += '<td class="no-print" style="padding:7px 12px;text-align:center">';
+    h += '<a href="#dept-sec-'+dk+'" style="background:#f1f5f9;color:#1e293b;text-decoration:none;padding:3px 8px;border-radius:5px;font-weight:700;font-size:.68rem;border:1px solid #cbd5e1">&#8595; Ir</a>';
+    h += '</td>';
+    h += '</tr>';
+  });
+
+  // Fila de Totales
+  h += '<tr style="background:#f1f5f9;font-weight:900;border-top:2px solid #94a3b8">';
+  h += '<td style="padding:8px 12px;color:#0f172a">TOTAL TIENDA (5 DPTOS)</td>';
+  h += '<td style="padding:8px 12px;text-align:center;color:'+(totRows>0?'#c2410c':'#15803d')+'">'+totRows+' d&iacute;as KO</td>';
+  h += '<td style="padding:8px 12px;text-align:center;color:'+(totInc>0?'#b91c1c':'#15803d')+'">'+totInc+' alertas</td>';
+  h += '<td style="padding:8px 12px;text-align:center">' +
+       '<span style="background:#fee2e2;color:#b91c1c;padding:1px 5px;border-radius:4px">A:'+totAlta+'</span> ' +
+       '<span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:4px">M:'+totMedia+'</span> ' +
+       '<span style="background:#e2e8f0;color:#475569;padding:1px 5px;border-radius:4px">B:'+totBaja+'</span>' +
+       '</td>';
+  h += '<td style="padding:8px 12px;text-align:center;color:'+(totWorkersIssues>0?'#b45309':'#15803d')+'">'+totWorkersIssues+' de '+totPlantilla+' pers.</td>';
+  h += '<td style="padding:8px 12px;text-align:center">';
+  if(totAlta > 0) h += '<span style="color:#b91c1c;font-weight:900">&#9888; REVISI&Oacute;N PRIORITARIA</span>';
+  else if(totInc > 0 || totRows > 0) h += '<span style="color:#b45309;font-weight:900">&#9888; REQUIERE SEGUIMIENTO</span>';
+  else h += '<span style="color:#15803d;font-weight:900">&#10003; &Oacute;PTIMO</span>';
+  h += '</td>';
+  h += '<td class="no-print" style="padding:8px 12px;text-align:center">&mdash;</td>';
+  h += '</tr>';
+
+  h += '</tbody></table>';
+  h += '</div>'; // Fin tabla
+
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.68rem;color:#64748b">';
+  h += '<div>&bull; Normativa: Convenio Colectivo de Grandes Almacenes 2023-2026 (CCOO/FASGA) &nbsp;|&nbsp; Control de descansos semanales acumulables (art. 30), descanso diario 12h, festivos y vacaciones.</div>';
+  h += '<div style="font-weight:700;color:#1a237e">P&aacute;gina 1 / Control Resumen A4</div>';
+  h += '</div>';
+
+  h += '</div>'; // Fin global-summary-card
   return h;
 }
+
 function renderGlobal(){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const endD=new Date(today.getTime()+13*86400000);
-  function fmtD2(d){return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');}
+  const curPeriod = DEPT_INFORME_PERIODS[_deptInformeQuarter] || DEPT_INFORME_PERIODS.all;
 
-  let h='<div id="global-print-wrap" style="padding:16px 20px">';
+  let h = '<div id="global-print-wrap" style="padding:14px 20px;max-width:1200px;margin:0 auto">';
 
-  // toolbar
-  h+='<div class="no-print" style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">';
-  h+='<div style="font-size:1.1rem;font-weight:800;color:#1a237e">&#127760; Informe Global &mdash; todos los departamentos</div>';
-  h+='<div style="font-size:.8rem;color:#90a4ae;background:#f5f5f5;padding:4px 12px;border-radius:12px">'+fmtD2(today)+' &mdash; '+fmtD2(endD)+'/'+endD.getFullYear()+'</div>';
-  h+='<div style="margin-left:auto;display:flex;gap:8px">';
-  h+='<button onclick="printGlobal()" style="background:#1a237e;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#128438; Exportar PDF</button>';
-  h+='<button onclick="sendEmail()" style="background:#00897b;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#9993; Enviar email</button>';
-  h+='</div></div>';
+  // Toolbar superior interactivo (no-print)
+  h += '<div class="no-print" style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;padding:12px 18px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.05)">';
+  
+  // Fila 1: Título y botones de acción
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">';
+  h += '<div style="display:flex;align-items:center;gap:10px">';
+  h += '<div style="font-size:1.25rem;font-weight:900;color:#1a237e">&#127760; INFORME GLOBAL DE INCIDENCIAS</div>';
+  h += '<span style="font-size:.74rem;background:#e8eaf6;color:#1a237e;padding:3px 9px;border-radius:12px;font-weight:800">5 Departamentos</span>';
+  h += '</div>';
+  
+  h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+  h += '<button onclick="printGlobalSummaryOnly()" style="background:#e65100;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.76rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px" title="Imprime &uacute;nicamente la hoja del cuadro de mando en formato A4 apaisado">&#128438; Exportar Resumen A4 (1 Hoja)</button>';
+  h += '<button onclick="printGlobal()" style="background:#1a237e;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.76rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px" title="Imprime el cuadro de mando y el detalle de todos los departamentos">&#128438; Exportar PDF Completo</button>';
+  h += '<button onclick="exportGlobalInformeExcel()" style="background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.76rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px">&#128196; Exportar Excel Global</button>';
+  h += '</div>';
+  h += '</div>';
 
-  // dept sections
-  h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:20px">';
-  for(const dk of DEPT_KEYS){
-    h+='<div style="border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)">';
-    h+='<div style="background:'+DEPT_COLOR[dk]+';color:#fff;padding:10px 16px;font-weight:800;font-size:.95rem">'+DEPT_LABEL[dk]+'</div>';
-    h+=buildInformeHTML(dk);
-    h+='</div>';
-  }
-  h+='</div>'; // close dept grid
-  h+=buildWeeklyCoverage();
-  h+='</div>'; // close global-print-wrap
+  // Fila 2: Selector de período + Navegación rápida por dpto
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:10px;border-top:1px solid #f0f0f0">';
+  h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+  h += '<span style="font-size:.74rem;color:#546e7a;font-weight:800;margin-right:2px">PER&Iacute;ODO:</span>';
+  const _periodOptions = [
+    ['all', 'Todo el año'],
+    ['Q1', 'T1 (Ene-Mar)'],
+    ['Q2', 'T2 (Abr-Jun)'],
+    ['Q3', 'T3 (Jul-Sep)'],
+    ['Q4', 'T4 (Oct-Dic)']
+  ];
+  _periodOptions.forEach(function(opt){
+    const active = _deptInformeQuarter === opt[0];
+    h += '<button onclick="setDeptInformeQuarter(\''+opt[0]+'\')" style="padding:6px 13px;border-radius:8px;border:2px solid '+(active?'#1a237e':'#cfd8dc')+';background:'+(active?'#1a237e':'#fff')+';color:'+(active?'#fff':'#37474f')+';font-weight:700;font-size:.74rem;cursor:pointer;transition:all .15s">'+opt[1]+'</button>';
+  });
+  h += '</div>';
 
-  document.getElementById('view-global').innerHTML=h;
+  h += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+  h += '<span style="font-size:.72rem;color:#78909c;font-weight:700">SALTO R&Aacute;PIDO:</span>';
+  DEPT_KEYS.forEach(function(dk){
+    const dColor = {operaciones:'#3949ab',omnicanal:'#00897b',cajasac:'#e53935',muelle:'#6d4c41',postventa:'#455a64'};
+    const dLabel = {operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[dk] || dk;
+    h += '<a href="#dept-sec-'+dk+'" style="font-size:.7rem;font-weight:800;color:'+dColor[dk]+';text-decoration:none;background:#f8fafc;border:1px solid #e2e8f0;padding:4px 9px;border-radius:6px">'+dLabel+'</a>';
+  });
+  h += '</div>';
+
+  h += '</div>'; // Fin Fila 2
+  h += '</div>'; // Fin toolbar
+
+  // 1. CUADRO DE MANDO EJECUTIVO A4
+  h += buildGlobalSummaryA4HTML();
+
+  // 2. DETALLE DE TODOS LOS DEPARTAMENTOS
+  h += '<div class="global-dept-details" style="display:flex;flex-direction:column;gap:18px">';
+  DEPT_KEYS.forEach(function(dk){
+    h += buildInformeHTML(dk, true);
+  });
+  h += '</div>';
+
+  h += '</div>'; // Fin global-print-wrap
+  document.getElementById('view-global').innerHTML = h;
+}
+
+function exportGlobalInformeExcel(){
+  const today = new Date();
+  const dateStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  const curPeriod = DEPT_INFORME_PERIODS[_deptInformeQuarter] || DEPT_INFORME_PERIODS.all;
+  let csv = '\uFEFF';
+
+  // Cabecera global
+  csv += 'INFORME GLOBAL DE INCIDENCIAS - TIENDA ALBACETE 2026\r\n';
+  csv += 'Periodo: ' + curPeriod.label + '\r\n';
+  csv += 'Generado: ' + String(today.getDate()).padStart(2,'0')+'/'+String(today.getMonth()+1).padStart(2,'0')+'/'+today.getFullYear() + '\r\n\r\n';
+
+  // Resumen Ejecutivo Cuadro de Mando
+  csv += 'CUADRO DE MANDO TRIMESTRAL - RESUMEN POR DEPARTAMENTOS\r\n';
+  csv += 'Departamento;Dias Cobertura KO;Incumplimientos Convenio;Alta;Media;Baja;Personal c/ Incidencia;Total Plantilla\r\n';
+  DEPT_KEYS.forEach(function(dk){
+    const d = getDeptInformeData(dk);
+    csv += d.dLabel + ';' + d.rows.length + ';' + d.incPeriodo.length + ';' + d.bySev.alta + ';' + d.bySev.media + ';' + d.bySev.baja + ';' + d.workersWithIssues + ';' + d.rsum.length + '\r\n';
+  });
+  csv += '\r\n\r\n';
+
+  // Desglose por departamento
+  DEPT_KEYS.forEach(function(dk){
+    const d = getDeptInformeData(dk);
+    csv += '======================================================================\r\n';
+    csv += 'DEPARTAMENTO: ' + d.dLabel.toUpperCase() + ' (' + curPeriod.label + ')\r\n';
+    csv += '======================================================================\r\n\r\n';
+
+    // BLOQUE I
+    csv += 'BLOQUE I - COBERTURA MINIMA DE PRESENCIA\r\n';
+    csv += 'Fecha;Dia;Mes;Detalle Incidencia / Motivo\r\n';
+    d.rows.forEach(function(r){
+      const mot = (r.motivo || (r.slotsFail ? r.slotsFail + ' franjas KO ('+r.worstSlots+')' : 'Falta cobertura')).replace(/;/g,',');
+      csv += r.fecha+'/2026;' + r.diaN + ';' + r.mes + ';' + mot + '\r\n';
+    });
+    csv += '\r\n';
+
+    // BLOQUE II
+    csv += 'BLOQUE II - INCUMPLIMIENTOS DE CONVENIO (GRANDES ALMACENES)\r\n';
+    csv += 'Severidad;Trabajador;Fecha;Motivo;Detalle\r\n';
+    d.incPeriodo.forEach(function(i){
+      const fechaFmt = i.fecha ? (function(){ const p=i.fecha.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; })() : 'ANUAL';
+      csv += i.severidad.toUpperCase() + ';' + i.empleado + ';' + fechaFmt + ';' + i.tipo.replace(/;/g, ',') + ';' + i.detalle.replace(/;/g, ',') + '\r\n';
+    });
+    csv += '\r\n';
+
+    // BLOQUE III
+    csv += 'BLOQUE III - INCIDENCIAS POR TRABAJADOR (RESUMEN)\r\n';
+    csv += 'Trabajador;Exceso/Defecto Horas;Vacaciones (Real/Min);Compensatorios Pendientes;Sabados Calidad;Jornada Ampliada;Alertas Convenio\r\n';
+    d.rsum.forEach(function(r){
+      const hDiff = r.horas.diff > 0 ? '+'+r.horas.diff+'h' : (r.horas.diff < -20 ? r.horas.diff+'h' : 'OK');
+      const vac = r.vac.tot + '/' + r.vacMin + 'd';
+      const comp = (r.fest.tot > 0 && r.comp.tot < r.fest.tot) ? (r.fest.tot - r.comp.tot) + ' pend.' : 'OK';
+      const cal = (r.cal.obj > 0) ? r.cal.tot + '/' + r.cal.obj : 'N/A';
+      const ampl = (r.hAmpl.weeksKO > 0) ? r.hAmpl.weeksKO + ' sem.' : 'OK';
+      const conv = (d.incByEmp[r.name] || 0) + ' alertas';
+      csv += r.name + ';' + hDiff + ';' + vac + ';' + comp + ';' + cal + ';' + ampl + ';' + conv + '\r\n';
+    });
+    csv += '\r\n\r\n';
+  });
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'Informe_Global_' + _deptInformeQuarter + '_' + dateStr + '.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printGlobalSummaryOnly(){
+  document.body.classList.add('print-summary-only');
+  window.print();
+  setTimeout(function(){ document.body.classList.remove('print-summary-only'); }, 600);
 }
 
 
