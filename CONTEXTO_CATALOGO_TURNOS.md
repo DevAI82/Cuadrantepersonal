@@ -82,8 +82,18 @@ Cada entrada del catálogo contiene los siguientes campos deterministas:
 - `L` / `DL`: Descanso semanal / Día libre (0.0 h)
 - `V` / `VA`: Vacaciones anuales reglamentarias (0.0 h)
 - `C`: Compensatorio por festivo trabajado (0.0 h)
-- `J` / `JA`: Libre anual con cargo a exceso de horas (0.0 h)
+- `J`: Libre anual por exceso de horas del **año en curso** (0.0 h; **equivalente a un día libre ordinario del año en curso, computa como 0 horas**)
+- `JA`: Libre anual con cargo a horas debidas del **año anterior** (presencia física: 0.0 h; **para el cómputo y balance anual de horas SÍ se suman a la jornada**)
 - `E` / `AH`: Baja médica por Incapacidad Temporal / Ausencia médica (0.0 h)
+
+### Regla Canónica de Cómputo: Distinción entre Códigos JA y J
+1. **Código `J` (Exceso del Año en Curso)**:
+   - Supone una libranza concedida por horas de exceso generadas dentro del **año en curso (2026)**.
+   - Es **estrictamente equivalente a un día libre (`L`) del año en curso** y computa como **0,0 horas trabajadas**.
+2. **Código `JA` (Horas Debidas del Año Anterior)**:
+   - Supone horas debidas por exceso de jornada generado en el **ejercicio anterior (2025)** que el trabajador disfruta durante el año en curso.
+   - **En tienda / presencia física**: El empleado no asiste (0,0 h de presencia física en cuadrante diario).
+   - **En el cómputo y balance anual de horas (exceso / déficit)**: **SÍ se suman a las horas del año en curso**, valorándose según la jornada diaria habitual de cada trabajador (obtenida de `HORARIOS_DEF`, `OPER_H` o turno predominante; por ejemplo, 7,25 h en turno `T3J`, 8,0 h en `ZTV`, o media contractual). Esto garantiza que el exceso real de jornada quede fielmente reflejado sin distorsiones.
 - `PER` / `PM`: Permiso retribuido / Asuntos propios (0.0 h)
 - `FOR`: Jornada de formación interna (8.0 h)
 - `SPS`: Sin prestación de servicios / contrato inactivo (0.0 h)
@@ -116,3 +126,25 @@ with open("catalogo_turnos_completo.json", "r", encoding="utf-8") as f:
 info = catalogo["codigos"]["ZG6"]
 print(f"Turno: {info['codigo']}, Horario: {info['horario']}, Horas: {info['horas_trabajo_efectivo']}")
 ```
+
+---
+
+## 5. Caso Específico y Auditoría Oficial: Carlos Lapeña Carnicero
+
+- **Empleado**: 66108861 - CARLOS LAPEÑA CARNICERO (Operaciones)
+- **Jornada Teórica Contractual Oficial (RH / Nexo)**: **1.693,33 horas** (1.693 h 20 min) debido a la reducción de jornada aplicada.
+- **Días de presencia programados en 2026**: 248 días.
+- **Horas de presencia efectiva**:
+  - Calendario a 14.09: **1.709,12 horas** (1.709 h 7 min).
+  - Calendario actualizado a 21.09: **1.709,87 horas** (1.709 h 52 min, tras el ajuste de septiembre: 8 días pasan de V5J a T3J +2h y el 17/09 pasa de T3J a V7U -1,25h).
+- **Cómputo de Días JA (Horas debidas de 2025 disfrutadas en 2026)**:
+  - 3 días: 5, 6 y 25 de marzo.
+  - Valorados a su turno habitual T3J (7,25 h): $3 \times 7,25\text{ h} = \mathbf{+21,75\text{ horas}}$.
+- **Cómputo de Días J (Exceso de 2026 disfrutado en 2026)**:
+  - 1 día: 7 de marzo $\rightarrow \mathbf{0,0\text{ horas}}$ (día libre ordinario del año en curso).
+- **Jornada Anual Proyectada**:
+  $$\text{Horas Proyectadas} = 1.709,12\text{ h} + 21,75\text{ h} = \mathbf{1.730,87\text{ horas}}\quad (\approx 1.730,9\text{ h})$$
+- **Balance Oficial de Exceso**:
+  $$\text{Exceso de Jornada} = 1.730,87\text{ h} - 1.693,33\text{ h} = \mathbf{+37,54\text{ horas}}$$
+*(Con la actualización del 21.09, las horas proyectadas ascienden a 1.731,62 h con un exceso de +38,29 h).*
+
