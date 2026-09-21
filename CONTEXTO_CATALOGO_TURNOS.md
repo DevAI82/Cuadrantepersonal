@@ -148,3 +148,27 @@ print(f"Turno: {info['codigo']}, Horario: {info['horario']}, Horas: {info['horas
   $$\text{Exceso de Jornada} = 1.730,87\text{ h} - 1.693,33\text{ h} = \mathbf{+37,54\text{ horas}}$$
 *(Con la actualización del 21.09, las horas proyectadas ascienden a 1.731,62 h con un exceso de +38,29 h).*
 
+---
+
+## 6. Caso Específico y Auditoría Oficial: Elena Ródenas Cebrián
+
+- **Empleado**: 78714821 - ELENA RÓDENAS CEBRIÁN (Operaciones / Caja)
+- **Jornada Teórica Contractual Oficial (RH / Nexo)**: **1.721,00 horas** (equivalente al 97,23% de jornada anual de 1.770 h).
+- **Desglose de Horas Presenciales y Proyectadas**:
+  - **Horas presenciales computadas en cuadrante base (sin Z)**: $1.628,50\text{ horas}$.
+  - **1 día JA (30 de enero)**: $+6,50\text{ horas}$ (horas debidas de 2025 libradas en 2026, turno habitual V7W/VQL de 6,5 h).
+  - **12 días laborables con Código Z (Período de transición Caja $\rightarrow$ Operaciones)**:
+    - *22 al 30 de abril (8 días laborables en Caja, turno P9D de 6,25 h; domingo 26 libre)*: $8 \times 6,25\text{ h} = \mathbf{+50,00\text{ horas}}$.
+    - *1 al 4 de junio (3 días laborables en Operaciones; jueves 4 festivo de cierre Corpus Christi)*: $3 \times 8,833\text{ h} = \mathbf{+26,50\text{ horas}}$.
+    - **Total días Z**: $\mathbf{+76,50\text{ horas}}$.
+- **Jornada Anual Proyectada Oficial (Nexo)**:
+  $$\text{Jornada Proyectada} = 1.628,50\text{ h} + 6,50\text{ h} + 76,50\text{ h} = \mathbf{1.711,50\text{ horas}}\quad (\approx 1.711\text{ h})$$
+- **Balance Oficial de Jornada**:
+  $$\text{Balance / Diferencia} = 1.711,50\text{ h} - 1.721,00\text{ h} = \mathbf{-9,50\text{ horas}}\quad \text{(le faltan 9,5 h por trabajar)}$$
+- **Origen de la Discrepancia Previa en la Aplicación (-57,1 h vs -9,5 h = 47,6 h)**:
+  1. **Omisión de los días con turno Z (+76,5 h)**: En la versión inicial de la aplicación, el código `Z` no tenía asignación horaria explícita (`0,0 h`), computando los 12 días laborables como si fueran descansos.
+  2. **Divergencia en la Jornada Teórica Contractual (+28,9 h)**: En la app se había estimado provisionalmente una teórica de 1.696,7 h, y además el motor restaba 4,6 h por 1 día de ausencia médica aislada `AH` (13 de abril), situando el máximo exigible en $1.692,1\text{ h}$ frente a los **$1.721,0\text{ h}$** oficiales de Nexo.
+  3. **Cuadratura matemática exacta**:
+     $$(1.635,0\text{ h} - 1.692,1\text{ h}) = -57,1\text{ h} \quad\text{frente a}\quad (1.711,5\text{ h} - 1.721,0\text{ h}) = -9,5\text{ h}$$
+     $$\text{Diferencia explicada} = -9,5\text{ h} - (-57,1\text{ h}) = \mathbf{+47,6\text{ horas}}.$$
+

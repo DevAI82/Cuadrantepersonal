@@ -220565,11 +220565,11 @@
       "numero_empleado": "78714821",
       "nombre": "ELENA RODENAS CEBRIAN",
       "departamento": "OPERACIONES",
-      "horas_anuales_objetivo": 1770,
-      "porcentaje_jornada": "100.0%",
+      "horas_anuales_objetivo": 1721,
+      "porcentaje_jornada": "97.23%",
       "totales_2026": {
-        "horas_proyectadas": 1628.5,
-        "dias_trabajados": 235,
+        "horas_proyectadas": 1711.5,
+        "dias_trabajados": 246,
         "dias_vacaciones": 31,
         "dias_baja": 1,
         "dias_libre": 26,
@@ -222137,13 +222137,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-23": {
           "fecha": "2026-04-23",
@@ -222151,13 +222151,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-24": {
           "fecha": "2026-04-24",
@@ -222165,13 +222165,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-25": {
           "fecha": "2026-04-25",
@@ -222179,13 +222179,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-26": {
           "fecha": "2026-04-26",
@@ -222207,13 +222207,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-28": {
           "fecha": "2026-04-28",
@@ -222221,13 +222221,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-29": {
           "fecha": "2026-04-29",
@@ -222235,13 +222235,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-04-30": {
           "fecha": "2026-04-30",
@@ -222249,13 +222249,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Caja (P9D)",
+          "tipo_dia": "TRABAJO",
+          "horas": 6.25,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Caja (P9D 6.25h)"
         },
         "2026-05-01": {
           "fecha": "2026-05-01",
@@ -222697,13 +222697,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Operaciones",
+          "tipo_dia": "TRABAJO",
+          "horas": 8.83,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Operaciones (8.83h)"
         },
         "2026-06-02": {
           "fecha": "2026-06-02",
@@ -222711,13 +222711,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Operaciones",
+          "tipo_dia": "TRABAJO",
+          "horas": 8.83,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Operaciones (8.83h)"
         },
         "2026-06-03": {
           "fecha": "2026-06-03",
@@ -222725,13 +222725,13 @@
           "codigo_turno": "Z",
           "codigo_base": "Z",
           "turno": "--",
-          "tipo_turno": "--",
-          "tipo_dia": "DESCANSO",
-          "horas": 0,
+          "tipo_turno": "Transición Operaciones",
+          "tipo_dia": "TRABAJO",
+          "horas": 8.83,
           "hora_entrada": null,
           "hora_salida": null,
           "minutos_descanso": 0,
-          "clasificacion_descripcion": "--"
+          "clasificacion_descripcion": "Transición Operaciones (8.83h)"
         },
         "2026-06-04": {
           "fecha": "2026-06-04",
@@ -436487,7 +436487,7 @@
         "turno": "LIB",
         "tipo_turno": "Libre",
         "tipo_dia": "NO_TRABAJO",
-        "horas": 0.0,
+        "horas": 0,
         "hora_entrada": "",
         "hora_salida": "",
         "minutos_descanso": 0,
@@ -482969,7 +482969,7 @@
         "turno": "LIB",
         "tipo_turno": "Exceso horas",
         "tipo_dia": "NO_TRABAJO",
-        "horas": 0.0,
+        "horas": 0,
         "hora_entrada": "16:00",
         "hora_salida": "22:00",
         "minutos_descanso": 0,

@@ -1,5 +1,5 @@
 // Service Worker — Cuadrante Personal 2026
-const CACHE = 'cuadrante-v17';
+const CACHE = 'cuadrante-v18';
 const ASSETS = [
   '/Cuadrantepersonal/',
   '/Cuadrantepersonal/index.html',

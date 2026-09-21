@@ -6026,7 +6026,7 @@ function _detectarIncumplimientos(dept){
       } else if((dia.lbl==='JA' || dia.code==='JA') && !FESTIVOS_CIERRE[dia.dsStr]){
         horasAnuales += calcHorasDia(dept, ei, dia.code, dia.dsStr);
       }
-      if(dia.lbl==='BAJ') bajaDiasInc++;
+      if(dia.lbl==='BAJ' && dia.code!=='AH') bajaDiasInc++;
     }
     const maxAnualTeorico = (JORNADA_MAX_H[dept]||[])[ei] || CONVENIO_JORNADA_MAX_ANUAL;
     const maxAnual = Math.round((maxAnualTeorico*(1-bajaDiasInc/365))*10)/10;
@@ -8607,8 +8607,8 @@ const OPER_H = [
   7 + 40/60,                    // MIRELLA:  7h40m (Z5G) → 94.85% jornada
   7,                            // VICENTE:  7h00m media (VRA, VAL, VIN, AQM, 4QG)
 ];
-// Teórico anual por empleado (100% = 1770h; Carlos al 95.67% = 1693.33h teórica oficial; Mirella al 94.85% = 1678.8h)
-const OPER_ANNUAL_MAX = [1693.33, 1696.7, 1770.0, 1678.8, 1770.0]; // Carlos (1693.33h teórica oficial), Elena (1696.7h), Jose (1770h), Mirella (1678.8h), Vicente (1770h)
+// Teórico anual por empleado (100% = 1770h; Carlos al 95.67% = 1693.33h; Elena al 97.23% = 1721.0h; Mirella al 94.85% = 1678.8h)
+const OPER_ANNUAL_MAX = [1693.33, 1721.0, 1770.0, 1678.8, 1770.0]; // Carlos (1693.33h teórica oficial), Elena (1721.0h teórica oficial), Jose (1770h), Mirella (1678.8h), Vicente (1770h)
 
 // ===== HORAS SEMANALES =====
 function horasParaCodigo(code, empIdx, dsStr) {
@@ -8616,7 +8616,7 @@ function horasParaCodigo(code, empIdx, dsStr) {
   const num = (/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
   if (!isNaN(num)) return num;  // fichaje real (Jose)
   const cBase = String(code||'').replace(/\*+$/, '').trim();
-  if (cBase === 'JA' || code === 'JA') {
+  if (cBase === 'JA' || code === 'JA' || cBase === 'Z' || code === 'Z') {
     return calcHorasDia(activeDept, empIdx, code, dsStr);
   }
   const lbl = eq(code)[0];
@@ -12377,7 +12377,7 @@ function initDiaPreviewChart(dsStr, dept) {
 
 // ── Jornada máxima anual (horas) por dept e índice de empleado
 const JORNADA_MAX_H={
-  operaciones:[1693.33, 1696.7, 1770.0, 1678.8, 1770.0], // Carlos: 1693.33h (1693h 20m teórica oficial por reducción), Elena: 87.5% hasta 1-may (1696.7h), Mirella: 94.85% (1678.8h)
+  operaciones:[1693.33, 1721.0, 1770.0, 1678.8, 1770.0], // Carlos: 1693.33h, Elena: 1721.0h (teórica oficial Nexo), Mirella: 94.85% (1678.8h)
   omnicanal:[1614.2, 1770.0, 885.0, 1614.2, 1593.0, 1614.2, 1614.2, 1044.3, 1770.0, 1593.0, 1062.0, 1239.0, 1614.2, 1495.7, 1416.0, 1150.5, 1614.2, 1770.0, 1770.0, 1770.0],
   cajasac:[1327.5, 1548.8, 1770.0, 531.0, 1770.0, 1380.6, 1631.9, 1416.0, 1631.9, 531.0, 1770.0],
   muelle:[1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
@@ -12402,6 +12402,22 @@ function calcHorasDia(dept,ei,code,dsStr){
   if(cBase === 'VUP') return 4.0;
   if(cBase === 'VDL') return 4.0;
   if(cBase === 'V84') return 4.0;
+
+  // ── Código Z: Turno de transición entre departamentos (Elena Ródenas) ──
+  // Elena tiene 13 días con Z en el calendario oficial:
+  // - 22 al 30 de abril (8 días laborables en Caja, turno P9D de 6,25h = 50,0h; domingo 26 libre = 0h)
+  // - 1 al 4 de junio (3 días laborables en Operaciones, 26,5h / 3 = 8,833h; 4 de junio es Corpus Christi cierre)
+  // Total = +76,5h para cuadrar la proyección oficial de 1.711,5h
+  if(cBase === 'Z'){
+    if(dsStr){
+      const p = dsStr.split('-').map(Number);
+      const dw = new Date(p[0], p[1]-1, p[2]).getDay();
+      if(dw === 0) return 0; // Domingo
+    }
+    if(dsStr && dsStr.startsWith('2026-04')) return 6.25;
+    if(dsStr && dsStr.startsWith('2026-06')) return 26.5 / 3;
+    return 6.5;
+  }
 
   // ── Regla Canónica JA: Horas debidas del año anterior ──
   // El código JA supone horas debidas del año anterior (2025) que el trabajador
@@ -12596,7 +12612,7 @@ function calcResumenTrabajador(dept){
       if(lbl==='VAC'){isPast?vacPast++:vacFut++;}
       if(lbl==='COM'){isPast?compPast++:compFut++;}
       if(lbl==='PER'){isPast?perPast++:perFut++;}
-      if(lbl==='BAJ') bajaDias++;
+      if(lbl==='BAJ' && code!=='AH') bajaDias++;
       if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})){isPast?festPast++:festFut++;}
       if(['MAN','TAR','PAR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]) workDays++;
       if(isHoraAmpliada(dept,ei,code,dsStr)){
