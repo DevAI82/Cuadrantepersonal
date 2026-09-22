@@ -5089,6 +5089,7 @@ const FESTIVOS_CIERRE = {
   '2026-12-25':1, // Navidad
   // Autonómicos (Castilla-La Mancha)
   '2026-06-04':1, // Corpus Christi
+  '2026-11-02':1, // Todos los Santos (trasladado del domingo 1-nov) — no apertura
   // Locales (Albacete)
   '2026-06-24':1, // San Juan (patrón de Albacete)
   '2026-09-08':1  // Virgen de los Llanos (Feria de Albacete)
@@ -5462,9 +5463,9 @@ function muelleAlerts(y,m,d){if(activeDept!=='muelle')return[];if(isCierre(ds(y,
 // RECEPCIÓN: alerta si los 2 que quedan están ausentes (Miguel A., Carlos).
 // Antes también contaba a Toni Arenas (idx 0 antiguo) — eliminado de la
 // empresa (excedencia 28-sep-2026), ya no forma parte de esta cobertura.
-const _wkLbls=['MAN','TAR','PAR','COM'];const _migAWk=_wkLbls.includes(lbl(4));const _carWk=_carlosWorking(ds(y,m,d));if(!_migAWk&&!_carWk)a.push('⚠ RECEPCIÓN: Sin cobertura (Miguel A. y Carlos ausentes');
+const _wkLbls=['MAN','TAR','PAR'];const _migAWk=_wkLbls.includes(lbl(4));const _carWk=_carlosWorking(ds(y,m,d));if(!_migAWk&&!_carWk)a.push('⚠ RECEPCIÓN: Sin cobertura (Miguel A. y Carlos ausentes');
   // Mínimo de personas trabajando
-  const _working=c.filter((_,ei)=>{const l=eq(c[ei]||'0')[0];return l==='MAN'||l==='PAR'||l==='COM';}).length;
+  const _working=c.filter((_,ei)=>{const l=eq(c[ei]||'0')[0];return l==='MAN'||l==='PAR';}).length;
   const _isSab=_dw===6;
   const _minimo=_isSab?3:4;
   if(_dw!==0&&_working<_minimo)a.push('⚠ PLANTILLA: solo '+_working+' trabajando (mín. '+_minimo+(_isSab?' sáb':' L-V')+')');
@@ -5491,7 +5492,7 @@ const _minPresenciaDefaults = {
   muelle_sab:   3,         // Muelle Sábado 07:30–13:30
   muelle_apert: 3,         // Muelle apertura 06:00–07:30 (Mar-Sáb)
   muelle_lun:   2,         // Muelle Lunes descarga 06:00–09:30
-  oper_min:     3          // Operaciones: alerta si hay menos de N personas
+  oper_min:     1          // Operaciones: alerta si hay menos de N personas
 };
 let _minPresencia = Object.assign({}, _minPresenciaDefaults);
 try {
@@ -5788,6 +5789,7 @@ function _emUpdatePreview(dept,empIdx,dsStr,code){
               opt.selected=true;
             } else if(isCompOther){
               txt+=' [Ya compensado el '+wf.compDateBy+']';
+              opt.disabled=true; // un festivo solo puede compensarse con un C
             } else {
               txt+=' ⭐ (Pendiente de compensar)';
               hasPending=true;
@@ -5999,6 +6001,50 @@ const CONVENIO_AMPL_100_FESTIVO_H = 9, CONVENIO_AMPL_100_NORMAL_H = 8; // regla 
 const CONVENIO_AMPL_PARCIAL_H = 9, CONVENIO_AMPL_PARCIAL_MAXDIAS_SEM = 3; // regla 6, <100% jornada
 
 // (_pctJornada definido arriba)
+const CONVENIO_FESTIVO_H = 9;          // festivo de apertura trabajado: obligatorio 9h
+const FESTIVO_9H_EXENTOS = ['muelle']; // departamentos sin obligación de 9h en festivo
+const CONVENIO_JEFE_MAX_H = 9;         // jefes: máximo 9h/día
+const CONVENIO_JEFE_MAX_DIAS_9H = 12;  // jefes: máximo 12 días de 9h al año (festivos incluidos)
+const JEFES_PATRONES = [/OLMEDA/i, /ELENA\s+RODENAS/i, /VICENTE\s+RODENAS/i, /CARLOS\s+LAPE/i];
+function _esJefe(nombre){ return JEFES_PATRONES.some(r => r.test(nombre||'')); }
+
+// Lunes (00:00) de la semana de una fecha 'YYYY-MM-DD', en días desde época.
+function _lunesDia(dsStr){
+  const [y,m,d] = dsStr.split('-').map(Number);
+  const t = Date.UTC(y,m-1,d)/86400000;
+  const dw = (new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7; // 0=lunes
+  return t - dw;
+}
+
+// Asigna a cada festivo trabajado UN día C distinto (nunca se reutiliza un C).
+// 1º respeta los vínculos manuales (_compFestivos: C → festivo), 2º empareja
+// los restantes con el C libre más temprano en la semana anterior/misma/siguiente.
+// Devuelve { 'YYYY-MM-DD festivo': 'YYYY-MM-DD del C' }.
+function _emparejarCompensados(dept, ei, festivosTrabajados){
+  const raw = (DEPTS[dept]||{raw:{}}).raw;
+  const esC = dsStr => {
+    const c = (raw[dsStr]||[])[ei] || '0';
+    return c === 'C' || resolveShiftCell(dept, ei, c, dsStr).lbl === 'COM';
+  };
+  const cDias = Object.keys(raw).filter(esC).sort();
+  const usados = new Set();
+  const asign = {};
+  const pend = new Set(festivosTrabajados);
+  if(typeof _compFestivos !== 'undefined'){
+    for(const [k, fDate] of Object.entries(_compFestivos)){
+      const [kDept, kEi, kDs] = k.split('|');
+      if(kDept !== dept || parseInt(kEi) !== ei) continue;
+      if(!pend.has(fDate) || usados.has(kDs) || !esC(kDs)) continue;
+      asign[fDate] = kDs; usados.add(kDs); pend.delete(fDate);
+    }
+  }
+  for(const f of [...pend].sort()){
+    const fL = _lunesDia(f);
+    const c = cDias.find(cd => !usados.has(cd) && Math.abs(_lunesDia(cd) - fL) <= 7);
+    if(c){ asign[f] = c; usados.add(c); }
+  }
+  return asign;
+}
 
 // Recorre TODO el año 2026 de un departamento y detecta incidencias.
 function _detectarIncumplimientos(dept){
@@ -6181,20 +6227,43 @@ function _detectarIncumplimientos(dept){
       }
     }
 
-    // ── 6) Horarios ampliados (dos niveles según % de jornada) ──
-    // Agrupamos por semana ISO para el caso <100% (máx. 3 días de 9h/semana).
+    // ── 6) Horarios ampliados y festivos de 9h (reglas del usuario, 22-sep-2026) ──
+    //   a) Festivo de apertura trabajado: OBLIGATORIO 9h, solo jornada completa (100%)
+    //      y no aplica en Muelle.
+    //   b) Jefes (Jose Olmeda, Elena, Vicente, Carlos), sea cual sea su % de jornada:
+    //      máx. 9h/día y como mucho 12 días de 9h al año (festivos incluidos).
+    //   c) Resto 100% jornada: 9h solo en festivos de apertura; resto de días máx. 8h.
+    //   d) Resto <100%: máx. 9h/día y máx. 3 días >8h por semana ISO.
+    const esJefe = _esJefe(nombre);
+    const dias9h = []; // jefes: días con 9h o más
     const diasAmpliadosPorSemana = {}; // 'YYYY-Www' -> [{dsStr,h}]
     for(const dia of dias){
       if(!dia.isWork) continue;
       if(FESTIVOS_CIERRE[dia.dsStr]) continue;
       const h = dia.horasNum || calcHorasDia(dept, ei, dia.code, dia.dsStr);
       const esFestivoAp = FESTIVOS_AP.some(f=>f.date===dia.dsStr);
-      if(esCien){
+      if(esFestivoAp && esCien && !FESTIVO_9H_EXENTOS.includes(dept) && h < CONVENIO_FESTIVO_H - 0.05){
+        incidencias.push({
+          tipo:'Festivo de apertura sin 9h', severidad:'media', empleado:nombre,
+          detalle:`${dia.dsStr}: festivo de apertura trabajado con ${h.toFixed(2)}h — obligatorio trabajar 9h (jornada completa)`,
+          fecha:dia.dsStr
+        });
+      }
+      if(esJefe){
+        if(h > CONVENIO_JEFE_MAX_H + 0.05){
+          incidencias.push({
+            tipo:'Horario ampliado fuera de límite (jefe)', severidad:'media', empleado:nombre,
+            detalle:`${dia.dsStr}: ${h.toFixed(2)}h trabajadas — máximo 9h/día`,
+            fecha:dia.dsStr
+          });
+        }
+        if(h >= CONVENIO_JEFE_MAX_H - 0.05) dias9h.push({dsStr:dia.dsStr, h, fest:esFestivoAp});
+      } else if(esCien){
         const tope = esFestivoAp ? CONVENIO_AMPL_100_FESTIVO_H : CONVENIO_AMPL_100_NORMAL_H;
         if(h > tope + 0.05){
           incidencias.push({
             tipo:'Horario ampliado fuera de límite (100% jornada)', severidad:'media', empleado:nombre,
-            detalle:`${dia.dsStr}: ${h.toFixed(1)}h trabajadas ${esFestivoAp?'(festivo de apertura, máx. 9h)':'(día normal, máx. 8h)'}`,
+            detalle:`${dia.dsStr}: ${h.toFixed(2)}h trabajadas ${esFestivoAp?'(festivo de apertura, máx. 9h)':'(día normal, máx. 8h — 9h solo en festivos de apertura)'}`,
             fecha:dia.dsStr
           });
         }
@@ -6202,7 +6271,7 @@ function _detectarIncumplimientos(dept){
         if(h > CONVENIO_AMPL_PARCIAL_H + 0.05){
           incidencias.push({
             tipo:'Horario ampliado fuera de límite (jornada parcial)', severidad:'media', empleado:nombre,
-            detalle:`${dia.dsStr}: ${h.toFixed(1)}h trabajadas — máximo 9h/día para jornada parcial`,
+            detalle:`${dia.dsStr}: ${h.toFixed(2)}h trabajadas — máximo 9h/día para jornada parcial`,
             fecha:dia.dsStr
           });
         }
@@ -6214,7 +6283,15 @@ function _detectarIncumplimientos(dept){
         }
       }
     }
-    if(!esCien){
+    if(esJefe && dias9h.length > CONVENIO_JEFE_MAX_DIAS_9H){
+      const nFest = dias9h.filter(d=>d.fest).length;
+      incidencias.push({
+        tipo:'Jefe: más de 12 días de 9h al año', severidad:'media', empleado:nombre,
+        detalle:`${dias9h.length} días de 9h en 2026 (${nFest} festivos de apertura + ${dias9h.length-nFest} días normales) — máximo 12. Fechas: ${dias9h.map(d=>d.dsStr.slice(8)+'/'+d.dsStr.slice(5,7)+(d.fest?'(F)':'')).join(', ')}`,
+        fecha:null
+      });
+    }
+    if(!esJefe && !esCien){
       for(const [wkKey, arr] of Object.entries(diasAmpliadosPorSemana)){
         if(arr.length > CONVENIO_AMPL_PARCIAL_MAXDIAS_SEM){
           incidencias.push({
@@ -6241,41 +6318,13 @@ function _detectarIncumplimientos(dept){
         fecha:null
       });
     }
+    // Emparejamiento uno a uno: cada día C compensa como máximo UN festivo.
+    const asign = _emparejarCompensados(dept, ei, festivosTrabajados);
     for(const fecha of festivosTrabajados){
-      const fWk = getISOWeek(fecha);
-      const fYear = new Date(fecha+'T00:00').getFullYear();
-      let compensado = false;
-
-      // 1. Vinculación explícita mediante Regla de Oro (_compFestivos)
-      if(typeof _compFestivos !== 'undefined'){
-        for(const [compK, fDate] of Object.entries(_compFestivos)){
-          const [cDept, cEi, cDate] = compK.split('|');
-          if(cDept === dept && parseInt(cEi) === ei && fDate === fecha){
-            const cCode = (raw[cDate]||[])[ei] || '0';
-            const cRes = resolveShiftCell(dept, ei, cCode, cDate);
-            if(cRes.lbl === 'COM' || cCode === 'C'){
-              compensado = true;
-              break;
-            }
-          }
-        }
-      }
-
-      // 2. Si no está vinculado explícitamente, comprobar proximidad de semana (-1, 0, +1)
-      if(!compensado){
-        for(const dia of dias){
-          if(dia.lbl !== 'COM') continue;
-          const dWk = getISOWeek(dia.dsStr);
-          const dYear = dia.date.getFullYear();
-          if(dYear===fYear && Math.abs(dWk-fWk)<=1){ compensado = true; break; }
-          if(Math.abs(dWk-fWk)>=51){ compensado = true; break; }
-        }
-      }
-
-      if(!compensado){
+      if(!asign[fecha]){
         incidencias.push({
           tipo:'Festivo de apertura sin compensar', severidad:'alta', empleado:nombre,
-          detalle:`Festivo trabajado el ${fecha} sin día Compensado (C) en la semana anterior/misma/siguiente (art. convenio compensación festivos)`,
+          detalle:`Festivo trabajado el ${fecha} sin día Compensado (C) propio en la semana anterior/misma/siguiente (cada C solo compensa un festivo)`,
           fecha:fecha
         });
       }
@@ -6451,8 +6500,8 @@ function absentWorking(y,m,d){
     // 2026-09-16 tras aviso del usuario: Antonio no se contaba como
     // cobertura de tarde pese a trabajar 13:00-22:00 el 26-sep.)
     const l=eq(codes[i]||'0')[0];
-    if(l==='LIB'||l==='VAC'||l==='BAJ'||l==='J'||l==='JA') ab++;
-    else if(l==='MAN'||l==='TAR'||l==='PAR'||l==='COM') wk++;
+    if(l==='LIB'||l==='VAC'||l==='BAJ'||l==='J'||l==='JA'||l==='COM') ab++;
+    else if(l==='MAN'||l==='TAR'||l==='PAR') wk++;
   }
   return [ab,wk];
 }
@@ -6462,8 +6511,8 @@ function cajaAlerts(y,m,d){
   if(isClosedDay(ds(y,m,d),dow(y,m,d))) return [];
   const c=getCode(y,m,d); const a=[];
   const lbl=i=>eq(c[i]||'0')[0];
-  const working=l=>['MAN','TAR','PAR','COM'].includes(l);
-  const manWorking=l=>['MAN','PAR','COM'].includes(l);
+  const working=l=>['MAN','TAR','PAR'].includes(l);
+  const manWorking=l=>['MAN','PAR'].includes(l);
   const tarWorking=l=>['TAR','PAR'].includes(l);
   // Regla CAJA: Siempre debe haber alguno de los 3 (Carla, Isabel o Pedro) trabajando en horario de mañana
   const carlaIdx = EMPS().findIndex(n=>n.toUpperCase().includes('CARLA'));
@@ -6501,14 +6550,13 @@ function countDay(y,m,d){
       const sp=parSplit(activeDept,i,code,ds(y,m,d));
       if(sp.man)man++; if(sp.tar)tar++;
     }
-    else if(l==='COM'){total++;names.push(EMPS()[i]);}
   }
   return {total,man,tar,names};
 }
 
 // ===== RESUMEN =====
 const DEPT_THR = {
-  operaciones: {detail:'names',   label:'Alerta roja si hay menos trabajadores del mínimo configurado'},
+  operaciones: {detail:'names',   label:'Alerta roja si hay menos trabajadores del mínimo o si Vicente y Elena faltan a la vez'},
   omnicanal:   {minOK:7, detail:'manytar', label:'Alerta roja si menos de 7 trabajadores (muestra M/T)'},
   cajasac:     {minOK:7, detail:'manytar', label:'Alerta roja si 6 o menos trabajadores (muestra M/T)'},
   muelle:      {detail:'names',   label:'L-V: mín. configurado / Sáb: mín. configurado + alertas subgrupos'}
@@ -6796,7 +6844,7 @@ function renderWeekly(){
       const dd=new Date(ws.getTime()+i*86400000),dw=dd.getDay()===0?6:dd.getDay()-1;
       if(isClosedDay(dsFromDate(dd),dw)){h+='<td class="sum-wk"></td>';continue;}
       const c2=getCode(dd.getFullYear(),dd.getMonth()+1,dd.getDate())||[];
-      let cnt=sg.idx.filter(ei=>{const l=eq(c2[ei]||'0')[0];return l==='MAN'||l==='PAR'||l==='COM';}).length;
+      let cnt=sg.idx.filter(ei=>{const l=eq(c2[ei]||'0')[0];return l==='MAN'||l==='PAR';}).length;
       // Carlos (Operaciones) cuenta en RECEPCIÓN de Muelle
       if(sg.l==='RECEPCIÓN'&&_carlosWorking(dsFromDate(dd))) cnt++;
       h+='<td style="text-align:center;padding:3px 2px;background:'+sg.bg+';font-size:.8rem;font-weight:800;color:'+sg.co+'">'+cnt+'</td>';
@@ -7491,7 +7539,7 @@ function muelleHasSlotIncidencia(y,m,d){
     let count=0;
     for(let i=0;i<7;i++){
       const lbl=eq(raw[i]||'0')[0];
-      if(lbl==='MAN'||lbl==='PAR'||lbl==='COM'){
+      if(lbl==='MAN'||lbl==='PAR'){
         if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count++;
       }
     }
@@ -7500,12 +7548,33 @@ function muelleHasSlotIncidencia(y,m,d){
   return false;
 }
 
+// ── Operaciones: 2 reglas de cobertura (indicadas por el usuario, 22-sep-2026) ──
+//   1. Al menos N personas trabajando (N = _minPresencia.oper_min, por defecto 1).
+//   2. Vicente y Elena no pueden faltar a la vez: al menos uno de los dos debe
+//      estar trabajando ese día (L, V, C, baja, J/JA… cuentan como ausencia).
+// Presencia física = MAN/TAR/PAR. El código C (Compensado) es ausencia, como L o V.
+const _OPER_AUS_TXT={LIB:'Libre',VAC:'Vacaciones',COM:'Compensado',BAJ:'Baja',J:'J',JA:'JA',SPS:'Sin cto.',PER:'Permiso',FOR:'Formación'};
+function _operIncidencias(y,m,d){
+  const op=DEPTS.operaciones||{employees:[],raw:{}};
+  const raw=op.raw[ds(y,m,d)]||[];
+  const lblOf=i=>eq(raw[i]||'0')[0];
+  const pres=i=>['MAN','TAR','PAR'].includes(lblOf(i));
+  const aus=i=>_OPER_AUS_TXT[lblOf(i)]||(raw[i]&&raw[i]!=='0'?raw[i]:'sin turno');
+  const out=[];
+  const n=op.employees.filter((_,i)=>pres(i)).length;
+  const min=_minPresencia.oper_min||1;
+  if(n<min) out.push(n===0?'Nadie trabajando':'Solo '+n+' trabajando (mín. '+min+')');
+  const vi=op.employees.findIndex(e=>/VICENTE/i.test(e));
+  const el=op.employees.findIndex(e=>/ELENA/i.test(e));
+  if(vi!==-1&&el!==-1&&!pres(vi)&&!pres(el)){
+    out.push('Vicente ('+aus(vi)+') y Elena ('+aus(el)+') ausentes a la vez');
+  }
+  return out;
+}
+
 function hayIncidencia(y,m,d){
   if(activeDept==='operaciones'){
-    const codes=getCode(y,m,d)||[];
-    const WK=['MAN','TAR','PAR','COM'];
-    const working=codes.filter(function(c){return WK.includes(eq(c||'0')[0]);}).length;
-    return working < _minPresencia.oper_min;
+    return _operIncidencias(y,m,d).length>0;
   }
   if(activeDept==='omnicanal'){
     return omniSlotsForDay(ds(y,m,d)).filter(s=>s.fail).length>=2;
@@ -7529,12 +7598,7 @@ function buildIncidenciasPage(sy,sm){
   for(let i=0;i<3;i++){months.push({y,m});m++;if(m>12){m=1;y++;}}
   function motivo(y,m,d){
     if(activeDept==='operaciones'){
-      const codes=getCode(y,m,d)||[];
-      const WK=['MAN','TAR','PAR','COM'];
-      const out=[];
-      const NAMES=['Vicente','Elena','Carlos','Mirella','Jose'];
-      NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
-      return out.join(', ');
+      return _operIncidencias(y,m,d).join(' · ');
     }
     if(activeDept==='omnicanal'){
       const {man,tar}=countDay(y,m,d);
@@ -7556,7 +7620,7 @@ function buildIncidenciasPage(sy,sm){
   }
 
   function criterioLabel(){
-    if(activeDept==='operaciones') return 'Vicente y Elena coinciden sin trabajar el mismo día';
+    if(activeDept==='operaciones') return 'mín. '+(_minPresencia.oper_min||1)+' persona trabajando · Vicente y Elena no pueden estar ausentes el mismo día (L, V, C, baja…)';
     if(activeDept==='omnicanal') return 'cobertura < mínimo (Valle: 3 pers. · Pico: 5 pers.) en franja 10:00-22:00';
     if(activeDept==='cajasac') return 'mín. 1 cajero (Carla/Isabel/Pedro) de mañana · mín. 3 M/T · mín. 2 SAC';
     if(activeDept==='muelle') return 'L-V: menos de 4 personas / Sáb: menos de 3 + alertas de subgrupos (POSTVENTA, MOZOS, RECEPCIÓN)';
@@ -7737,7 +7801,7 @@ function renderMonthBlock(y,m){
         const dw=dow(y,m,d);
         if(isClosedDay(ds(y,m,d),dw)){h+='<td class="sum-wk"></td>';continue;}
         const c2=getCode(y,m,d)||[];
-        let cnt=sg.idx.filter(ei=>{const l=eq(c2[ei]||'0')[0];return l==='MAN'||l==='PAR'||l==='COM';}).length;
+        let cnt=sg.idx.filter(ei=>{const l=eq(c2[ei]||'0')[0];return l==='MAN'||l==='PAR';}).length;
         if(sg.l==='REC'&&_carlosWorking(ds(y,m,d))) cnt++;
         h+='<td style="text-align:center;padding:1px;background:'+sg.bg+';font-size:.65rem;font-weight:800;color:'+sg.co+'">'+cnt+'</td>';
       }
@@ -8277,7 +8341,7 @@ function renderEmpleado(){
       if(lbl==='COM') _comp++;
       if(lbl==='PER') _per++;
       if(['MAN','TAR','PAR'].includes(lbl)&&FESTIVOS_AP.some(function(f){return f.date===dsStr;})) _fest++;
-      if(['MAN','TAR','PAR','COM','PER','FOR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
+      if(['MAN','TAR','PAR','PER','FOR'].includes(lbl)&&!FESTIVOS_CIERRE[dsStr]){_workDays++;_horasT+=calcHorasDia(activeDept,ei,code,dsStr);}
       if(lbl==='JA'&&!FESTIVOS_CIERRE[dsStr]){_horasT+=calcHorasDia(activeDept,ei,code,dsStr);} // JA: día excedente año ant. computa como horas trabajadas
       if(isHoraAmpliada(activeDept,ei,code,dsStr)) _hAmpl++;
       if(dw===6&&(lbl==='LIB'||lbl==='COM'||lbl==='DL')) _cal++;
@@ -8375,7 +8439,7 @@ function renderEmpleado(){
         monthActual[mo]+=num;
       } else {
         const lbl=eq(c)[0];
-        if(['MAN','TAR','PAR','COM'].includes(lbl)){
+        if(['MAN','TAR','PAR'].includes(lbl)){
           monthActual[mo]+=FESTIVOS_AP.some(f=>f.date===dsStr)?9:8;
         }
       }
@@ -8476,7 +8540,7 @@ function renderEmpleado(){
           hoursDiv='<div style="font-size:.56rem;font-weight:800;color:#0d47a1;background:#e3f2fd;border-radius:3px;padding:0 3px;margin-top:2px">'+_fr.toFixed(1)+'h &#10003;</div>';
         } else if(!isNaN(_num)&&_num>0&&isJose){
           hoursDiv='<div style="font-size:.56rem;font-weight:800;color:#1565c0;margin-top:1px">'+_num.toFixed(1)+'h</div>';
-        } else if(['MAN','TAR','PAR','COM'].includes(lbl2)){
+        } else if(['MAN','TAR','PAR'].includes(lbl2)){
           const _th=Math.round(calcHorasDia(activeDept,ei,code,dsStr)*10)/10;
           if(!(_wHasFR&&_isPast)&&_th>0)
             hoursDiv='<div style="font-size:.56rem;color:#90a4ae;margin-top:1px">~'+_th+'h</div>';
@@ -8654,7 +8718,7 @@ function horasParaCodigo(code, empIdx, dsStr) {
     if (_cat.horas_trabajo_efectivo != null && _cat.tipo === 'TRABAJO') return _cat.horas_trabajo_efectivo;
   }
   if (activeDept === 'operaciones') {
-    if (['MAN','TAR','PAR','COM'].includes(lbl)) {
+    if (['MAN','TAR','PAR'].includes(lbl)) {
       return Math.round((OPER_H[empIdx] || 8)*100)/100;
     }
     return 0;
@@ -8669,10 +8733,9 @@ function horasParaCodigo(code, empIdx, dsStr) {
       const t = h.TAR ? (h.TAR[1]-h.TAR[0])/60 : 0;
       return +((m+t).toFixed(2));
     }
-    if (lbl === 'COM') return 8;
     return 0;
   }
-  if (['MAN','TAR','PAR','COM'].includes(lbl)) return 8;
+  if (['MAN','TAR','PAR'].includes(lbl)) return 8;
   return 0;
 }
 function getISOWeek(dateStr) {
@@ -8778,7 +8841,7 @@ function renderHorasSemanales() {
       } else if ((ei === 2 || /OLMEDA/i.test(name)) && FESTIVOS_AP.some(f=>f.date===dsStr)) {
         const _lbl = eq(code)[0];
         const _pfn = (/^\d+(\.\d+)?$/.test(code))?parseFloat(code):NaN;
-        h = (['MAN','TAR','PAR','COM'].includes(_lbl)) ? 9 : (!isNaN(_pfn) && _pfn>0 ? _pfn : 0);
+        h = (['MAN','TAR','PAR'].includes(_lbl)) ? 9 : (!isNaN(_pfn) && _pfn>0 ? _pfn : 0);
       } else {
         h = horasParaCodigo(code, ei, dsStr);
       }
@@ -8993,13 +9056,14 @@ function _autoLinkExistingCompensados(){
         const c = (raw[d]||[])[ei] || '0';
         if(c === 'C') cDays.push(d);
       }
-      const nMin = Math.min(wFest.length, cDays.length);
-      for(let i=0; i<nMin; i++){
-        const key = _compKey(dept, ei, cDays[i]);
-        if(!_compFestivos[key]){
-          _compFestivos[key] = wFest[i];
-          changed = true;
-        }
+      // Cada festivo solo puede tener un C vinculado: saltar los que ya lo tienen
+      const yaVinc = new Set(cDays.map(cd => _compFestivos[_compKey(dept, ei, cd)]).filter(Boolean));
+      const libres = wFest.filter(f => !yaVinc.has(f));
+      for(const cd of cDays){
+        const key = _compKey(dept, ei, cd);
+        if(_compFestivos[key] || !libres.length) continue;
+        _compFestivos[key] = libres.shift();
+        changed = true;
       }
     }
   }
@@ -9087,7 +9151,7 @@ function renderMinPresencia(){
   h+=row('Lunes descarga 06:00–09:30', 'Personas mínimas para la descarga del lunes', 'muelle_lun', 1, 8, 1);
 
   h+='<div style="font-size:.82rem;font-weight:800;color:#3949ab;background:#e8eaf6;border-radius:8px;padding:8px 16px;margin:16px 0 12px">🏬 OPERACIONES</div>';
-  h+=row('Personas mínimas al día', 'Número mínimo de personas trabajando (MAN/TAR/PAR/COM) para no generar alerta', 'oper_min', 1, 8, 1);
+  h+=row('Personas mínimas al día', 'Número mínimo de personas trabajando (MAN/TAR/PAR; C cuenta como ausencia). Además, Vicente y Elena no pueden faltar a la vez', 'oper_min', 1, 8, 1);
 
   h+='</div>';
   el.innerHTML=h;
@@ -9249,7 +9313,7 @@ function checkDescanso12h(dept,fromDs,toDs){
     emps.forEach(function(_,ei){
       const codeD=arrD[ei]||'0', codeD1=arrD1[ei]||'0';
       const lblD=eq(codeD)[0], lblD1=eq(codeD1)[0];
-      const working=['MAN','TAR','PAR','COM'];
+      const working=['MAN','TAR','PAR'];
       if(!working.includes(lblD)||!working.includes(lblD1)) return;
       const endMin=getEmpEndMin(dept,ei,dsD,lblD);
       const startMin=getEmpStartMin(dept,ei,dsD1,lblD1);
@@ -9299,6 +9363,46 @@ function setDeptIncumpEmp(e){
   _reRenderCurrentInforme();
 }
 
+function _filtrarIncPorPeriodo(arr){
+  if(_deptInformeQuarter === 'all') return arr;
+  const q = DEPT_INFORME_PERIODS[_deptInformeQuarter];
+  return arr.filter(i => i.fecha && i.fecha >= q.start && i.fecha <= q.end);
+}
+
+let _deptShowAnual = true;
+function toggleDeptAnual(){ _deptShowAnual = !_deptShowAnual; _reRenderCurrentInforme(); }
+
+function _buildAlertasAnualesHTML(visibles, total){
+  let h = '<div style="border:1.5px solid #7b1fa2;border-radius:10px;margin:0 0 24px;overflow:hidden">';
+  h += '<button class="no-print" onclick="toggleDeptAnual()" style="width:100%;display:flex;align-items:center;gap:8px;background:#f3e5f5;border:none;padding:9px 14px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:800;color:#6a1b9a;text-align:left">';
+  h += '<span>&#128197; ALERTAS ANUALES 2026</span>';
+  h += '<span style="font-weight:600;font-size:.7rem;color:#8e24aa">(año completo &mdash; no dependen del trimestre elegido)</span>';
+  h += '<span style="margin-left:auto;background:#7b1fa2;color:#fff;padding:2px 9px;border-radius:10px;font-size:.72rem">'+visibles.length+(visibles.length!==total?' de '+total:'')+'</span>';
+  h += '<span style="font-size:.8rem">'+(_deptShowAnual?'&#9650;':'&#9660;')+'</span>';
+  h += '</button>';
+  if(_deptShowAnual){
+    if(!visibles.length){
+      h += '<div style="padding:14px;text-align:center;color:#2e7d32;font-size:.8rem;font-weight:700">&#10003; Sin alertas anuales</div>';
+    } else {
+      const sevColor = {alta:'#c62828', media:'#e65100', baja:'#546e7a'};
+      const sevBg = {alta:'#ffebee', media:'#fff8e1', baja:'#f5f5f5'};
+      const orden = {alta:0, media:1, baja:2};
+      h += '<div style="overflow:auto"><table style="border-collapse:collapse;width:100%;font-size:.75rem;min-width:560px">';
+      h += '<thead><tr style="background:#6a1b9a;color:#fff"><th style="padding:7px 10px;width:65px">SEV.</th><th style="padding:7px 10px;text-align:left">TRABAJADOR</th><th style="padding:7px 10px;text-align:left">MOTIVO</th><th style="padding:7px 10px;text-align:left">DETALLE</th></tr></thead><tbody>';
+      [...visibles].sort((a,b)=>orden[a.severidad]-orden[b.severidad]||a.empleado.localeCompare(b.empleado)).forEach(function(i,idx){
+        h += '<tr style="background:'+(idx%2?'#fafafa':'#fff')+';border-bottom:1px solid #f0f0f0">';
+        h += '<td style="padding:6px 10px;text-align:center"><span style="background:'+sevBg[i.severidad]+';color:'+sevColor[i.severidad]+';font-weight:800;font-size:.67rem;padding:2px 6px;border-radius:4px">'+i.severidad.toUpperCase()+'</span></td>';
+        h += '<td style="padding:6px 10px;font-weight:700;color:#263238">'+apellido(i.empleado)+'</td>';
+        h += '<td style="padding:6px 10px;font-weight:600;color:#37474f">'+i.tipo+'</td>';
+        h += '<td style="padding:6px 10px;color:#455a64;line-height:1.4">'+i.detalle+'</td></tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+  }
+  h += '</div>';
+  return h;
+}
+
 function buildInformeHTML(dk, isGlobal){
   const _saved = activeDept; activeDept = dk;
   const dLabel = {operaciones:'Operaciones',omnicanal:'Omnicanal',cajasac:'Caja-SAC',muelle:'Muelle',postventa:'Postventa'}[activeDept] || activeDept;
@@ -9309,12 +9413,7 @@ function buildInformeHTML(dk, isGlobal){
 
   function motivo(y,m,d){
     if(activeDept==='operaciones'){
-      const codes=getCode(y,m,d)||[];
-      const WK=['MAN','TAR','PAR','COM'];
-      const out=[];
-      const NAMES=['Vicente','Elena','Carlos','Mirella','Jose'];
-      NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
-      return out.join(', ');
+      return _operIncidencias(y,m,d).join(' · ');
     }
     if(activeDept==='omnicanal'){
       const {man,tar}=countDay(y,m,d);
@@ -9336,7 +9435,7 @@ function buildInformeHTML(dk, isGlobal){
         let count2=0;
         for(let i=0;i<7;i++){
           const lbl2=eq(raw2[i]||'0')[0];
-          if(lbl2==='MAN'||lbl2==='PAR'||lbl2==='COM'){
+          if(lbl2==='MAN'||lbl2==='PAR'){
             if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count2++;
           }
         }
@@ -9353,7 +9452,7 @@ function buildInformeHTML(dk, isGlobal){
   }
 
   function criterioLabel(){
-    if(activeDept==='operaciones') return 'Vicente y Elena coinciden sin trabajar el mismo día';
+    if(activeDept==='operaciones') return 'mín. '+(_minPresencia.oper_min||1)+' persona trabajando · Vicente y Elena no pueden estar ausentes el mismo día (L, V, C, baja…)';
     if(activeDept==='omnicanal') return 'menos de 3 personas en algún turno (M o T)';
     if(activeDept==='cajasac') return 'mín. 1 cajero (Carla/Isabel/Pedro) de mañana · mín. 3 M/T · mín. 2 SAC';
     if(activeDept==='muelle') return 'Lunes 06:00–09:30: mín 2 · 06:00–07:30: mín 3 (Mar–Sáb) · 07:30–13:30: mín 4 (Mar-V)/3 (Sáb) · alertas de subgrupos';
@@ -9570,18 +9669,20 @@ function buildInformeHTML(dk, isGlobal){
   h += '</div>';
 
   const rawInc = _detectarIncumplimientos(dk);
-  let incPeriodo = rawInc;
-  if(_deptInformeQuarter !== 'all'){
-    const q = DEPT_INFORME_PERIODS[_deptInformeQuarter];
-    incPeriodo = rawInc.filter(i => i.fecha && i.fecha >= q.start && i.fecha <= q.end);
-  }
+  // Alertas anuales (sin fecha concreta: jornada anual, sábados de calidad, nº de
+  // festivos, días de 9h de jefes…) van en un apartado propio que NO depende del
+  // trimestre elegido, para no ocultarlas al filtrar.
+  const incAnual = rawInc.filter(i => !i.fecha);
+  const incPeriodo = _filtrarIncPorPeriodo(rawInc.filter(i => i.fecha));
 
-  const tiposDisp = [...new Set(incPeriodo.map(i=>i.tipo))].sort();
-  const empsDisp = [...new Set(incPeriodo.map(i=>i.empleado))].sort();
+  const tiposDisp = [...new Set(rawInc.map(i=>i.tipo))].sort();
+  const empsDisp = [...new Set(rawInc.map(i=>i.empleado))].sort();
 
-  let incVisibles = incPeriodo;
-  if(_deptIncumpTipo !== 'all') incVisibles = incVisibles.filter(i => i.tipo === _deptIncumpTipo);
-  if(_deptIncumpEmp !== 'all') incVisibles = incVisibles.filter(i => i.empleado === _deptIncumpEmp);
+  const _aplicaFiltros = arr => arr.filter(i =>
+    (_deptIncumpTipo === 'all' || i.tipo === _deptIncumpTipo) &&
+    (_deptIncumpEmp === 'all' || i.empleado === _deptIncumpEmp));
+  const incVisibles = _aplicaFiltros(incPeriodo);
+  const anualVisibles = _aplicaFiltros(incAnual);
 
   const bySev = {alta:[], media:[], baja:[]};
   for(const i of incVisibles) (bySev[i.severidad] || bySev.baja).push(i);
@@ -9598,7 +9699,7 @@ function buildInformeHTML(dk, isGlobal){
   h += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">';
   h += '<span style="font-size:.72rem;color:#90a4ae;font-weight:700">FILTRAR CONVENIO:</span>';
   h += '<select onchange="setDeptIncumpTipo(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid #cfd8dc;font-size:.74rem;color:#37474f;background:#fff;cursor:pointer">';
-  h += '<option value="all"'+(_deptIncumpTipo==='all'?' selected':'')+'>Todos los motivos ('+incPeriodo.length+')</option>';
+  h += '<option value="all"'+(_deptIncumpTipo==='all'?' selected':'')+'>Todos los motivos ('+(incPeriodo.length+incAnual.length)+')</option>';
   tiposDisp.forEach(function(t){
     h += '<option value="'+t.replace(/"/g,'&quot;')+'"'+(_deptIncumpTipo===t?' selected':'')+'>'+t+'</option>';
   });
@@ -9617,7 +9718,7 @@ function buildInformeHTML(dk, isGlobal){
   if(!incVisibles.length){
     h += '<div style="background:#e8f5e9;border-radius:10px;padding:20px;text-align:center;margin-bottom:24px">';
     h += '<div style="font-size:2rem;margin-bottom:6px;color:#2e7d32">&#10003;</div>';
-    h += '<div style="font-size:.92rem;font-weight:700;color:#2e7d32">Sin incumplimientos de convenio detectados en este período</div>';
+    h += '<div style="font-size:.92rem;font-weight:700;color:#2e7d32">Sin incumplimientos con fecha en este período</div>';
     h += '<div style="font-size:.75rem;color:#66bb6a;margin-top:4px">'+curPeriod.label+'</div>';
     h += '</div>';
   } else {
@@ -9659,6 +9760,9 @@ function buildInformeHTML(dk, isGlobal){
     h += '</div>';
   }
 
+  // Alertas anuales (independientes del trimestre)
+  h += _buildAlertasAnualesHTML(anualVisibles, incAnual.length);
+
   // BLOQUE III: INCIDENCIAS POR TRABAJADOR
   h += '<div style="background:linear-gradient(135deg,#1a237e,#283593);color:#fff;border-radius:8px;padding:9px 16px;margin:24px 0 10px;font-size:.84rem;font-weight:800;display:flex;align-items:center;gap:8px">';
   h += '<span>&#9314;</span> BLOQUE III &mdash; Incidencias por Trabajador (Resumen Ejecutivo)';
@@ -9670,7 +9774,7 @@ function buildInformeHTML(dk, isGlobal){
 
   const _rsum = calcResumenTrabajador(dk);
   const _incByEmp = {};
-  incPeriodo.forEach(function(i){
+  incPeriodo.concat(incAnual).forEach(function(i){
     _incByEmp[i.empleado] = (_incByEmp[i.empleado] || 0) + 1;
   });
 
@@ -9779,12 +9883,7 @@ function getDeptInformeData(dk){
           trabajan: names.join(', ')||'—',
           motivo: (function(){
             if(activeDept==='operaciones'){
-              const codes=getCode(y,m,d)||[];
-              const WK=['MAN','TAR','PAR','COM'];
-              const out=[];
-              const NAMES=['Vicente','Elena','Carlos','Mirella','Jose'];
-              NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
-              return out.join(', ');
+              return _operIncidencias(y,m,d).join(' · ');
             }
             if(activeDept==='cajasac') return cajaAlerts(y,m,d).join(' | ')||'—';
             if(activeDept==='muelle'){
@@ -9797,7 +9896,7 @@ function getDeptInformeData(dk){
                 let count2=0;
                 for(let i=0;i<7;i++){
                   const lbl2=eq(raw2[i]||'0')[0];
-                  if(lbl2==='MAN'||lbl2==='PAR'||lbl2==='COM'){
+                  if(lbl2==='MAN'||lbl2==='PAR'){
                     if(t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i]) count2++;
                   }
                 }
@@ -9819,11 +9918,8 @@ function getDeptInformeData(dk){
 
   // Bloque II: Incumplimientos
   const rawInc = _detectarIncumplimientos(dk);
-  let incPeriodo = rawInc;
-  if(_deptInformeQuarter !== 'all'){
-    const q = DEPT_INFORME_PERIODS[_deptInformeQuarter];
-    incPeriodo = rawInc.filter(i => i.fecha && i.fecha >= q.start && i.fecha <= q.end);
-  }
+  const incAnual = rawInc.filter(i => !i.fecha);
+  const incPeriodo = _filtrarIncPorPeriodo(rawInc.filter(i => i.fecha));
   const bySev = { alta: 0, media: 0, baja: 0 };
   incPeriodo.forEach(function(i){
     if(bySev[i.severidad] !== undefined) bySev[i.severidad]++;
@@ -9833,7 +9929,7 @@ function getDeptInformeData(dk){
   // Bloque III: Plantilla
   const rsum = calcResumenTrabajador(dk);
   const incByEmp = {};
-  incPeriodo.forEach(function(i){
+  incPeriodo.concat(incAnual).forEach(function(i){
     incByEmp[i.empleado] = (incByEmp[i.empleado] || 0) + 1;
   });
 
@@ -9855,6 +9951,7 @@ function getDeptInformeData(dk){
     dc,
     rows,
     incPeriodo,
+    incAnual,
     bySev,
     rsum,
     incByEmp,
@@ -9870,6 +9967,7 @@ function buildGlobalSummaryA4HTML(){
   const dataByDept = {};
   let totRows = 0;
   let totInc = 0;
+  let totAnual = 0;
   let totAlta = 0;
   let totMedia = 0;
   let totBaja = 0;
@@ -9881,6 +9979,7 @@ function buildGlobalSummaryA4HTML(){
     dataByDept[dk] = data;
     totRows += data.rows.length;
     totInc += data.incPeriodo.length;
+    totAnual += data.incAnual.length;
     totAlta += data.bySev.alta;
     totMedia += data.bySev.media;
     totBaja += data.bySev.baja;
@@ -9929,6 +10028,7 @@ function buildGlobalSummaryA4HTML(){
   h += '<div style="font-size:.65rem;color:'+incTc+';font-weight:700;text-transform:uppercase">Convenio (Bl. II)</div>';
   h += '<div style="font-size:1.4rem;font-weight:900;color:'+incTc+'">'+totInc+' <span style="font-size:.75rem;font-weight:600">alertas</span></div>';
   h += '<div style="font-size:.65rem;color:'+incTc+';font-weight:700">Alta: '+totAlta+' &middot; Med: '+totMedia+' &middot; Baj: '+totBaja+'</div>';
+  h += '<div style="font-size:.65rem;color:#6a1b9a;font-weight:700;margin-top:2px">+ '+totAnual+' alertas anuales</div>';
   h += '</div>';
 
   // Bloque III: Personal con incidencias
@@ -9965,9 +10065,9 @@ function buildGlobalSummaryA4HTML(){
 
     // Estado badge
     let stBadge = '<span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#10003; CONFORME</span>';
-    if(d.bySev.alta > 0){
+    if(d.bySev.alta > 0 || d.incAnual.some(i=>i.severidad==='alta')){
       stBadge = '<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#9888; ALERTA ALTA</span>';
-    } else if(d.incPeriodo.length > 0 || d.rows.length > 0){
+    } else if(d.incPeriodo.length > 0 || d.incAnual.length > 0 || d.rows.length > 0){
       stBadge = '<span style="background:#fef3c7;color:#b45309;padding:3px 8px;border-radius:6px;font-weight:800;font-size:.68rem">&#9888; REVISAR</span>';
     }
 
@@ -9980,6 +10080,7 @@ function buildGlobalSummaryA4HTML(){
     const convBadge = d.incPeriodo.length === 0
       ? '<span style="color:#15803d;font-weight:700">&#10003; 0 alertas</span>'
       : '<span style="color:#b91c1c;font-weight:900">'+d.incPeriodo.length+' alertas</span>';
+    const convBadgeFull = convBadge + '<div style="font-size:.64rem;color:#6a1b9a;font-weight:700">+ '+d.incAnual.length+' anuales</div>';
 
     // Desglose severidad
     const desgl = '<span style="background:#fee2e2;color:#b91c1c;padding:1px 5px;border-radius:4px;font-weight:800;font-size:.66rem">A:'+d.bySev.alta+'</span> ' +
@@ -9997,7 +10098,7 @@ function buildGlobalSummaryA4HTML(){
     h += d.dLabel;
     h += '</td>';
     h += '<td style="padding:7px 12px;text-align:center">'+cobBadge+'</td>';
-    h += '<td style="padding:7px 12px;text-align:center">'+convBadge+'</td>';
+    h += '<td style="padding:7px 12px;text-align:center">'+convBadgeFull+'</td>';
     h += '<td style="padding:7px 12px;text-align:center">'+desgl+'</td>';
     h += '<td style="padding:7px 12px;text-align:center">'+persBadge+'</td>';
     h += '<td style="padding:7px 12px;text-align:center">'+stBadge+'</td>';
@@ -10011,7 +10112,7 @@ function buildGlobalSummaryA4HTML(){
   h += '<tr style="background:#f1f5f9;font-weight:900;border-top:2px solid #94a3b8">';
   h += '<td style="padding:8px 12px;color:#0f172a">TOTAL TIENDA (5 DPTOS)</td>';
   h += '<td style="padding:8px 12px;text-align:center;color:'+(totRows>0?'#c2410c':'#15803d')+'">'+totRows+' d&iacute;as KO</td>';
-  h += '<td style="padding:8px 12px;text-align:center;color:'+(totInc>0?'#b91c1c':'#15803d')+'">'+totInc+' alertas</td>';
+  h += '<td style="padding:8px 12px;text-align:center;color:'+(totInc>0?'#b91c1c':'#15803d')+'">'+totInc+' alertas<div style="font-size:.64rem;color:#6a1b9a">+ '+totAnual+' anuales</div></td>';
   h += '<td style="padding:8px 12px;text-align:center">' +
        '<span style="background:#fee2e2;color:#b91c1c;padding:1px 5px;border-radius:4px">A:'+totAlta+'</span> ' +
        '<span style="background:#fef3c7;color:#b45309;padding:1px 5px;border-radius:4px">M:'+totMedia+'</span> ' +
@@ -10116,10 +10217,10 @@ function exportGlobalInformeExcel(){
 
   // Resumen Ejecutivo Cuadro de Mando
   csv += 'CUADRO DE MANDO TRIMESTRAL - RESUMEN POR DEPARTAMENTOS\r\n';
-  csv += 'Departamento;Dias Cobertura KO;Incumplimientos Convenio;Alta;Media;Baja;Personal c/ Incidencia;Total Plantilla\r\n';
+  csv += 'Departamento;Dias Cobertura KO;Incumplimientos Convenio (periodo);Alta;Media;Baja;Alertas Anuales;Personal c/ Incidencia;Total Plantilla\r\n';
   DEPT_KEYS.forEach(function(dk){
     const d = getDeptInformeData(dk);
-    csv += d.dLabel + ';' + d.rows.length + ';' + d.incPeriodo.length + ';' + d.bySev.alta + ';' + d.bySev.media + ';' + d.bySev.baja + ';' + d.workersWithIssues + ';' + d.rsum.length + '\r\n';
+    csv += d.dLabel + ';' + d.rows.length + ';' + d.incPeriodo.length + ';' + d.bySev.alta + ';' + d.bySev.media + ';' + d.bySev.baja + ';' + d.incAnual.length + ';' + d.workersWithIssues + ';' + d.rsum.length + '\r\n';
   });
   csv += '\r\n\r\n';
 
@@ -10142,7 +10243,7 @@ function exportGlobalInformeExcel(){
     // BLOQUE II
     csv += 'BLOQUE II - INCUMPLIMIENTOS DE CONVENIO (GRANDES ALMACENES)\r\n';
     csv += 'Severidad;Trabajador;Fecha;Motivo;Detalle\r\n';
-    d.incPeriodo.forEach(function(i){
+    d.incPeriodo.concat(d.incAnual).forEach(function(i){
       const fechaFmt = i.fecha ? (function(){ const p=i.fecha.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; })() : 'ANUAL';
       csv += i.severidad.toUpperCase() + ';' + i.empleado + ';' + fechaFmt + ';' + i.tipo.replace(/;/g, ',') + ';' + i.detalle.replace(/;/g, ',') + '\r\n';
     });
@@ -11411,7 +11512,7 @@ function renderEstudio(){
   // Jornada (%) por índice en DEPTS.omnicanal.employees:
   // ["ISABEL","JAVIER","EDUARDO","IRENE","INMACULADA","RAMON","M. CORTES","M. VICTORIA","PILAR","JULIO","ANTONIO","JUAN F.","ANA PILAR","M. ARANZAZU","ARANCHA","REFUERZO"]
   const PCT = [59,100,77,92,91,100,80,65,62,70,50,30,100,84,100,100,92,92,92,92,92,60];
-  const WORKING_CODES = new Set(['MAN','TAR','PAR','COM']);
+  const WORKING_CODES = new Set(['MAN','TAR','PAR']);
   const DISCO_FTE   = 0;              // Discontinuos ahora calculados desde códigos reales (índices 16-19)
   const DISCO_DATE  = '2026-07-01';  // incorporación
   const DISCO_END   = '2026-09-15';  // último día con discontinuos
@@ -12661,10 +12762,10 @@ function buildDiaPreviewHTML(dsStr, dept) {
       const s=CAJA_H[ei];
       if(lbl2==='MAN'&&s.MAN)hor=fmtT(s.MAN[0])+'\u2013'+fmtT(s.MAN[1]);
       else if(lbl2==='TAR'&&s.TAR)hor=fmtT(s.TAR[0])+'\u2013'+fmtT(s.TAR[1]);
-    } else if(dept==='muelle'&&MUELLE_H_LABEL[ei]&&['MAN','PAR','COM'].includes(lbl2)){
+    } else if(dept==='muelle'&&MUELLE_H_LABEL[ei]&&['MAN','PAR'].includes(lbl2)){
       hor=MUELLE_H_LABEL[ei];
     }
-    const working=['MAN','TAR','PAR','COM'].includes(lbl2);
+    const working=['MAN','TAR','PAR'].includes(lbl2);
     h+='<div style="background:'+(working?'#f1f8e9':'#fafafa')+';border:1px solid '+(working?'#a5d6a7':'#e0e0e0')+';border-radius:7px;padding:5px 8px">';
     h+='<div style="font-size:.72rem;font-weight:700;color:#1a237e">'+name+'</div>';
     h+='<div style="display:flex;gap:4px;align-items:center;margin-top:2px">';
@@ -12706,12 +12807,12 @@ function initDiaPreviewChart(dsStr, dept) {
       const hh=Math.floor(t/60),mm=t%60;
       labels.push(String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'));
       let cnt=0;
-      for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])cnt++;}
+      for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])cnt++;}
       data.push(cnt);
       const dw=new Date(dsStr+'T00:00:00').getDay();
       const mn=muelleSlotMinimo(t,dw)||0;
       minData.push(mn);
-      const _mN2=[];for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR'||l==='COM')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])_mN2.push(DEPTS.muelle.employees[i]);}slotNames.push(_mN2);
+      const _mN2=[];for(let i=0;i<7;i++){const l=eq(raw[i]||'0')[0];if((l==='MAN'||l==='PAR')&&t>=MUELLE_H_START[i]&&t<MUELLE_H_END[i])_mN2.push(DEPTS.muelle.employees[i]);}slotNames.push(_mN2);
       colors.push(cnt===0?'#cfd8dc':cnt<(mn||1)?'#ef5350':'#66bb6a');
     }
   }
@@ -13439,12 +13540,7 @@ function exportInformeExcel(dk){
         if(!hayIncidencia(y,m,d)) continue;
         let mot = 'Falta cobertura';
         if(activeDept === 'operaciones'){
-          const codes = getCode(y,m,d) || [];
-          const WK = ['MAN','TAR','PAR','COM'];
-          const out = [];
-          const NAMES = ['Vicente','Elena','Carlos','Mirella','Jose'];
-          NAMES.forEach((n,i)=>{ if(!WK.includes(eq(codes[i]||'0')[0])) out.push(n+' ('+eq(codes[i]||'0')[0]+')'); });
-          mot = out.join(', ');
+          mot = _operIncidencias(y,m,d).join(' · ');
         } else if(activeDept === 'cajasac'){
           mot = cajaAlerts(y,m,d).join(' | ') || 'Falta cobertura';
         } else if(activeDept === 'muelle'){
@@ -13460,12 +13556,9 @@ function exportInformeExcel(dk){
   csv += 'BLOQUE II - INCUMPLIMIENTOS DE CONVENIO (GRANDES ALMACENES)\r\n';
   csv += 'Severidad;Trabajador;Fecha;Motivo;Detalle\r\n';
   const rawInc = _detectarIncumplimientos(dk);
-  let incPeriodo = rawInc;
-  if(_deptInformeQuarter !== 'all'){
-    const q = DEPT_INFORME_PERIODS[_deptInformeQuarter];
-    incPeriodo = rawInc.filter(i => i.fecha && i.fecha >= q.start && i.fecha <= q.end);
-  }
-  incPeriodo.forEach(function(i){
+  const incAnual = rawInc.filter(i => !i.fecha);
+  const incPeriodo = _filtrarIncPorPeriodo(rawInc.filter(i => i.fecha));
+  incPeriodo.concat(incAnual).forEach(function(i){
     const fechaFmt = i.fecha ? (function(){ const p=i.fecha.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; })() : 'ANUAL';
     csv += i.severidad.toUpperCase() + ';' + i.empleado + ';' + fechaFmt + ';' + i.tipo.replace(/;/g, ',') + ';' + i.detalle.replace(/;/g, ',') + '\r\n';
   });
@@ -13476,7 +13569,7 @@ function exportInformeExcel(dk){
   csv += 'Trabajador;Exceso/Defecto Horas;Vacaciones (Real/Min);Compensatorios Pendientes;Sabados Calidad;Jornada Ampliada;Alertas Convenio\r\n';
   const _rsum = calcResumenTrabajador(dk);
   const _incByEmp = {};
-  incPeriodo.forEach(function(i){
+  incPeriodo.concat(incAnual).forEach(function(i){
     _incByEmp[i.empleado] = (_incByEmp[i.empleado] || 0) + 1;
   });
   _rsum.forEach(function(r){
