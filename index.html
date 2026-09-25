@@ -8689,8 +8689,8 @@ const OPER_H = [
   7 + 40/60,                    // MIRELLA:  7h40m (Z5G) → 94.85% jornada
   7,                            // VICENTE:  7h00m media (VRA, VAL, VIN, AQM, 4QG)
 ];
-// Teórico anual por empleado (100% = 1770h; Carlos al 95.67% = 1693.33h; Elena al 97.23% = 1721.0h; Mirella al 94.85% = 1678.8h)
-const OPER_ANNUAL_MAX = [1693.33, 1721.0, 1770.0, 1678.8, 1770.0]; // Carlos (1693.33h teórica oficial), Elena (1721.0h teórica oficial), Jose (1770h), Mirella (1678.8h), Vicente (1770h)
+// Teórico anual por empleado (100% = 1770h; Carlos al 95.67% = 1693.33h; Elena 1721.58h (1721:35 oficial Nexo); Mirella al 94.85% = 1678.8h)
+const OPER_ANNUAL_MAX = [1693.33, 1721.58, 1770.0, 1678.8, 1770.0]; // Carlos (1693.33h teórica oficial), Elena (1721.58h teórica oficial Nexo 25-sep), Jose (1770h), Mirella (1678.8h), Vicente (1770h)
 
 // ===== HORAS SEMANALES =====
 function horasParaCodigo(code, empIdx, dsStr) {
@@ -12847,7 +12847,7 @@ function initDiaPreviewChart(dsStr, dept) {
 
 // ── Jornada máxima anual (horas) por dept e índice de empleado
 const JORNADA_MAX_H={
-  operaciones:[1693.33, 1721.0, 1770.0, 1678.8, 1770.0], // Carlos: 1693.33h, Elena: 1721.0h (teórica oficial Nexo), Mirella: 94.85% (1678.8h)
+  operaciones:[1693.33, 1721.58, 1770.0, 1678.8, 1770.0], // Carlos: 1693.33h, Elena: 1721.58h (1721:35 teórica oficial Nexo 25-sep), Mirella: 94.85% (1678.8h)
   omnicanal:[1614.2, 1770.0, 885.0, 1614.2, 1593.0, 1614.2, 1614.2, 1044.3, 1770.0, 1593.0, 1062.0, 1239.0, 1614.2, 1495.7, 1416.0, 1150.5, 1614.2, 1770.0, 1770.0, 1770.0],
   cajasac:[1327.5, 1548.8, 1770.0, 531.0, 1770.0, 1380.6, 1631.9, 1416.0, 1631.9, 531.0, 1770.0],
   muelle:[1770.0, 442.5, 1770.0, 1770.0, 1770.0, 1770.0, 1770.0],
