@@ -1129,6 +1129,9 @@
         <button id="pill-all" class="period-pill" onclick="setPeriodFilter('ALL')">
           Toda la Campaña
         </button>
+        <button id="btnToggleClosed" class="period-pill active" onclick="toggleClosedDays()" title="Ocultar o mostrar días con el centro cerrado para evitar picos de sierra" style="border-left:2px solid #cbd5e1; margin-left:4px;">
+          🚫 Sin Días Cerrados (25 Dic, 1 y 6 Ene)
+        </button>
         <span id="periodSummaryBadge" class="period-summary-badge"></span>
       </div>
 
@@ -1303,6 +1306,24 @@ let fteBasis = 52; // 52 (34.0385 h/sem) or 46 (38.478 h/sem)
 let currentGranularity = 'DAY'; // 'DAY' or 'WEEK'
 let chartDisplayMode = 'STAFFING_ONLY'; // 'STAFFING_ONLY' or 'ALL_SERIES'
 let currentPeriodFilter = 'BF'; // 'ANTES_BF', 'BF', 'NAVIDAD', 'REBAJAS', 'ALL'
+let hideClosedDays = true; // Exclude days when center is closed (25 Dec, 1 Jan, 6 Jan, closed Sundays) to prevent sawtooth spikes
+
+function isDayClosed(d) {
+  return (!d.actividad_total_pedidos || d.actividad_total_pedidos === 0) &&
+         (!d.horas_totales_rrhh || d.horas_totales_rrhh === 0) &&
+         (!d.horas_totales_ops || d.horas_totales_ops === 0);
+}
+
+function toggleClosedDays() {
+  hideClosedDays = !hideClosedDays;
+  const btn = document.getElementById('btnToggleClosed');
+  if (btn) {
+    btn.classList.toggle('active', hideClosedDays);
+    btn.innerHTML = hideClosedDays ? '🚫 Sin Días Cerrados (25 Dic, 1 y 6 Ene)' : '📅 Mostrando Días Cerrados';
+  }
+  updateMainChart();
+  renderTable();
+}
 
 let currentSortKey = 'DEFICIT_DESC';
 let tableSearchQuery = '';
@@ -1467,6 +1488,11 @@ function getFilteredDailyData() {
     list = DAILY_DATA.filter(function(d) { return d.fecha >= '2027-01-07' && d.fecha <= '2027-02-28'; });
   } else {
     list = DAILY_DATA;
+  }
+
+  // Filter out closed days if enabled
+  if (hideClosedDays) {
+    list = list.filter(function(d) { return !isDayClosed(d); });
   }
 
   if (tableSearchQuery) {
@@ -1665,7 +1691,7 @@ async function syncRosterFromGitHub() {
           const wList = [];
           for (const [wid, w] of Object.entries(dayMap)) {
             if ((w.departamento || '').toUpperCase() === 'OMNICANAL') {
-              wList.append({
+              wList.push({
                 id: wid,
                 nombre: w.nombre || '',
                 turno: w.codigo_turno || '--',
@@ -1764,7 +1790,7 @@ function renderTable() {
 
   if (countBadge) {
     const periodLabel = isDaily ? (currentPeriodFilter === 'ALL' ? 'Toda la Campaña' : currentPeriodFilter) : '16 Semanas';
-    countBadge.innerText = 'Mostrando ' + sortedList.length + (isDaily ? ' días' : ' semanas') + ' (' + periodLabel + ')';
+    countBadge.innerText = 'Mostrando ' + sortedList.length + (isDaily ? (hideClosedDays ? ' días operativos' : ' días') : ' semanas') + ' (' + periodLabel + ')';
   }
 
   let headHtml = '<tr>';
@@ -2008,7 +2034,7 @@ function renderTable() {
   tfoot.innerHTML = 
     '<tr>' +
       '<td>TOTALES</td>' +
-      '<td>' + sortedList.length + (isDaily ? ' Días mostrados' : ' Semanas') + '</td>' +
+      '<td>' + sortedList.length + (isDaily ? (hideClosedDays ? ' Días operativos' : ' Días mostrados') : ' Semanas') + '</td>' +
       '<td style="text-align: right;">' + Math.round(totOrders).toLocaleString('es-ES') + ' pedidos</td>' +
       '<td style="text-align: right;">' + totCurVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
       '<td style="text-align: right;">' + totModVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
@@ -2163,7 +2189,7 @@ function updateMainChart() {
     const avgModelFte = modelStaffing.reduce(function(a,b){ return a+b; }, 0) / (modelStaffing.length || 1);
     const badgeEl = document.getElementById('periodSummaryBadge');
     if (badgeEl) {
-      badgeEl.innerHTML = '<strong>' + dailySubset.length + ' días</strong> | Pedidos: <strong>' + Math.round(sumOrders).toLocaleString('es-ES') + '</strong> | Clientes: <strong>' + Math.round(sumClients).toLocaleString('es-ES') + '</strong> | Media: <strong>' + avgModelFte.toFixed(1) + ' ' + unitLabel + '</strong>';
+      badgeEl.innerHTML = '<strong>' + dailySubset.length + (hideClosedDays ? ' días operativos' : ' días') + '</strong> | Pedidos: <strong>' + Math.round(sumOrders).toLocaleString('es-ES') + '</strong> | Clientes: <strong>' + Math.round(sumClients).toLocaleString('es-ES') + '</strong> | Media: <strong>' + avgModelFte.toFixed(1) + ' ' + unitLabel + '</strong>';
     }
   }
 
