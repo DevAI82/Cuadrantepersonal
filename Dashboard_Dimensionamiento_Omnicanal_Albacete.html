@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Dimensionamiento Omnicanal 26-27 | Centro 864 Albacete</title>
+  <!-- Chart.js local with CDN fallback -->
+  <script src="chart.umd.min.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\\/script>');
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #16a34a;
+      --success-bg: #dcfce7;
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+      --danger-dark: #991b1b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1540px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 28px 36px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .header-titles h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-titles h1 .badge-center {
+      background: #2563eb;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0;
+    }
+
+    .header-titles p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--border);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover {
+      background: #f1f5f9;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      background: #fff1f2;
+      border-left: 4px solid #e11d48;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .alert-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .alert-content h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #9f1239;
+    }
+
+    .alert-content p {
+      font-size: 13px;
+      color: #881337;
+      margin-top: 4px;
+    }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .kpi-card.warning::before { background: var(--warning); }
+    .kpi-card.danger::before { background: var(--danger); }
+    .kpi-card.success::before { background: var(--success); }
+    .kpi-card.purple::before { background: #9333ea; }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .kpi-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* CONTROL TOOLBAR */
+    .toolbar {
+      background: var(--card-bg);
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .segmented-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .segmented-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* CHARTS SECTION */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .chart-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-controls-box {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Period selector pills */
+    .period-selector-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      align-items: center;
+    }
+
+    .period-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-right: 6px;
+    }
+
+    .period-pill {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .period-pill:hover {
+      background: #e2e8f0;
+      color: var(--primary);
+    }
+
+    .period-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 2px 4px rgba(37,99,235,0.25);
+    }
+
+    .period-summary-badge {
+      font-size: 13px;
+      color: #334155;
+      margin-left: auto;
+      font-weight: 500;
+      background: #e2e8f0;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 380px;
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    /* TABLE SECTION */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .table-header h3 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .table-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* TABLE TOOLBAR (Granularity, Sort Filter & Search) */
+    .table-toolbar {
+      padding: 14px 24px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .table-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .table-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sort-select {
+      background: white;
+      border: 1px solid var(--border-dark);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sort-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    .search-input {
+      background: white;
+      border: 1px solid var(--border-dark);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--primary);
+      outline: none;
+      width: 220px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      width: 260px;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    .count-badge {
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    thead th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    thead th:hover {
+      background: #e2e8f0;
+      color: var(--primary);
+    }
+
+    thead th .sort-icon {
+      margin-left: 4px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    thead th.sorted-active {
+      color: var(--accent);
+      background: #eff6ff;
+    }
+
+    thead th.sorted-active .sort-icon {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    tbody tr.highlight-peak {
+      background-color: #fffbeb;
+    }
+
+    tbody tr.highlight-critical {
+      background-color: #fff1f2;
+    }
+
+    tbody tr.highlight-critical:hover {
+      background-color: #ffe4e6;
+    }
+
+    /* Cell styling */
+    .cell-main {
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .cell-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .badge-milestone {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #e2e8f0;
+      color: #334155;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .badge-milestone.peak {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    .badge-milestone.sales {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+    }
+
+    .badge-milestone.projected {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+
+    /* Editable cell */
+    .input-cell {
+      width: 76px;
+      padding: 5px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      text-align: right;
+      color: var(--primary);
+      background: #ffffff;
+      transition: all 0.2s;
+    }
+
+    .input-cell:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      background: #eff6ff;
+    }
+
+    .diff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .diff-badge.deficit {
+      background: var(--danger-bg);
+      color: var(--danger-dark);
+      border: 1px solid #fecaca;
+    }
+
+    .diff-badge.deficit.severe {
+      background: #b91c1c;
+      color: #ffffff;
+      border: 1px solid #991b1b;
+      box-shadow: 0 1px 3px rgba(185, 28, 28, 0.3);
+    }
+
+    .diff-badge.surplus {
+      background: var(--success-bg);
+      color: #14532d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .diff-badge.neutral {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    /* Activity visual bar */
+    .bar-container {
+      width: 90px;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #3b82f6;
+      border-radius: 3px;
+    }
+
+    .bar-fill.high {
+      background: #ef4444;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* TOOLTIP */
+    .info-tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      color: var(--accent);
+      margin-left: 4px;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        padding: 0;
+        background: white;
+      }
+      .toolbar, .header-actions, .btn, .period-selector-row, .chart-controls-box, .table-toolbar {
+        display: none !important;
+      }
+      .card, .table-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+      }
+      .charts-grid {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-titles">
+      <h1>
+        <span>Dimensionamiento Actividad Omnicanal 26-27</span>
+        <span class="badge-center">Centro 864 | Albacete II</span>
+      </h1>
+      <p>Cuadro de Mando de Recursos, Plantilla Equivalente (FTE 1.770 h), Actividad de Pedidos y Recogidas en Mostrador</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="project2027Staffing()">
+        <span>⚡ Proyectar 2027 con Base Cuadrante</span>
+      </button>
+      <button class="btn" onclick="alignStaffingToModel()">
+        <span>🎯 Igualar a Modelo (100% Cobertura)</span>
+      </button>
+      <button class="btn" onclick="resetToInitial()">
+        <span>🔄 Restaurar Cuadrante Original</span>
+      </button>
+      <button class="btn btn-primary" onclick="exportToCSV()">
+        <span>📥 Exportar CSV</span>
+      </button>
+      <button class="btn" onclick="window.print()">
+        <span>🖨️ Imprimir / PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ALERTA DE ESTRUCTURA FISICA Y CUELLO DE BOTELLA -->
+  <div class="alert-banner">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-content">
+      <h4>Alerta Operativa Crítica: Límite Físico de 4 Mostradores (Cuello de Botella Insalvable)</h4>
+      <p>
+        El Punto Omnicanal de Albacete tiene una limitación estructural insalvable de <strong>4 puestos físicos disponibles</strong>. En <strong>15 turnos</strong> la demanda exige 5 o 6 puestos, lo que genera esperas de hasta <strong>163 minutos el 4 de diciembre</strong>, <strong>156 minutos el 18 de diciembre</strong> y <strong>154 minutos el 8 de enero</strong>. Además, la plantilla actual planificada en el Cuadrante (11 a 15 FTEs) presenta un <strong>déficit de hasta -11,7 FTEs en las semanas pico</strong> frente a los 27,5 FTEs que exige el modelo.
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTROL TOOLBAR -->
+  <div class="toolbar">
+    <div class="control-group">
+      <span class="control-label">Unidad de Visualización:</span>
+      <div class="segmented-control">
+        <button id="btn-unit-fte" class="segmented-btn active" onclick="setUnit('FTE')">Plantilla FTE (1.770 h)</button>
+        <button id="btn-unit-hours" class="segmented-btn" onclick="setUnit('HOURS')">Horas Totales</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Modelo de Referencia:</span>
+      <div class="segmented-control">
+        <button id="btn-model-rrhh" class="segmented-btn active" onclick="setModel('RRHH')">Modelo RRHH (Horas)</button>
+        <button id="btn-model-ops" class="segmented-btn" onclick="setModel('OPS')">Modelo Operaciones (Puestos x 6h)</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Base Cálculo FTE:</span>
+      <div class="segmented-control">
+        <button id="btn-fte-52" class="segmented-btn active" onclick="setFteBasis(52)">34,04 h/sem (1.770/52)</button>
+        <button id="btn-fte-46" class="segmented-btn" onclick="setFteBasis(46)">38,48 h/sem (1.770/46)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card danger">
+      <div class="kpi-label">Pico Máximo de Plantilla (Sem 49)</div>
+      <div class="kpi-value" id="kpi-peak-fte">27.51 <span style="font-size:14px; font-weight:600; color:var(--text-muted)">FTEs</span></div>
+      <div class="kpi-subtext" id="kpi-peak-sub">936,4 horas en semana Cyber Monday</div>
+    </div>
+
+    <div class="kpi-card warning">
+      <div class="kpi-label">Brecha Total de Dotación (Campaña)</div>
+      <div class="kpi-value" id="kpi-gap-total">-1.842 <span style="font-size:14px; font-weight:600; color:var(--text-muted)">Horas</span></div>
+      <div class="kpi-subtext" id="kpi-gap-sub">Déficit acumulado Cuadrante vs Modelo</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Actividad Total Pedidos (Venta)</div>
+      <div class="kpi-value">50.768 <span style="font-size:14px; font-weight:600; color:var(--text-muted)">pedidos</span></div>
+      <div class="kpi-subtext">39.279 picking + 11.489 entregas dto</div>
+    </div>
+
+    <div class="kpi-card purple">
+      <div class="kpi-label">Clientes Front Office (P.O.)</div>
+      <div class="kpi-value">31.362 <span style="font-size:14px; font-weight:600; color:var(--text-muted)">recogidas</span></div>
+      <div class="kpi-subtext">Pico de 2.885 recogidas en Semana 49</div>
+    </div>
+
+    <div class="kpi-card danger">
+      <div class="kpi-label">Tiempo Espera Máximo Estimado</div>
+      <div class="kpi-value">163,2 <span style="font-size:14px; font-weight:600; color:var(--text-muted)">minutos</span></div>
+      <div class="kpi-subtext">Viernes 04/12 (Tarde): 2h 43m cola</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRAPH: PLANTILLA ACTUAL VS PLANTILLA NECESARIA POR FECHAS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3 class="chart-title">
+          <span>📊 Comparativa por Fechas: Plantilla Actual (Cuadrante) vs Plantilla Total Necesaria</span>
+        </h3>
+        <div class="chart-controls-box">
+          <div class="segmented-control">
+            <button id="btn-chart-mode-staffing" class="segmented-btn active" onclick="setChartDisplayMode('STAFFING_ONLY')">👥 Solo Plantillas (Actual vs Necesaria)</button>
+            <button id="btn-chart-mode-all" class="segmented-btn" onclick="setChartDisplayMode('ALL_SERIES')">📈 Plantillas + Actividad (Pedidos y Clientes)</button>
+          </div>
+          <div class="segmented-control" style="margin-left: 8px;">
+            <button id="btn-gran-day" class="segmented-btn active" onclick="setGranularity('DAY')">📅 Por Días</button>
+            <button id="btn-gran-week" class="segmented-btn" onclick="setGranularity('WEEK')">📊 Por Semanas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERIOD SELECTOR (Affects Chart and Daily Table) -->
+      <div id="periodSelectorContainer" class="period-selector-row">
+        <span class="period-label">Acotar Período por Fechas:</span>
+        <button id="pill-antes-bf" class="period-pill" onclick="setPeriodFilter('ANTES_BF')">
+          1. ANTES BF (< 26 Nov)
+        </button>
+        <button id="pill-bf" class="period-pill active" onclick="setPeriodFilter('BF')">
+          2. BF (26 Nov - 18 Dic)
+        </button>
+        <button id="pill-navidad" class="period-pill" onclick="setPeriodFilter('NAVIDAD')">
+          3. Navidad (19 Dic - 5 Ene)
+        </button>
+        <button id="pill-rebajas" class="period-pill" onclick="setPeriodFilter('REBAJAS')">
+          4. Rebajas (7 Ene - 28 Feb)
+        </button>
+        <button id="pill-all" class="period-pill" onclick="setPeriodFilter('ALL')">
+          Toda la Campaña
+        </button>
+        <span id="periodSummaryBadge" class="period-summary-badge"></span>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="chartMainComparison"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN INTERACTIVE TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div>
+        <h3 id="tableTitle">📋 Detalle de Planificación y Cobertura (Por Días)</h3>
+        <p id="tableSubtitle">Edita las celdas de Recursos Actuales para simular refuerzos, contrataciones o cambios de jornada en tiempo real.</p>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted)">
+        💡 <em>Valores guardados automáticamente en tu navegador.</em>
+      </div>
+    </div>
+
+    <!-- TABLE TOOLBAR: Granularity sync, Sorting Filter & Search -->
+    <div class="table-toolbar">
+      <div class="table-toolbar-left">
+        <div class="segmented-control">
+          <button id="btn-table-gran-day" class="segmented-btn active" onclick="setGranularity('DAY')">📅 Vista por Días</button>
+          <button id="btn-table-gran-week" class="segmented-btn" onclick="setGranularity('WEEK')">📊 Vista por Semanas</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:12px; font-weight:700; color:var(--primary);">Ordenar por:</span>
+          <select id="tableSortSelect" class="sort-select" onchange="handleSortSelectChange(this.value)">
+            <option value="DEFICIT_DESC">🚨 Mayor Brecha / Déficit primero (Actual < Modelo)</option>
+            <option value="DATE_ASC">📅 Cronológico (Por Fecha / Semana)</option>
+            <option value="ORDERS_DESC">📦 Mayor Actividad de Pedidos</option>
+            <option value="CLIENTS_DESC">🟣 Mayor Clientes Front Office</option>
+            <option value="WAIT_DESC">⏳ Mayor Tiempo de Espera (Cuello de Botella)</option>
+            <option value="MODEL_DESC">📈 Mayor Plantilla Requerida (Modelo)</option>
+            <option value="SURPLUS_DESC">🟢 Mayor Superávit / Excedente (Actual > Modelo)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-toolbar-right">
+        <input type="text" id="tableSearchInput" class="search-input" placeholder="🔍 Buscar fecha, hito o día..." oninput="handleSearch(this.value)">
+        <span id="tableCountBadge" class="count-badge">Mostrando 23 días</span>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+      <table id="mainTable">
+        <thead id="tableHead">
+          <!-- Rendered via JS based on Granularity with sort headers -->
+        </thead>
+        <tbody id="tableBody">
+          <!-- Rendered via JS -->
+        </tbody>
+        <tfoot id="tableFoot" style="background: #f8fafc; font-weight: 700; border-top: 2px solid var(--border-dark);">
+          <!-- Rendered via JS -->
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Centro 0864 - C.C. Albacete II | Departamento de Omnicanal | Datos extraídos de SSCC (Operaciones, RRHH y Planta de Venta) cruzados con Cuadrante de Personal 2026.</p>
+  </footer>
+
+</div>
+
+<!-- DATA EMBEDDED -->
+<script>
+const INITIAL_WEEKLY_DATA = [{"semana": 46, "fecha_inicio": "2026-11-09", "fecha_fin": "2026-11-15", "clientes_front": 550.1, "picking_dto": 532.0, "entregas_dto": 75.7, "actividad_total_pedidos": 607.7, "horas_modelo_rrhh": 336.0, "horas_modelo_ops": 390.0, "puestos_fo_ops": 20, "puestos_bo_ops": 39, "puestos_totales_ops": 65.0, "horas_cuadrante_actual": 385.4, "cuadrante_disponible": true, "hito": "Inicio Campaña / Pre-Black Friday", "fte_modelo_rrhh": 9.87, "fte_modelo_ops": 11.46, "fte_cuadrante_actual": 11.32, "diff_horas_rrhh": -49.4, "diff_fte_rrhh": -1.45, "t_espera_max": 6.8, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 2}, {"semana": 47, "fecha_inicio": "2026-11-16", "fecha_fin": "2026-11-22", "clientes_front": 690.6, "picking_dto": 1181.2, "entregas_dto": 353.6, "actividad_total_pedidos": 1534.8, "horas_modelo_rrhh": 372.0, "horas_modelo_ops": 414.0, "puestos_fo_ops": 23, "puestos_bo_ops": 40, "puestos_totales_ops": 69.0, "horas_cuadrante_actual": 345.2, "cuadrante_disponible": true, "hito": "Semana previa Black Friday", "fte_modelo_rrhh": 10.93, "fte_modelo_ops": 12.16, "fte_cuadrante_actual": 10.14, "diff_horas_rrhh": 26.8, "diff_fte_rrhh": 0.79, "t_espera_max": 4.6, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 2}, {"semana": 48, "fecha_inicio": "2026-11-23", "fecha_fin": "2026-11-29", "clientes_front": 1602.7, "picking_dto": 2824.9, "entregas_dto": 596.7, "actividad_total_pedidos": 3421.6, "horas_modelo_rrhh": 666.4, "horas_modelo_ops": 720.0, "puestos_fo_ops": 35, "puestos_bo_ops": 78, "puestos_totales_ops": 120.0, "horas_cuadrante_actual": 519.2, "cuadrante_disponible": true, "hito": "Black Friday (27/11)", "fte_modelo_rrhh": 19.58, "fte_modelo_ops": 21.15, "fte_cuadrante_actual": 15.25, "diff_horas_rrhh": 147.2, "diff_fte_rrhh": 4.33, "t_espera_max": 11.3, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 4}, {"semana": 49, "fecha_inicio": "2026-11-30", "fecha_fin": "2026-12-06", "clientes_front": 2885.4, "picking_dto": 3680.4, "entregas_dto": 1191.7, "actividad_total_pedidos": 4872.1, "horas_modelo_rrhh": 936.4, "horas_modelo_ops": 972.0, "puestos_fo_ops": 48, "puestos_bo_ops": 107, "puestos_totales_ops": 162.0, "horas_cuadrante_actual": 537.9, "cuadrante_disponible": true, "hito": "Cyber Monday (30/11) y Pte. Constitución", "fte_modelo_rrhh": 27.51, "fte_modelo_ops": 28.56, "fte_cuadrante_actual": 15.8, "diff_horas_rrhh": 398.5, "diff_fte_rrhh": 11.71, "t_espera_max": 163.2, "duracion_exceso_max": 148.2, "ops_exceden_tmax": 17, "puestos_necesarios_max": 6}, {"semana": 50, "fecha_inicio": "2026-12-07", "fecha_fin": "2026-12-13", "clientes_front": 2219.9, "picking_dto": 2993.8, "entregas_dto": 861.2, "actividad_total_pedidos": 3855.1, "horas_modelo_rrhh": 768.4, "horas_modelo_ops": 810.0, "puestos_fo_ops": 41, "puestos_bo_ops": 88, "puestos_totales_ops": 135.0, "horas_cuadrante_actual": 441.0, "cuadrante_disponible": true, "hito": "Puente Constitución / Pre-Navidad", "fte_modelo_rrhh": 22.57, "fte_modelo_ops": 23.8, "fte_cuadrante_actual": 12.96, "diff_horas_rrhh": 327.4, "diff_fte_rrhh": 9.61, "t_espera_max": 150.0, "duracion_exceso_max": 135.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 51, "fecha_inicio": "2026-12-14", "fecha_fin": "2026-12-20", "clientes_front": 2677.2, "picking_dto": 3362.8, "entregas_dto": 883.6, "actividad_total_pedidos": 4246.4, "horas_modelo_rrhh": 864.4, "horas_modelo_ops": 906.0, "puestos_fo_ops": 48, "puestos_bo_ops": 96, "puestos_totales_ops": 151.0, "horas_cuadrante_actual": 486.2, "cuadrante_disponible": true, "hito": "Pico Máximo Compras Navidad", "fte_modelo_rrhh": 25.39, "fte_modelo_ops": 26.62, "fte_cuadrante_actual": 14.28, "diff_horas_rrhh": 378.2, "diff_fte_rrhh": 11.11, "t_espera_max": 155.7, "duracion_exceso_max": 140.7, "ops_exceden_tmax": 7, "puestos_necesarios_max": 6}, {"semana": 52, "fecha_inicio": "2026-12-21", "fecha_fin": "2026-12-27", "clientes_front": 1780.8, "picking_dto": 2676.7, "entregas_dto": 799.3, "actividad_total_pedidos": 3476.0, "horas_modelo_rrhh": 684.4, "horas_modelo_ops": 780.0, "puestos_fo_ops": 39, "puestos_bo_ops": 85, "puestos_totales_ops": 130.0, "horas_cuadrante_actual": 477.0, "cuadrante_disponible": true, "hito": "Navidad y Nochebuena", "fte_modelo_rrhh": 20.11, "fte_modelo_ops": 22.92, "fte_cuadrante_actual": 14.01, "diff_horas_rrhh": 207.4, "diff_fte_rrhh": 6.1, "t_espera_max": 14.9, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 4}, {"semana": 1, "fecha_inicio": "2026-12-28", "fecha_fin": "2027-01-03", "clientes_front": 1861.1, "picking_dto": 2456.2, "entregas_dto": 712.9, "actividad_total_pedidos": 3169.1, "horas_modelo_rrhh": 666.4, "horas_modelo_ops": 738.0, "puestos_fo_ops": 40, "puestos_bo_ops": 77, "puestos_totales_ops": 123.0, "horas_cuadrante_actual": 310.2, "cuadrante_disponible": true, "hito": "Fin de Año / Nochevieja / Víspera Reyes", "fte_modelo_rrhh": 19.58, "fte_modelo_ops": 21.68, "fte_cuadrante_actual": 9.11, "diff_horas_rrhh": 356.2, "diff_fte_rrhh": 10.47, "t_espera_max": 13.1, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 4}, {"semana": 2, "fecha_inicio": "2027-01-04", "fecha_fin": "2027-01-10", "clientes_front": 2229.8, "picking_dto": 2480.7, "entregas_dto": 793.8, "actividad_total_pedidos": 3274.5, "horas_modelo_rrhh": 774.4, "horas_modelo_ops": 822.0, "puestos_fo_ops": 41, "puestos_bo_ops": 90, "puestos_totales_ops": 137.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Reyes (06/01) e Inicio Rebajas", "fte_modelo_rrhh": 22.75, "fte_modelo_ops": 24.15, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 154.2, "duracion_exceso_max": 139.2, "ops_exceden_tmax": 6, "puestos_necesarios_max": 6}, {"semana": 3, "fecha_inicio": "2027-01-11", "fecha_fin": "2027-01-17", "clientes_front": 2302.7, "picking_dto": 2599.3, "entregas_dto": 955.8, "actividad_total_pedidos": 3555.1, "horas_modelo_rrhh": 774.0, "horas_modelo_ops": 840.0, "puestos_fo_ops": 44, "puestos_bo_ops": 90, "puestos_totales_ops": 140.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Semana 2 (Fuerte)", "fte_modelo_rrhh": 22.74, "fte_modelo_ops": 24.68, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 150.0, "duracion_exceso_max": 135.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 4, "fecha_inicio": "2027-01-18", "fecha_fin": "2027-01-24", "clientes_front": 2201.9, "picking_dto": 2595.7, "entregas_dto": 884.7, "actividad_total_pedidos": 3480.4, "horas_modelo_rrhh": 762.0, "horas_modelo_ops": 840.0, "puestos_fo_ops": 44, "puestos_bo_ops": 90, "puestos_totales_ops": 140.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Semana 3", "fte_modelo_rrhh": 22.39, "fte_modelo_ops": 24.68, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 30.5, "duracion_exceso_max": 15.5, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 5, "fecha_inicio": "2027-01-25", "fecha_fin": "2027-01-31", "clientes_front": 2105.3, "picking_dto": 2504.8, "entregas_dto": 792.1, "actividad_total_pedidos": 3296.9, "horas_modelo_rrhh": 708.0, "horas_modelo_ops": 792.0, "puestos_fo_ops": 41, "puestos_bo_ops": 85, "puestos_totales_ops": 132.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Semana 4", "fte_modelo_rrhh": 20.8, "fte_modelo_ops": 23.27, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 14.0, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 6, "fecha_inicio": "2027-02-01", "fecha_fin": "2027-02-07", "clientes_front": 2102.0, "picking_dto": 2483.3, "entregas_dto": 742.1, "actividad_total_pedidos": 3225.5, "horas_modelo_rrhh": 708.0, "horas_modelo_ops": 792.0, "puestos_fo_ops": 41, "puestos_bo_ops": 85, "puestos_totales_ops": 132.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Febrero Semana 1", "fte_modelo_rrhh": 20.8, "fte_modelo_ops": 23.27, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 13.7, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 7, "fecha_inicio": "2027-02-08", "fecha_fin": "2027-02-14", "clientes_front": 2098.4, "picking_dto": 2398.1, "entregas_dto": 661.2, "actividad_total_pedidos": 3059.3, "horas_modelo_rrhh": 708.0, "horas_modelo_ops": 792.0, "puestos_fo_ops": 41, "puestos_bo_ops": 85, "puestos_totales_ops": 132.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Febrero Semana 2", "fte_modelo_rrhh": 20.8, "fte_modelo_ops": 23.27, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 13.3, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 8, "fecha_inicio": "2027-02-15", "fecha_fin": "2027-02-21", "clientes_front": 2076.3, "picking_dto": 2297.3, "entregas_dto": 605.2, "actividad_total_pedidos": 2902.5, "horas_modelo_rrhh": 708.0, "horas_modelo_ops": 792.0, "puestos_fo_ops": 41, "puestos_bo_ops": 85, "puestos_totales_ops": 132.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Rebajas - Febrero Semana 3", "fte_modelo_rrhh": 20.8, "fte_modelo_ops": 23.27, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 11.4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}, {"semana": 9, "fecha_inicio": "2027-02-22", "fecha_fin": "2027-02-28", "clientes_front": 1977.8, "picking_dto": 2212.1, "entregas_dto": 579.6, "actividad_total_pedidos": 2791.6, "horas_modelo_rrhh": 666.0, "horas_modelo_ops": 732.0, "puestos_fo_ops": 39, "puestos_bo_ops": 77, "puestos_totales_ops": 122.0, "horas_cuadrante_actual": 0.0, "cuadrante_disponible": false, "hito": "Cierre de Campaña Invierno", "fte_modelo_rrhh": 19.57, "fte_modelo_ops": 21.51, "fte_cuadrante_actual": 0.0, "diff_horas_rrhh": 0.0, "diff_fte_rrhh": 0.0, "t_espera_max": 8.0, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "puestos_necesarios_max": 5}];
+const INITIAL_DAILY_DATA = [{"fecha": "2026-11-09", "label_short": "09 Nov", "label_full": "09 Nov (Lun)", "dia_semana": "lunes", "periodo": "ANTES_BF", "actividad_total_pedidos": 105.0, "picking_dto": 93.6, "entregas_dto": 11.3, "clientes_front": 79.9, "demanda_pico": 3.0, "tiempo_espera_max": 5.6, "horas_totales_rrhh": 54.1, "horas_totales_ops": 66.0, "puestos_totales": 11.0, "fte_modelo": 9.54, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Inicio Campaña Omnicanal", "cuadrante_proyectado": false}, {"fecha": "2026-11-10", "label_short": "10 Nov", "label_full": "10 Nov (Mar)", "dia_semana": "martes", "periodo": "ANTES_BF", "actividad_total_pedidos": 112.6, "picking_dto": 101.7, "entregas_dto": 10.9, "clientes_front": 75.5, "demanda_pico": 2.9, "tiempo_espera_max": 4.8, "horas_totales_rrhh": 55.8, "horas_totales_ops": 66.0, "puestos_totales": 11.0, "fte_modelo": 9.84, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-11", "label_short": "11 Nov", "label_full": "11 Nov (Mié)", "dia_semana": "miércoles", "periodo": "ANTES_BF", "actividad_total_pedidos": 132.9, "picking_dto": 120.9, "entregas_dto": 11.9, "clientes_front": 85.5, "demanda_pico": 3.2, "tiempo_espera_max": 6.8, "horas_totales_rrhh": 62.6, "horas_totales_ops": 72.0, "puestos_totales": 12.0, "fte_modelo": 11.04, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-12", "label_short": "12 Nov", "label_full": "12 Nov (Jue)", "dia_semana": "jueves", "periodo": "ANTES_BF", "actividad_total_pedidos": 103.5, "picking_dto": 90.9, "entregas_dto": 12.6, "clientes_front": 91.7, "demanda_pico": 3.5, "tiempo_espera_max": 2.8, "horas_totales_rrhh": 62.7, "horas_totales_ops": 66.0, "puestos_totales": 11.0, "fte_modelo": 11.05, "horas_cuadrante": 67.7, "personas_cuadrante": 11, "fte_cuadrante": 11.93, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-13", "label_short": "13 Nov", "label_full": "13 Nov (Vie)", "dia_semana": "viernes", "periodo": "ANTES_BF", "actividad_total_pedidos": 68.8, "picking_dto": 52.2, "entregas_dto": 16.5, "clientes_front": 127.8, "demanda_pico": 4.8, "tiempo_espera_max": 6.1, "horas_totales_rrhh": 53.5, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 9.43, "horas_cuadrante": 68.7, "personas_cuadrante": 11, "fte_cuadrante": 12.11, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-14", "label_short": "14 Nov", "label_full": "14 Nov (Sáb)", "dia_semana": "sábado", "periodo": "ANTES_BF", "actividad_total_pedidos": 84.9, "picking_dto": 72.5, "entregas_dto": 12.4, "clientes_front": 89.7, "demanda_pico": 3.2, "tiempo_espera_max": 6.8, "horas_totales_rrhh": 47.2, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 8.33, "horas_cuadrante": 70.0, "personas_cuadrante": 11, "fte_cuadrante": 12.34, "cuadrante_real": true, "semana": 46, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-15", "label_short": "15 Nov", "label_full": "15 Nov (Dom)", "dia_semana": "domingo", "periodo": "ANTES_BF", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 46, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2026-11-16", "label_short": "16 Nov", "label_full": "16 Nov (Lun)", "dia_semana": "lunes", "periodo": "ANTES_BF", "actividad_total_pedidos": 260.9, "picking_dto": 207.9, "entregas_dto": 53.0, "clientes_front": 101.0, "demanda_pico": 3.8, "tiempo_espera_max": 3.4, "horas_totales_rrhh": 60.3, "horas_totales_ops": 72.0, "puestos_totales": 12.0, "fte_modelo": 10.63, "horas_cuadrante": 47.8, "personas_cuadrante": 8, "fte_cuadrante": 8.43, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-17", "label_short": "17 Nov", "label_full": "17 Nov (Mar)", "dia_semana": "martes", "periodo": "ANTES_BF", "actividad_total_pedidos": 276.6, "picking_dto": 225.9, "entregas_dto": 50.7, "clientes_front": 95.7, "demanda_pico": 3.6, "tiempo_espera_max": 3.1, "horas_totales_rrhh": 62.2, "horas_totales_ops": 66.0, "puestos_totales": 11.0, "fte_modelo": 10.96, "horas_cuadrante": 59.8, "personas_cuadrante": 10, "fte_cuadrante": 10.54, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-18", "label_short": "18 Nov", "label_full": "18 Nov (Mié)", "dia_semana": "miércoles", "periodo": "ANTES_BF", "actividad_total_pedidos": 324.3, "picking_dto": 268.5, "entregas_dto": 55.8, "clientes_front": 107.6, "demanda_pico": 4.1, "tiempo_espera_max": 3.9, "horas_totales_rrhh": 69.2, "horas_totales_ops": 84.0, "puestos_totales": 14.0, "fte_modelo": 12.2, "horas_cuadrante": 59.8, "personas_cuadrante": 10, "fte_cuadrante": 10.54, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-19", "label_short": "19 Nov", "label_full": "19 Nov (Jue)", "dia_semana": "jueves", "periodo": "ANTES_BF", "actividad_total_pedidos": 260.8, "picking_dto": 201.9, "entregas_dto": 58.9, "clientes_front": 115.1, "demanda_pico": 4.4, "tiempo_espera_max": 4.6, "horas_totales_rrhh": 62.8, "horas_totales_ops": 72.0, "puestos_totales": 12.0, "fte_modelo": 11.07, "horas_cuadrante": 67.8, "personas_cuadrante": 11, "fte_cuadrante": 11.95, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-20", "label_short": "20 Nov", "label_full": "20 Nov (Vie)", "dia_semana": "viernes", "periodo": "ANTES_BF", "actividad_total_pedidos": 193.2, "picking_dto": 115.9, "entregas_dto": 77.2, "clientes_front": 158.5, "demanda_pico": 6.0, "tiempo_espera_max": 2.1, "horas_totales_rrhh": 58.5, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 10.31, "horas_cuadrante": 59.2, "personas_cuadrante": 10, "fte_cuadrante": 10.44, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-21", "label_short": "21 Nov", "label_full": "21 Nov (Sáb)", "dia_semana": "sábado", "periodo": "ANTES_BF", "actividad_total_pedidos": 218.9, "picking_dto": 161.0, "entregas_dto": 57.9, "clientes_front": 112.7, "demanda_pico": 4.1, "tiempo_espera_max": 0.7, "horas_totales_rrhh": 59.0, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 10.4, "horas_cuadrante": 50.7, "personas_cuadrante": 8, "fte_cuadrante": 8.94, "cuadrante_real": true, "semana": 47, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-22", "label_short": "22 Nov", "label_full": "22 Nov (Dom)", "dia_semana": "domingo", "periodo": "ANTES_BF", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 47, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2026-11-23", "label_short": "23 Nov", "label_full": "23 Nov (Lun)", "dia_semana": "lunes", "periodo": "ANTES_BF", "actividad_total_pedidos": 557.5, "picking_dto": 472.0, "entregas_dto": 85.5, "clientes_front": 229.6, "demanda_pico": 8.7, "tiempo_espera_max": 1.7, "horas_totales_rrhh": 105.9, "horas_totales_ops": 108.0, "puestos_totales": 18.0, "fte_modelo": 18.66, "horas_cuadrante": 60.5, "personas_cuadrante": 10, "fte_cuadrante": 10.66, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-24", "label_short": "24 Nov", "label_full": "24 Nov (Mar)", "dia_semana": "martes", "periodo": "ANTES_BF", "actividad_total_pedidos": 596.0, "picking_dto": 514.1, "entregas_dto": 81.9, "clientes_front": 219.1, "demanda_pico": 8.3, "tiempo_espera_max": 10.3, "horas_totales_rrhh": 104.1, "horas_totales_ops": 114.0, "puestos_totales": 19.0, "fte_modelo": 18.34, "horas_cuadrante": 76.5, "personas_cuadrante": 13, "fte_cuadrante": 13.48, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-25", "label_short": "25 Nov", "label_full": "25 Nov (Mié)", "dia_semana": "miércoles", "periodo": "ANTES_BF", "actividad_total_pedidos": 668.9, "picking_dto": 578.9, "entregas_dto": 90.0, "clientes_front": 242.9, "demanda_pico": 9.2, "tiempo_espera_max": 2.0, "horas_totales_rrhh": 119.7, "horas_totales_ops": 126.0, "puestos_totales": 21.0, "fte_modelo": 21.11, "horas_cuadrante": 76.5, "personas_cuadrante": 13, "fte_cuadrante": 13.48, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-11-26", "label_short": "26 Nov", "label_full": "26 Nov (Jue)", "dia_semana": "jueves", "periodo": "BF", "actividad_total_pedidos": 541.8, "picking_dto": 446.7, "entregas_dto": 95.1, "clientes_front": 257.8, "demanda_pico": 9.8, "tiempo_espera_max": 2.5, "horas_totales_rrhh": 107.2, "horas_totales_ops": 114.0, "puestos_totales": 19.0, "fte_modelo": 18.9, "horas_cuadrante": 85.8, "personas_cuadrante": 14, "fte_cuadrante": 15.12, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Víspera Black Friday", "cuadrante_proyectado": false}, {"fecha": "2026-11-27", "label_short": "27 Nov", "label_full": "27 Nov (Vie)", "dia_semana": "viernes", "periodo": "BF", "actividad_total_pedidos": 430.6, "picking_dto": 306.0, "entregas_dto": 124.6, "clientes_front": 344.5, "demanda_pico": 13.0, "tiempo_espera_max": 10.7, "horas_totales_rrhh": 98.4, "horas_totales_ops": 108.0, "puestos_totales": 18.0, "fte_modelo": 17.35, "horas_cuadrante": 88.3, "personas_cuadrante": 14, "fte_cuadrante": 15.56, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "💥 BLACK FRIDAY", "cuadrante_proyectado": false}, {"fecha": "2026-11-28", "label_short": "28 Nov", "label_full": "28 Nov (Sáb)", "dia_semana": "sábado", "periodo": "BF", "actividad_total_pedidos": 462.5, "picking_dto": 369.0, "entregas_dto": 93.4, "clientes_front": 253.0, "demanda_pico": 9.1, "tiempo_espera_max": 11.3, "horas_totales_rrhh": 92.5, "horas_totales_ops": 102.0, "puestos_totales": 17.0, "fte_modelo": 16.3, "horas_cuadrante": 83.0, "personas_cuadrante": 13, "fte_cuadrante": 14.63, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Fin de Semana BF", "cuadrante_proyectado": false}, {"fecha": "2026-11-29", "label_short": "29 Nov", "label_full": "29 Nov (Dom)", "dia_semana": "domingo", "periodo": "BF", "actividad_total_pedidos": 164.4, "picking_dto": 138.1, "entregas_dto": 26.2, "clientes_front": 55.9, "demanda_pico": 2.2, "tiempo_espera_max": 2.7, "horas_totales_rrhh": 38.5, "horas_totales_ops": 48.0, "puestos_totales": 8.0, "fte_modelo": 6.79, "horas_cuadrante": 48.5, "personas_cuadrante": 6, "fte_cuadrante": 8.55, "cuadrante_real": true, "semana": 48, "puestos_necesarios": 1, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Apertura Domingo BF", "cuadrante_proyectado": false}, {"fecha": "2026-11-30", "label_short": "30 Nov", "label_full": "30 Nov (Lun)", "dia_semana": "lunes", "periodo": "BF", "actividad_total_pedidos": 790.0, "picking_dto": 619.4, "entregas_dto": 170.7, "clientes_front": 413.3, "demanda_pico": 15.6, "tiempo_espera_max": 2.9, "horas_totales_rrhh": 146.7, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 25.87, "horas_cuadrante": 77.3, "personas_cuadrante": 12, "fte_cuadrante": 13.63, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "🚀 CYBER MONDAY (Pico Actividad)", "cuadrante_proyectado": false}, {"fecha": "2026-12-01", "label_short": "01 Dic", "label_full": "01 Dic (Mar)", "dia_semana": "martes", "periodo": "BF", "actividad_total_pedidos": 838.1, "picking_dto": 674.6, "entregas_dto": 163.5, "clientes_front": 395.0, "demanda_pico": 14.9, "tiempo_espera_max": 2.2, "horas_totales_rrhh": 152.3, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 26.84, "horas_cuadrante": 84.0, "personas_cuadrante": 13, "fte_cuadrante": 14.81, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-02", "label_short": "02 Dic", "label_full": "02 Dic (Mié)", "dia_semana": "miércoles", "periodo": "BF", "actividad_total_pedidos": 939.3, "picking_dto": 759.6, "entregas_dto": 179.7, "clientes_front": 436.3, "demanda_pico": 16.5, "tiempo_espera_max": 4.5, "horas_totales_rrhh": 166.3, "horas_totales_ops": 168.0, "puestos_totales": 28.0, "fte_modelo": 29.31, "horas_cuadrante": 74.2, "personas_cuadrante": 12, "fte_cuadrante": 13.08, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-03", "label_short": "03 Dic", "label_full": "03 Dic (Jue)", "dia_semana": "jueves", "periodo": "BF", "actividad_total_pedidos": 776.0, "picking_dto": 586.1, "entregas_dto": 189.9, "clientes_front": 462.2, "demanda_pico": 17.5, "tiempo_espera_max": 8.5, "horas_totales_rrhh": 150.9, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 26.6, "horas_cuadrante": 84.3, "personas_cuadrante": 14, "fte_cuadrante": 14.86, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-04", "label_short": "04 Dic", "label_full": "04 Dic (Vie)", "dia_semana": "viernes", "periodo": "BF", "actividad_total_pedidos": 711.9, "picking_dto": 463.0, "entregas_dto": 248.9, "clientes_front": 612.4, "demanda_pico": 23.2, "tiempo_espera_max": 163.2, "horas_totales_rrhh": 141.9, "horas_totales_ops": 144.0, "puestos_totales": 24.0, "fte_modelo": 25.01, "horas_cuadrante": 88.2, "personas_cuadrante": 14, "fte_cuadrante": 15.55, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 6, "puestos_disponibles": 4, "duracion_exceso_max": 148.2, "ops_exceden_tmax": 17, "hito": "🚨 Pico Espera Mostrador (163 min)", "cuadrante_proyectado": false}, {"fecha": "2026-12-05", "label_short": "05 Dic", "label_full": "05 Dic (Sáb)", "dia_semana": "sábado", "periodo": "BF", "actividad_total_pedidos": 651.7, "picking_dto": 465.1, "entregas_dto": 186.6, "clientes_front": 453.9, "demanda_pico": 16.4, "tiempo_espera_max": 4.1, "horas_totales_rrhh": 133.1, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 23.47, "horas_cuadrante": 72.3, "personas_cuadrante": 11, "fte_cuadrante": 12.74, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-06", "label_short": "06 Dic", "label_full": "06 Dic (Dom)", "dia_semana": "domingo", "periodo": "BF", "actividad_total_pedidos": 165.1, "picking_dto": 112.7, "entregas_dto": 52.4, "clientes_front": 112.3, "demanda_pico": 4.4, "tiempo_espera_max": 8.6, "horas_totales_rrhh": 45.2, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 7.97, "horas_cuadrante": 57.5, "personas_cuadrante": 7, "fte_cuadrante": 10.14, "cuadrante_real": true, "semana": 49, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Día de la Constitución", "cuadrante_proyectado": false}, {"fecha": "2026-12-07", "label_short": "07 Dic", "label_full": "07 Dic (Lun)", "dia_semana": "lunes", "periodo": "BF", "actividad_total_pedidos": 688.3, "picking_dto": 499.1, "entregas_dto": 189.2, "clientes_front": 495.5, "demanda_pico": 17.7, "tiempo_espera_max": 10.6, "horas_totales_rrhh": 133.7, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 23.57, "horas_cuadrante": 67.8, "personas_cuadrante": 11, "fte_cuadrante": 11.95, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Lunes Pte. Constitución (5 Puestos)", "cuadrante_proyectado": false}, {"fecha": "2026-12-08", "label_short": "08 Dic", "label_full": "08 Dic (Mar)", "dia_semana": "martes", "periodo": "BF", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 50, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Inmaculada Concepción", "cuadrante_proyectado": true}, {"fecha": "2026-12-09", "label_short": "09 Dic", "label_full": "09 Dic (Mié)", "dia_semana": "miércoles", "periodo": "BF", "actividad_total_pedidos": 920.3, "picking_dto": 779.4, "entregas_dto": 140.8, "clientes_front": 362.6, "demanda_pico": 13.7, "tiempo_espera_max": 1.3, "horas_totales_rrhh": 167.2, "horas_totales_ops": 168.0, "puestos_totales": 28.0, "fte_modelo": 29.47, "horas_cuadrante": 58.7, "personas_cuadrante": 10, "fte_cuadrante": 10.35, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-10", "label_short": "10 Dic", "label_full": "10 Dic (Jue)", "dia_semana": "jueves", "periodo": "BF", "actividad_total_pedidos": 761.7, "picking_dto": 612.9, "entregas_dto": 148.8, "clientes_front": 384.5, "demanda_pico": 14.6, "tiempo_espera_max": 1.8, "horas_totales_rrhh": 152.6, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 26.9, "horas_cuadrante": 89.2, "personas_cuadrante": 14, "fte_cuadrante": 15.72, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-11", "label_short": "11 Dic", "label_full": "11 Dic (Vie)", "dia_semana": "viernes", "periodo": "BF", "actividad_total_pedidos": 614.9, "picking_dto": 419.9, "entregas_dto": 195.0, "clientes_front": 511.6, "demanda_pico": 19.4, "tiempo_espera_max": 150.0, "horas_totales_rrhh": 138.5, "horas_totales_ops": 144.0, "puestos_totales": 24.0, "fte_modelo": 24.41, "horas_cuadrante": 81.7, "personas_cuadrante": 13, "fte_cuadrante": 14.4, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 135.0, "ops_exceden_tmax": 0, "hito": "⚠️ Pico Espera Mostrador (150 min)", "cuadrante_proyectado": false}, {"fecha": "2026-12-12", "label_short": "12 Dic", "label_full": "12 Dic (Sáb)", "dia_semana": "sábado", "periodo": "BF", "actividad_total_pedidos": 652.6, "picking_dto": 506.3, "entregas_dto": 146.2, "clientes_front": 377.4, "demanda_pico": 13.6, "tiempo_espera_max": 22.5, "horas_totales_rrhh": 124.5, "horas_totales_ops": 144.0, "puestos_totales": 24.0, "fte_modelo": 21.94, "horas_cuadrante": 90.7, "personas_cuadrante": 14, "fte_cuadrante": 15.99, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 7.5, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-13", "label_short": "13 Dic", "label_full": "13 Dic (Dom)", "dia_semana": "domingo", "periodo": "BF", "actividad_total_pedidos": 217.2, "picking_dto": 176.1, "entregas_dto": 41.1, "clientes_front": 88.3, "demanda_pico": 3.4, "tiempo_espera_max": 4.3, "horas_totales_rrhh": 51.9, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 9.15, "horas_cuadrante": 53.0, "personas_cuadrante": 7, "fte_cuadrante": 9.34, "cuadrante_real": true, "semana": 50, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-14", "label_short": "14 Dic", "label_full": "14 Dic (Lun)", "dia_semana": "lunes", "periodo": "BF", "actividad_total_pedidos": 688.5, "picking_dto": 561.9, "entregas_dto": 126.5, "clientes_front": 383.5, "demanda_pico": 14.5, "tiempo_espera_max": 1.8, "horas_totales_rrhh": 134.8, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 23.75, "horas_cuadrante": 67.8, "personas_cuadrante": 11, "fte_cuadrante": 11.95, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-15", "label_short": "15 Dic", "label_full": "15 Dic (Mar)", "dia_semana": "martes", "periodo": "BF", "actividad_total_pedidos": 733.2, "picking_dto": 612.0, "entregas_dto": 121.2, "clientes_front": 366.5, "demanda_pico": 13.9, "tiempo_espera_max": 1.4, "horas_totales_rrhh": 139.4, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 24.58, "horas_cuadrante": 73.7, "personas_cuadrante": 11, "fte_cuadrante": 12.99, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-16", "label_short": "16 Dic", "label_full": "16 Dic (Mié)", "dia_semana": "miércoles", "periodo": "BF", "actividad_total_pedidos": 822.4, "picking_dto": 689.2, "entregas_dto": 133.3, "clientes_front": 404.9, "demanda_pico": 15.3, "tiempo_espera_max": 2.5, "horas_totales_rrhh": 151.4, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 26.69, "horas_cuadrante": 67.7, "personas_cuadrante": 11, "fte_cuadrante": 11.93, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-17", "label_short": "17 Dic", "label_full": "17 Dic (Jue)", "dia_semana": "jueves", "periodo": "BF", "actividad_total_pedidos": 672.5, "picking_dto": 531.7, "entregas_dto": 140.8, "clientes_front": 429.0, "demanda_pico": 16.2, "tiempo_espera_max": 3.9, "horas_totales_rrhh": 137.6, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 24.25, "horas_cuadrante": 73.3, "personas_cuadrante": 12, "fte_cuadrante": 12.92, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-18", "label_short": "18 Dic", "label_full": "18 Dic (Vie)", "dia_semana": "viernes", "periodo": "BF", "actividad_total_pedidos": 548.8, "picking_dto": 364.3, "entregas_dto": 184.5, "clientes_front": 568.9, "demanda_pico": 21.5, "tiempo_espera_max": 155.7, "horas_totales_rrhh": 127.0, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 22.38, "horas_cuadrante": 75.5, "personas_cuadrante": 12, "fte_cuadrante": 13.31, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 6, "puestos_disponibles": 4, "duracion_exceso_max": 140.7, "ops_exceden_tmax": 7, "hito": "🚨 Viernes Pico Navidad (156 min)", "cuadrante_proyectado": false}, {"fecha": "2026-12-19", "label_short": "19 Dic", "label_full": "19 Dic (Sáb)", "dia_semana": "sábado", "periodo": "NAVIDAD", "actividad_total_pedidos": 577.7, "picking_dto": 439.3, "entregas_dto": 138.4, "clientes_front": 421.3, "demanda_pico": 15.2, "tiempo_espera_max": 2.4, "horas_totales_rrhh": 124.8, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 22.0, "horas_cuadrante": 77.7, "personas_cuadrante": 12, "fte_cuadrante": 13.7, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-20", "label_short": "20 Dic", "label_full": "20 Dic (Dom)", "dia_semana": "domingo", "periodo": "NAVIDAD", "actividad_total_pedidos": 203.3, "picking_dto": 164.4, "entregas_dto": 38.9, "clientes_front": 103.1, "demanda_pico": 4.0, "tiempo_espera_max": 6.4, "horas_totales_rrhh": 49.4, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 8.71, "horas_cuadrante": 50.5, "personas_cuadrante": 6, "fte_cuadrante": 8.9, "cuadrante_real": true, "semana": 51, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-21", "label_short": "21 Dic", "label_full": "21 Dic (Lun)", "dia_semana": "lunes", "periodo": "NAVIDAD", "actividad_total_pedidos": 814.8, "picking_dto": 666.1, "entregas_dto": 148.8, "clientes_front": 334.4, "demanda_pico": 12.7, "tiempo_espera_max": 8.9, "horas_totales_rrhh": 145.0, "horas_totales_ops": 162.0, "puestos_totales": 27.0, "fte_modelo": 25.56, "horas_cuadrante": 67.7, "personas_cuadrante": 11, "fte_cuadrante": 11.93, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-22", "label_short": "22 Dic", "label_full": "22 Dic (Mar)", "dia_semana": "martes", "periodo": "NAVIDAD", "actividad_total_pedidos": 634.8, "picking_dto": 492.3, "entregas_dto": 142.5, "clientes_front": 319.3, "demanda_pico": 12.1, "tiempo_espera_max": 6.5, "horas_totales_rrhh": 125.9, "horas_totales_ops": 144.0, "puestos_totales": 24.0, "fte_modelo": 22.19, "horas_cuadrante": 89.7, "personas_cuadrante": 14, "fte_cuadrante": 15.81, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-23", "label_short": "23 Dic", "label_full": "23 Dic (Mié)", "dia_semana": "miércoles", "periodo": "NAVIDAD", "actividad_total_pedidos": 496.6, "picking_dto": 339.9, "entregas_dto": 156.7, "clientes_front": 353.4, "demanda_pico": 13.4, "tiempo_espera_max": 14.9, "horas_totales_rrhh": 112.4, "horas_totales_ops": 126.0, "puestos_totales": 21.0, "fte_modelo": 19.82, "horas_cuadrante": 81.2, "personas_cuadrante": 13, "fte_cuadrante": 14.31, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-24", "label_short": "24 Dic", "label_full": "24 Dic (Jue)", "dia_semana": "jueves", "periodo": "NAVIDAD", "actividad_total_pedidos": 555.7, "picking_dto": 412.7, "entregas_dto": 142.9, "clientes_front": 320.3, "demanda_pico": 11.5, "tiempo_espera_max": 4.9, "horas_totales_rrhh": 108.1, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 19.06, "horas_cuadrante": 84.5, "personas_cuadrante": 14, "fte_cuadrante": 14.89, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Nochebuena", "cuadrante_proyectado": false}, {"fecha": "2026-12-25", "label_short": "25 Dic", "label_full": "25 Dic (Vie)", "dia_semana": "viernes", "periodo": "NAVIDAD", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 52, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Navidad (Cerrado)", "cuadrante_proyectado": true}, {"fecha": "2026-12-26", "label_short": "26 Dic", "label_full": "26 Dic (Sáb)", "dia_semana": "sábado", "periodo": "NAVIDAD", "actividad_total_pedidos": 703.0, "picking_dto": 540.4, "entregas_dto": 162.7, "clientes_front": 367.9, "demanda_pico": 13.3, "tiempo_espera_max": 13.7, "horas_totales_rrhh": 133.4, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 23.51, "horas_cuadrante": 96.5, "personas_cuadrante": 15, "fte_cuadrante": 17.01, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-27", "label_short": "27 Dic", "label_full": "27 Dic (Dom)", "dia_semana": "domingo", "periodo": "NAVIDAD", "actividad_total_pedidos": 271.0, "picking_dto": 225.3, "entregas_dto": 45.7, "clientes_front": 85.6, "demanda_pico": 3.3, "tiempo_espera_max": 4.0, "horas_totales_rrhh": 59.6, "horas_totales_ops": 72.0, "puestos_totales": 12.0, "fte_modelo": 10.51, "horas_cuadrante": 57.5, "personas_cuadrante": 7, "fte_cuadrante": 10.14, "cuadrante_real": true, "semana": 52, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-28", "label_short": "28 Dic", "label_full": "28 Dic (Lun)", "dia_semana": "lunes", "periodo": "NAVIDAD", "actividad_total_pedidos": 759.3, "picking_dto": 626.6, "entregas_dto": 132.7, "clientes_front": 349.3, "demanda_pico": 13.2, "tiempo_espera_max": 13.1, "horas_totales_rrhh": 144.5, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 25.46, "horas_cuadrante": 62.3, "personas_cuadrante": 10, "fte_cuadrante": 10.98, "cuadrante_real": true, "semana": 1, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-29", "label_short": "29 Dic", "label_full": "29 Dic (Mar)", "dia_semana": "martes", "periodo": "NAVIDAD", "actividad_total_pedidos": 590.2, "picking_dto": 463.1, "entregas_dto": 127.1, "clientes_front": 333.6, "demanda_pico": 12.6, "tiempo_espera_max": 8.8, "horas_totales_rrhh": 120.0, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 21.15, "horas_cuadrante": 86.8, "personas_cuadrante": 14, "fte_cuadrante": 15.3, "cuadrante_real": true, "semana": 1, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-30", "label_short": "30 Dic", "label_full": "30 Dic (Mié)", "dia_semana": "miércoles", "periodo": "NAVIDAD", "actividad_total_pedidos": 459.5, "picking_dto": 319.8, "entregas_dto": 139.7, "clientes_front": 369.1, "demanda_pico": 14.0, "tiempo_espera_max": 1.5, "horas_totales_rrhh": 113.6, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 20.02, "horas_cuadrante": 76.5, "personas_cuadrante": 13, "fte_cuadrante": 13.48, "cuadrante_real": true, "semana": 1, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": false}, {"fecha": "2026-12-31", "label_short": "31 Dic", "label_full": "31 Dic (Jue)", "dia_semana": "jueves", "periodo": "NAVIDAD", "actividad_total_pedidos": 515.8, "picking_dto": 388.3, "entregas_dto": 127.5, "clientes_front": 334.6, "demanda_pico": 12.0, "tiempo_espera_max": 6.2, "horas_totales_rrhh": 103.7, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.28, "horas_cuadrante": 84.5, "personas_cuadrante": 14, "fte_cuadrante": 14.89, "cuadrante_real": true, "semana": 1, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Nochevieja", "cuadrante_proyectado": false}, {"fecha": "2027-01-01", "label_short": "01 Ene", "label_full": "01 Ene (Vie)", "dia_semana": "viernes", "periodo": "NAVIDAD", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 1, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Año Nuevo (Cerrado)", "cuadrante_proyectado": true}, {"fecha": "2027-01-02", "label_short": "02 Ene", "label_full": "02 Ene (Sáb)", "dia_semana": "sábado", "periodo": "NAVIDAD", "actividad_total_pedidos": 650.1, "picking_dto": 505.0, "entregas_dto": 145.1, "clientes_front": 384.2, "demanda_pico": 13.9, "tiempo_espera_max": 8.1, "horas_totales_rrhh": 133.5, "horas_totales_ops": 144.0, "puestos_totales": 24.0, "fte_modelo": 23.54, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 1, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-03", "label_short": "03 Ene", "label_full": "03 Ene (Dom)", "dia_semana": "domingo", "periodo": "NAVIDAD", "actividad_total_pedidos": 194.2, "picking_dto": 153.4, "entregas_dto": 40.8, "clientes_front": 90.2, "demanda_pico": 3.5, "tiempo_espera_max": 4.5, "horas_totales_rrhh": 51.1, "horas_totales_ops": 60.0, "puestos_totales": 10.0, "fte_modelo": 9.01, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 1, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-04", "label_short": "04 Ene", "label_full": "04 Ene (Lun)", "dia_semana": "lunes", "periodo": "NAVIDAD", "actividad_total_pedidos": 438.5, "picking_dto": 304.1, "entregas_dto": 134.4, "clientes_front": 377.8, "demanda_pico": 14.3, "tiempo_espera_max": 1.7, "horas_totales_rrhh": 120.8, "horas_totales_ops": 126.0, "puestos_totales": 21.0, "fte_modelo": 21.3, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-05", "label_short": "05 Ene", "label_full": "05 Ene (Mar)", "dia_semana": "martes", "periodo": "NAVIDAD", "actividad_total_pedidos": 645.7, "picking_dto": 519.9, "entregas_dto": 125.8, "clientes_front": 352.2, "demanda_pico": 12.6, "tiempo_espera_max": 8.7, "horas_totales_rrhh": 131.1, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 23.11, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "👑 Víspera de Reyes (Pico Entregas)", "cuadrante_proyectado": true}, {"fecha": "2027-01-06", "label_short": "06 Ene", "label_full": "06 Ene (Mié)", "dia_semana": "miércoles", "periodo": "FESTIVO", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Día de Reyes (Cerrado)", "cuadrante_proyectado": true}, {"fecha": "2027-01-07", "label_short": "07 Ene", "label_full": "07 Ene (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 736.1, "picking_dto": 586.6, "entregas_dto": 149.5, "clientes_front": 423.2, "demanda_pico": 16.0, "tiempo_espera_max": 3.5, "horas_totales_rrhh": 163.5, "horas_totales_ops": 168.0, "puestos_totales": 28.0, "fte_modelo": 28.82, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "🛍️ INICIO REBAJAS DE ENERO", "cuadrante_proyectado": true}, {"fecha": "2027-01-08", "label_short": "08 Ene", "label_full": "08 Ene (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 597.8, "picking_dto": 401.9, "entregas_dto": 195.9, "clientes_front": 562.2, "demanda_pico": 21.3, "tiempo_espera_max": 154.2, "horas_totales_rrhh": 154.8, "horas_totales_ops": 162.0, "puestos_totales": 27.0, "fte_modelo": 27.29, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 6, "puestos_disponibles": 4, "duracion_exceso_max": 139.2, "ops_exceden_tmax": 6, "hito": "🚨 Viernes Pico Rebajas (154 min)", "cuadrante_proyectado": true}, {"fecha": "2027-01-09", "label_short": "09 Ene", "label_full": "09 Ene (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 631.5, "picking_dto": 484.6, "entregas_dto": 146.9, "clientes_front": 415.4, "demanda_pico": 15.0, "tiempo_espera_max": 2.2, "horas_totales_rrhh": 147.4, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 25.98, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-10", "label_short": "10 Ene", "label_full": "10 Ene (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 225.0, "picking_dto": 183.7, "entregas_dto": 41.3, "clientes_front": 99.0, "demanda_pico": 3.8, "tiempo_espera_max": 5.7, "horas_totales_rrhh": 56.7, "horas_totales_ops": 72.0, "puestos_totales": 12.0, "fte_modelo": 10.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 2, "puestos_necesarios": 2, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "1er Domingo Rebajas (Apertura)", "cuadrante_proyectado": true}, {"fecha": "2027-01-11", "label_short": "11 Ene", "label_full": "11 Ene (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 600.7, "picking_dto": 457.6, "entregas_dto": 143.2, "clientes_front": 342.5, "demanda_pico": 13.0, "tiempo_espera_max": 10.0, "horas_totales_rrhh": 125.3, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 22.08, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-12", "label_short": "12 Ene", "label_full": "12 Ene (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 634.2, "picking_dto": 497.1, "entregas_dto": 137.2, "clientes_front": 327.0, "demanda_pico": 12.4, "tiempo_espera_max": 7.6, "horas_totales_rrhh": 122.5, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 21.59, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-13", "label_short": "13 Ene", "label_full": "13 Ene (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 741.7, "picking_dto": 590.9, "entregas_dto": 150.8, "clientes_front": 361.9, "demanda_pico": 13.7, "tiempo_espera_max": 1.3, "horas_totales_rrhh": 150.0, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 26.43, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-14", "label_short": "14 Ene", "label_full": "14 Ene (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 603.6, "picking_dto": 444.3, "entregas_dto": 159.3, "clientes_front": 383.8, "demanda_pico": 14.5, "tiempo_espera_max": 1.8, "horas_totales_rrhh": 139.4, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 24.57, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-15", "label_short": "15 Ene", "label_full": "15 Ene (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 463.9, "picking_dto": 255.1, "entregas_dto": 208.8, "clientes_front": 510.7, "demanda_pico": 19.3, "tiempo_espera_max": 150.0, "horas_totales_rrhh": 126.9, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 22.37, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 135.0, "ops_exceden_tmax": 0, "hito": "⚠️ Viernes 2ª Sem. Rebajas (150 min)", "cuadrante_proyectado": true}, {"fecha": "2027-01-16", "label_short": "16 Ene", "label_full": "16 Ene (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 510.9, "picking_dto": 354.3, "entregas_dto": 156.6, "clientes_front": 376.8, "demanda_pico": 13.6, "tiempo_espera_max": 21.6, "horas_totales_rrhh": 110.0, "horas_totales_ops": 126.0, "puestos_totales": 21.0, "fte_modelo": 19.38, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 6.6, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-17", "label_short": "17 Ene", "label_full": "17 Ene (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 3, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "2º Domingo Rebajas (Apertura)", "cuadrante_proyectado": true}, {"fecha": "2027-01-18", "label_short": "18 Ene", "label_full": "18 Ene (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 589.5, "picking_dto": 456.9, "entregas_dto": 132.5, "clientes_front": 327.4, "demanda_pico": 12.4, "tiempo_espera_max": 7.7, "horas_totales_rrhh": 119.6, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 21.07, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-19", "label_short": "19 Ene", "label_full": "19 Ene (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 623.4, "picking_dto": 496.4, "entregas_dto": 127.0, "clientes_front": 312.6, "demanda_pico": 11.8, "tiempo_espera_max": 5.7, "horas_totales_rrhh": 123.0, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 21.68, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-20", "label_short": "20 Ene", "label_full": "20 Ene (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 729.7, "picking_dto": 590.1, "entregas_dto": 139.6, "clientes_front": 346.0, "demanda_pico": 13.1, "tiempo_espera_max": 11.4, "horas_totales_rrhh": 144.7, "horas_totales_ops": 156.0, "puestos_totales": 26.0, "fte_modelo": 25.51, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-21", "label_short": "21 Ene", "label_full": "21 Ene (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 591.1, "picking_dto": 443.6, "entregas_dto": 147.5, "clientes_front": 367.0, "demanda_pico": 13.9, "tiempo_espera_max": 1.4, "horas_totales_rrhh": 139.5, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 24.59, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-22", "label_short": "22 Ene", "label_full": "22 Ene (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 448.1, "picking_dto": 254.8, "entregas_dto": 193.3, "clientes_front": 488.7, "demanda_pico": 18.5, "tiempo_espera_max": 30.5, "horas_totales_rrhh": 125.6, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 22.14, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 15.5, "ops_exceden_tmax": 0, "hito": "⚠️ Viernes 3ª Sem. Rebajas (31 min)", "cuadrante_proyectado": true}, {"fecha": "2027-01-23", "label_short": "23 Ene", "label_full": "23 Ene (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 498.7, "picking_dto": 353.8, "entregas_dto": 144.9, "clientes_front": 360.3, "demanda_pico": 13.0, "tiempo_espera_max": 10.2, "horas_totales_rrhh": 109.6, "horas_totales_ops": 126.0, "puestos_totales": 21.0, "fte_modelo": 19.32, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-24", "label_short": "24 Ene", "label_full": "24 Ene (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 4, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-25", "label_short": "25 Ene", "label_full": "25 Ene (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 559.6, "picking_dto": 440.9, "entregas_dto": 118.7, "clientes_front": 312.9, "demanda_pico": 11.8, "tiempo_espera_max": 5.8, "horas_totales_rrhh": 113.6, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.03, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-26", "label_short": "26 Ene", "label_full": "26 Ene (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 592.7, "picking_dto": 479.0, "entregas_dto": 113.7, "clientes_front": 298.7, "demanda_pico": 11.3, "tiempo_espera_max": 4.5, "horas_totales_rrhh": 116.9, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.6, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-27", "label_short": "27 Ene", "label_full": "27 Ene (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 694.4, "picking_dto": 569.4, "entregas_dto": 125.0, "clientes_front": 330.8, "demanda_pico": 12.5, "tiempo_espera_max": 8.2, "horas_totales_rrhh": 131.4, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 23.17, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-28", "label_short": "28 Ene", "label_full": "28 Ene (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 560.1, "picking_dto": 428.1, "entregas_dto": 132.0, "clientes_front": 350.9, "demanda_pico": 13.3, "tiempo_espera_max": 14.0, "horas_totales_rrhh": 126.8, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 22.35, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-29", "label_short": "29 Ene", "label_full": "29 Ene (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 418.9, "picking_dto": 245.9, "entregas_dto": 173.0, "clientes_front": 467.6, "demanda_pico": 17.7, "tiempo_espera_max": 10.2, "horas_totales_rrhh": 114.4, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 20.16, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-30", "label_short": "30 Ene", "label_full": "30 Ene (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 471.2, "picking_dto": 341.4, "entregas_dto": 129.8, "clientes_front": 344.4, "demanda_pico": 12.4, "tiempo_espera_max": 6.4, "horas_totales_rrhh": 104.9, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.49, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-01-31", "label_short": "31 Ene", "label_full": "31 Ene (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 5, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-01", "label_short": "01 Feb", "label_full": "01 Feb (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 548.3, "picking_dto": 437.1, "entregas_dto": 111.2, "clientes_front": 312.4, "demanda_pico": 11.8, "tiempo_espera_max": 5.7, "horas_totales_rrhh": 113.7, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.05, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-02", "label_short": "02 Feb", "label_full": "02 Feb (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 581.4, "picking_dto": 474.9, "entregas_dto": 106.5, "clientes_front": 298.2, "demanda_pico": 11.3, "tiempo_espera_max": 4.5, "horas_totales_rrhh": 117.1, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.63, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-03", "label_short": "03 Feb", "label_full": "03 Feb (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 681.6, "picking_dto": 564.6, "entregas_dto": 117.1, "clientes_front": 330.3, "demanda_pico": 12.5, "tiempo_espera_max": 8.1, "horas_totales_rrhh": 131.8, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 23.23, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-04", "label_short": "04 Feb", "label_full": "04 Feb (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 548.1, "picking_dto": 424.4, "entregas_dto": 123.7, "clientes_front": 350.4, "demanda_pico": 13.3, "tiempo_espera_max": 13.7, "horas_totales_rrhh": 127.1, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 22.4, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-05", "label_short": "05 Feb", "label_full": "05 Feb (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 405.9, "picking_dto": 243.8, "entregas_dto": 162.1, "clientes_front": 466.8, "demanda_pico": 17.7, "tiempo_espera_max": 9.9, "horas_totales_rrhh": 113.8, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 20.06, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-06", "label_short": "06 Feb", "label_full": "06 Feb (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 460.1, "picking_dto": 338.5, "entregas_dto": 121.6, "clientes_front": 343.9, "demanda_pico": 12.4, "tiempo_espera_max": 6.3, "horas_totales_rrhh": 104.5, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.43, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-07", "label_short": "07 Feb", "label_full": "07 Feb (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 6, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-08", "label_short": "08 Feb", "label_full": "08 Feb (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 521.2, "picking_dto": 422.1, "entregas_dto": 99.1, "clientes_front": 311.9, "demanda_pico": 11.8, "tiempo_espera_max": 5.7, "horas_totales_rrhh": 113.6, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.03, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-09", "label_short": "09 Feb", "label_full": "09 Feb (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 553.5, "picking_dto": 458.6, "entregas_dto": 94.9, "clientes_front": 297.7, "demanda_pico": 11.3, "tiempo_espera_max": 4.5, "horas_totales_rrhh": 116.9, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.6, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-10", "label_short": "10 Feb", "label_full": "10 Feb (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 649.5, "picking_dto": 545.2, "entregas_dto": 104.3, "clientes_front": 329.7, "demanda_pico": 12.5, "tiempo_espera_max": 8.0, "horas_totales_rrhh": 131.5, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 23.17, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-11", "label_short": "11 Feb", "label_full": "11 Feb (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 520.1, "picking_dto": 409.9, "entregas_dto": 110.2, "clientes_front": 349.8, "demanda_pico": 13.2, "tiempo_espera_max": 13.3, "horas_totales_rrhh": 126.8, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 22.36, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-12", "label_short": "12 Feb", "label_full": "12 Feb (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 379.8, "picking_dto": 235.4, "entregas_dto": 144.4, "clientes_front": 466.1, "demanda_pico": 17.6, "tiempo_espera_max": 9.7, "horas_totales_rrhh": 114.3, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 20.15, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-13", "label_short": "13 Feb", "label_full": "13 Feb (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 435.2, "picking_dto": 326.9, "entregas_dto": 108.3, "clientes_front": 343.3, "demanda_pico": 12.4, "tiempo_espera_max": 6.2, "horas_totales_rrhh": 104.9, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.49, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-14", "label_short": "14 Feb", "label_full": "14 Feb (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 7, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "San Valentín", "cuadrante_proyectado": true}, {"fecha": "2027-02-15", "label_short": "15 Feb", "label_full": "15 Feb (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 495.1, "picking_dto": 404.4, "entregas_dto": 90.7, "clientes_front": 308.6, "demanda_pico": 11.7, "tiempo_espera_max": 5.4, "horas_totales_rrhh": 113.5, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.02, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-16", "label_short": "16 Feb", "label_full": "16 Feb (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 526.2, "picking_dto": 439.3, "entregas_dto": 86.9, "clientes_front": 294.5, "demanda_pico": 11.1, "tiempo_espera_max": 4.2, "horas_totales_rrhh": 116.7, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.58, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-17", "label_short": "17 Feb", "label_full": "17 Feb (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 617.7, "picking_dto": 522.3, "entregas_dto": 95.5, "clientes_front": 326.2, "demanda_pico": 12.3, "tiempo_espera_max": 7.5, "horas_totales_rrhh": 131.3, "horas_totales_ops": 150.0, "puestos_totales": 25.0, "fte_modelo": 23.14, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-18", "label_short": "18 Feb", "label_full": "18 Feb (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 493.5, "picking_dto": 392.6, "entregas_dto": 100.9, "clientes_front": 346.1, "demanda_pico": 13.1, "tiempo_espera_max": 11.4, "horas_totales_rrhh": 126.8, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 22.36, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-19", "label_short": "19 Feb", "label_full": "19 Feb (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 357.7, "picking_dto": 225.5, "entregas_dto": 132.2, "clientes_front": 461.2, "demanda_pico": 17.5, "tiempo_espera_max": 8.3, "horas_totales_rrhh": 114.7, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 20.21, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-20", "label_short": "20 Feb", "label_full": "20 Feb (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 412.3, "picking_dto": 313.1, "entregas_dto": 99.1, "clientes_front": 339.7, "demanda_pico": 12.2, "tiempo_espera_max": 5.7, "horas_totales_rrhh": 104.9, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.5, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-21", "label_short": "21 Feb", "label_full": "21 Feb (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 8, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-22", "label_short": "22 Feb", "label_full": "22 Feb (Lun)", "dia_semana": "lunes", "periodo": "REBAJAS", "actividad_total_pedidos": 476.2, "picking_dto": 389.4, "entregas_dto": 86.8, "clientes_front": 293.8, "demanda_pico": 11.1, "tiempo_espera_max": 4.2, "horas_totales_rrhh": 107.6, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 18.97, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-23", "label_short": "23 Feb", "label_full": "23 Feb (Mar)", "dia_semana": "martes", "periodo": "REBAJAS", "actividad_total_pedidos": 506.2, "picking_dto": 423.0, "entregas_dto": 83.2, "clientes_front": 280.4, "demanda_pico": 10.6, "tiempo_espera_max": 3.4, "horas_totales_rrhh": 110.5, "horas_totales_ops": 114.0, "puestos_totales": 19.0, "fte_modelo": 19.49, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 3, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-24", "label_short": "24 Feb", "label_full": "24 Feb (Mié)", "dia_semana": "miércoles", "periodo": "REBAJAS", "actividad_total_pedidos": 594.3, "picking_dto": 502.9, "entregas_dto": 91.4, "clientes_front": 310.7, "demanda_pico": 11.8, "tiempo_espera_max": 5.6, "horas_totales_rrhh": 124.0, "horas_totales_ops": 138.0, "puestos_totales": 23.0, "fte_modelo": 21.86, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-25", "label_short": "25 Feb", "label_full": "25 Feb (Jue)", "dia_semana": "jueves", "periodo": "REBAJAS", "actividad_total_pedidos": 474.7, "picking_dto": 378.1, "entregas_dto": 96.6, "clientes_front": 329.7, "demanda_pico": 12.5, "tiempo_espera_max": 8.0, "horas_totales_rrhh": 114.4, "horas_totales_ops": 132.0, "puestos_totales": 22.0, "fte_modelo": 20.16, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-26", "label_short": "26 Feb", "label_full": "26 Feb (Vie)", "dia_semana": "viernes", "periodo": "REBAJAS", "actividad_total_pedidos": 343.7, "picking_dto": 217.1, "entregas_dto": 126.6, "clientes_front": 439.7, "demanda_pico": 16.6, "tiempo_espera_max": 4.8, "horas_totales_rrhh": 109.5, "horas_totales_ops": 120.0, "puestos_totales": 20.0, "fte_modelo": 19.29, "horas_cuadrante": 67.2, "personas_cuadrante": 11, "fte_cuadrante": 11.84, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 5, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-27", "label_short": "27 Feb", "label_full": "27 Feb (Sáb)", "dia_semana": "sábado", "periodo": "REBAJAS", "actividad_total_pedidos": 396.5, "picking_dto": 301.5, "entregas_dto": 94.9, "clientes_front": 323.5, "demanda_pico": 11.7, "tiempo_espera_max": 4.0, "horas_totales_rrhh": 100.0, "horas_totales_ops": 108.0, "puestos_totales": 18.0, "fte_modelo": 17.63, "horas_cuadrante": 74.0, "personas_cuadrante": 12, "fte_cuadrante": 13.04, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 4, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "", "cuadrante_proyectado": true}, {"fecha": "2027-02-28", "label_short": "28 Feb", "label_full": "28 Feb (Dom)", "dia_semana": "domingo", "periodo": "REBAJAS", "actividad_total_pedidos": 0.0, "picking_dto": 0.0, "entregas_dto": 0.0, "clientes_front": 0.0, "demanda_pico": 0.0, "tiempo_espera_max": 0.0, "horas_totales_rrhh": 0.0, "horas_totales_ops": 0.0, "puestos_totales": 0.0, "fte_modelo": 0.0, "horas_cuadrante": 59.7, "personas_cuadrante": 10, "fte_cuadrante": 10.52, "cuadrante_real": false, "semana": 9, "puestos_necesarios": 0, "puestos_disponibles": 4, "duracion_exceso_max": 0.0, "ops_exceden_tmax": 0, "hito": "Cierre Campaña Invierno", "cuadrante_proyectado": true}];
+
+let WEEKLY_DATA = JSON.parse(JSON.stringify(INITIAL_WEEKLY_DATA));
+let DAILY_DATA = JSON.parse(JSON.stringify(INITIAL_DAILY_DATA));
+
+// Load saved data from localStorage if exists
+try {
+  const savedWeekly = localStorage.getItem('albacete_omnichannel_weekly_v5');
+  if (savedWeekly) {
+    const parsed = JSON.parse(savedWeekly);
+    if (parsed && Array.isArray(parsed) && parsed.length === WEEKLY_DATA.length) {
+      WEEKLY_DATA = parsed;
+    }
+  }
+  const savedDaily = localStorage.getItem('albacete_omnichannel_daily_v5');
+  if (savedDaily) {
+    const parsedD = JSON.parse(savedDaily);
+    if (parsedD && Array.isArray(parsedD) && parsedD.length === DAILY_DATA.length) {
+      DAILY_DATA = parsedD;
+    }
+  }
+} catch(e) {
+  console.error("Error reading localStorage", e);
+}
+
+// State variables
+let currentUnit = 'FTE'; // 'FTE' or 'HOURS'
+let currentModel = 'RRHH'; // 'RRHH' or 'OPS'
+let fteBasis = 52; // 52 (34.0385 h/sem) or 46 (38.478 h/sem)
+
+let currentGranularity = 'DAY'; // 'DAY' or 'WEEK'
+let chartDisplayMode = 'STAFFING_ONLY'; // 'STAFFING_ONLY' or 'ALL_SERIES'
+let currentPeriodFilter = 'BF'; // 'ANTES_BF', 'BF', 'NAVIDAD', 'REBAJAS', 'ALL'
+
+let currentSortKey = 'DEFICIT_DESC'; // Sort key preset
+let tableSearchQuery = '';
+
+let chartMain = null;
+
+function getFteDivisorWeekly() {
+  return 1770.0 / fteBasis;
+}
+
+function getFteDivisorDaily() {
+  return (1770.0 / fteBasis) / 6.0; // Based on 6 standard working days per week
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', function() {
+  renderTable();
+  initMainChart();
+  updateKPIs();
+  updatePeriodUI();
+});
+
+function setUnit(unit) {
+  currentUnit = unit;
+  document.getElementById('btn-unit-fte').classList.toggle('active', unit === 'FTE');
+  document.getElementById('btn-unit-hours').classList.toggle('active', unit === 'HOURS');
+  renderTable();
+  updateMainChart();
+  updateKPIs();
+}
+
+function setModel(model) {
+  currentModel = model;
+  document.getElementById('btn-model-rrhh').classList.toggle('active', model === 'RRHH');
+  document.getElementById('btn-model-ops').classList.toggle('active', model === 'OPS');
+  renderTable();
+  updateMainChart();
+  updateKPIs();
+}
+
+function setFteBasis(basis) {
+  fteBasis = basis;
+  document.getElementById('btn-fte-52').classList.toggle('active', basis === 52);
+  document.getElementById('btn-fte-46').classList.toggle('active', basis === 46);
+  renderTable();
+  updateMainChart();
+  updateKPIs();
+}
+
+function setGranularity(granularity) {
+  currentGranularity = granularity;
+  
+  // Sync chart buttons
+  document.getElementById('btn-gran-day').classList.toggle('active', granularity === 'DAY');
+  document.getElementById('btn-gran-week').classList.toggle('active', granularity === 'WEEK');
+  
+  // Sync table buttons
+  document.getElementById('btn-table-gran-day').classList.toggle('active', granularity === 'DAY');
+  document.getElementById('btn-table-gran-week').classList.toggle('active', granularity === 'WEEK');
+
+  // Update table titles
+  const tTitle = document.getElementById('tableTitle');
+  if (tTitle) {
+    tTitle.innerText = granularity === 'DAY' ? '📋 Detalle de Planificación y Cobertura (Por Días)' : '📋 Detalle de Planificación y Cobertura (Por Semanas)';
+  }
+
+  // Show/hide period selector container in chart if needed
+  const pBox = document.getElementById('periodSelectorContainer');
+  if (pBox) {
+    pBox.style.display = granularity === 'DAY' ? 'flex' : 'none';
+  }
+
+  updateMainChart();
+  renderTable();
+}
+
+function setChartDisplayMode(mode) {
+  chartDisplayMode = mode;
+  document.getElementById('btn-chart-mode-staffing').classList.toggle('active', mode === 'STAFFING_ONLY');
+  document.getElementById('btn-chart-mode-all').classList.toggle('active', mode === 'ALL_SERIES');
+  updateMainChart();
+}
+
+function setPeriodFilter(period) {
+  currentPeriodFilter = period;
+  updatePeriodUI();
+  updateMainChart();
+  renderTable();
+}
+
+function updatePeriodUI() {
+  const pills = {
+    'ANTES_BF': 'pill-antes-bf',
+    'BF': 'pill-bf',
+    'NAVIDAD': 'pill-navidad',
+    'REBAJAS': 'pill-rebajas',
+    'ALL': 'pill-all'
+  };
+
+  for (const [key, id] of Object.entries(pills)) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', key === currentPeriodFilter);
+  }
+}
+
+function handleSortSelectChange(val) {
+  currentSortKey = val;
+  renderTable();
+}
+
+function handleSearch(query) {
+  tableSearchQuery = query.toLowerCase().trim();
+  renderTable();
+}
+
+function toggleHeaderSort(sortKey) {
+  if (currentSortKey === sortKey) {
+    // Invert sort
+    if (sortKey.endsWith('_ASC')) {
+      currentSortKey = sortKey.replace('_ASC', '_DESC');
+    } else if (sortKey.endsWith('_DESC')) {
+      currentSortKey = sortKey.replace('_DESC', '_ASC');
+    }
+  } else {
+    currentSortKey = sortKey;
+  }
+  
+  // Sync dropdown if match found
+  const select = document.getElementById('tableSortSelect');
+  if (select) {
+    select.value = currentSortKey;
+  }
+  renderTable();
+}
+
+function getFilteredDailyData() {
+  let list = [];
+  if (currentPeriodFilter === 'ANTES_BF') {
+    list = DAILY_DATA.filter(function(d) { return d.fecha < '2026-11-26'; });
+  } else if (currentPeriodFilter === 'BF') {
+    list = DAILY_DATA.filter(function(d) { return d.fecha >= '2026-11-26' && d.fecha <= '2026-12-18'; });
+  } else if (currentPeriodFilter === 'NAVIDAD') {
+    list = DAILY_DATA.filter(function(d) { return d.fecha >= '2026-12-19' && d.fecha <= '2027-01-05'; });
+  } else if (currentPeriodFilter === 'REBAJAS') {
+    list = DAILY_DATA.filter(function(d) { return d.fecha >= '2027-01-07' && d.fecha <= '2027-02-28'; });
+  } else {
+    list = DAILY_DATA;
+  }
+
+  // Filter search
+  if (tableSearchQuery) {
+    list = list.filter(function(d) {
+      const txt = (d.label_full + ' ' + d.fecha + ' ' + (d.hito || '') + ' ' + d.dia_semana).toLowerCase();
+      return txt.includes(tableSearchQuery);
+    });
+  }
+
+  return list;
+}
+
+function getFilteredWeeklyData() {
+  let list = WEEKLY_DATA;
+  if (tableSearchQuery) {
+    list = list.filter(function(w) {
+      const txt = ('semana ' + w.semana + ' ' + w.hito + ' ' + w.fecha_inicio + ' ' + w.fecha_fin).toLowerCase();
+      return txt.includes(tableSearchQuery);
+    });
+  }
+  return list;
+}
+
+// HELPERS FOR MODEL & ACTUAL VALUES
+function getModelHoursDaily(d) {
+  return currentModel === 'RRHH' ? d.horas_totales_rrhh : d.horas_totales_ops;
+}
+
+function getModelFTEDaily(d) {
+  return getModelHoursDaily(d) / getFteDivisorDaily();
+}
+
+function getCurrentHoursDaily(d) {
+  return d.horas_cuadrante || 0.0;
+}
+
+function getCurrentFTEDaily(d) {
+  return getCurrentHoursDaily(d) / getFteDivisorDaily();
+}
+
+function getModelHoursWeekly(w) {
+  return currentModel === 'RRHH' ? w.horas_modelo_rrhh : w.horas_modelo_ops;
+}
+
+function getModelFTEWeekly(w) {
+  return getModelHoursWeekly(w) / getFteDivisorWeekly();
+}
+
+function getCurrentHoursWeekly(w) {
+  return w.horas_cuadrante_actual || 0.0;
+}
+
+function getCurrentFTEWeekly(w) {
+  return getCurrentHoursWeekly(w) / getFteDivisorWeekly();
+}
+
+// STORAGE & EDITING
+function saveToStorage() {
+  try {
+    localStorage.setItem('albacete_omnichannel_weekly_v5', JSON.stringify(WEEKLY_DATA));
+    localStorage.setItem('albacete_omnichannel_daily_v5', JSON.stringify(DAILY_DATA));
+  } catch(e) {
+    console.error("Error saving to localStorage", e);
+  }
+}
+
+function updateDailyHours(originalDate, val) {
+  const num = parseFloat(val);
+  if (!isNaN(num) && num >= 0) {
+    const item = DAILY_DATA.find(function(d) { return d.fecha === originalDate; });
+    if (item) {
+      if (currentUnit === 'FTE') {
+        item.horas_cuadrante = Math.round(num * getFteDivisorDaily() * 10) / 10;
+      } else {
+        item.horas_cuadrante = Math.round(num * 10) / 10;
+      }
+      item.cuadrante_proyectado = false;
+      
+      // Recalc week sum for parent week
+      syncParentWeekFromDaily(item.semana);
+
+      saveToStorage();
+      renderTable();
+      updateMainChart();
+      updateKPIs();
+    }
+  }
+}
+
+function updateWeeklyHours(weekNum, val) {
+  const num = parseFloat(val);
+  if (!isNaN(num) && num >= 0) {
+    const w = WEEKLY_DATA.find(function(r) { return r.semana === weekNum; });
+    if (w) {
+      if (currentUnit === 'FTE') {
+        w.horas_cuadrante_actual = Math.round(num * getFteDivisorWeekly() * 10) / 10;
+      } else {
+        w.horas_cuadrante_actual = Math.round(num * 10) / 10;
+      }
+      w.cuadrante_disponible = true;
+      saveToStorage();
+      renderTable();
+      updateMainChart();
+      updateKPIs();
+    }
+  }
+}
+
+function syncParentWeekFromDaily(weekNum) {
+  if (!weekNum) return;
+  const daysInWeek = DAILY_DATA.filter(function(d) { return d.semana === weekNum; });
+  const sumH = daysInWeek.reduce(function(acc, d) { return acc + (d.horas_cuadrante || 0.0); }, 0.0);
+  const w = WEEKLY_DATA.find(function(r) { return r.semana === weekNum; });
+  if (w) {
+    w.horas_cuadrante_actual = Math.round(sumH * 10) / 10;
+    w.cuadrante_disponible = true;
+  }
+}
+
+function project2027Staffing() {
+  // Baseline schedule for 2027
+  DAILY_DATA.forEach(function(d) {
+    if (d.fecha >= '2027-01-01') {
+      const dayName = (d.dia_semana || '').toLowerCase();
+      if (dayName.includes('lunes') || dayName.includes('martes') || dayName.includes('mi') || dayName.includes('jueves')) {
+        d.horas_cuadrante = 59.7;
+      } else if (dayName.includes('viernes')) {
+        d.horas_cuadrante = 67.2;
+      } else if (dayName.includes('s') && dayName.includes('bado')) {
+        d.horas_cuadrante = 74.0;
+      } else if (dayName.includes('domingo')) {
+        d.horas_cuadrante = (d.horas_totales_rrhh > 0) ? 48.5 : 0.0;
+      }
+      d.cuadrante_proyectado = true;
+    }
+  });
+
+  WEEKLY_DATA.forEach(function(w) {
+    if (w.fecha_inicio >= '2027-01-01' || w.semana <= 9) {
+      const days = DAILY_DATA.filter(function(d) { return d.semana === w.semana; });
+      if (days.length > 0) {
+        w.horas_cuadrante_actual = Math.round(days.reduce(function(a,b){ return a + b.horas_cuadrante; }, 0) * 10) / 10;
+      } else {
+        w.horas_cuadrante_actual = 380.0;
+      }
+      w.cuadrante_disponible = true;
+    }
+  });
+
+  saveToStorage();
+  renderTable();
+  updateMainChart();
+  updateKPIs();
+}
+
+function alignStaffingToModel() {
+  if (confirm("¿Deseas asignar exactamente las horas que exige el modelo a todos los días y semanas de la campaña?")) {
+    DAILY_DATA.forEach(function(d) {
+      d.horas_cuadrante = getModelHoursDaily(d);
+      d.cuadrante_proyectado = false;
+    });
+
+    WEEKLY_DATA.forEach(function(w) {
+      w.horas_cuadrante_actual = getModelHoursWeekly(w);
+      w.cuadrante_disponible = true;
+    });
+
+    saveToStorage();
+    renderTable();
+    updateMainChart();
+    updateKPIs();
+  }
+}
+
+function resetToInitial() {
+  if (confirm("¿Deseas restaurar los valores originales del cuadrante oficial de Omnicanal?")) {
+    WEEKLY_DATA = JSON.parse(JSON.stringify(INITIAL_WEEKLY_DATA));
+    DAILY_DATA = JSON.parse(JSON.stringify(INITIAL_DAILY_DATA));
+    saveToStorage();
+    renderTable();
+    updateMainChart();
+    updateKPIs();
+  }
+}
+
+// SORTING LOGIC
+function sortData(list, isDaily) {
+  const sorted = [...list];
+
+  sorted.sort(function(a, b) {
+    const curA = isDaily ? getCurrentHoursDaily(a) : getCurrentHoursWeekly(a);
+    const modA = isDaily ? getModelHoursDaily(a) : getModelHoursWeekly(a);
+    const diffA = curA - modA; // negative = deficit
+
+    const curB = isDaily ? getCurrentHoursDaily(b) : getCurrentHoursWeekly(b);
+    const modB = isDaily ? getModelHoursDaily(b) : getModelHoursWeekly(b);
+    const diffB = curB - modB;
+
+    switch (currentSortKey) {
+      case 'DEFICIT_DESC':
+        // Greatest deficit first (most negative diff first, e.g. -69h before -10h)
+        return diffA - diffB;
+      case 'SURPLUS_DESC':
+        // Greatest surplus first (most positive diff first)
+        return diffB - diffA;
+      case 'DATE_ASC':
+        return isDaily ? a.fecha.localeCompare(b.fecha) : (a.semana - b.semana);
+      case 'DATE_DESC':
+        return isDaily ? b.fecha.localeCompare(a.fecha) : (b.semana - a.semana);
+      case 'ORDERS_DESC':
+        return b.actividad_total_pedidos - a.actividad_total_pedidos;
+      case 'ORDERS_ASC':
+        return a.actividad_total_pedidos - b.actividad_total_pedidos;
+      case 'CLIENTS_DESC':
+        return b.clientes_front - a.clientes_front;
+      case 'CLIENTS_ASC':
+        return a.clientes_front - b.clientes_front;
+      case 'WAIT_DESC':
+        return (isDaily ? b.tiempo_espera_max : b.t_espera_max) - (isDaily ? a.tiempo_espera_max : a.t_espera_max);
+      case 'WAIT_ASC':
+        return (isDaily ? a.tiempo_espera_max : a.t_espera_max) - (isDaily ? b.tiempo_espera_max : b.t_espera_max);
+      case 'MODEL_DESC':
+        return modB - modA;
+      case 'MODEL_ASC':
+        return modA - modB;
+      case 'ACTUAL_DESC':
+        return curB - curA;
+      case 'ACTUAL_ASC':
+        return curA - curB;
+      default:
+        return diffA - diffB;
+    }
+  });
+
+  return sorted;
+}
+
+// RENDER TABLE
+function renderTable() {
+  const thead = document.getElementById('tableHead');
+  const tbody = document.getElementById('tableBody');
+  const tfoot = document.getElementById('tableFoot');
+  const countBadge = document.getElementById('tableCountBadge');
+  if (!thead || !tbody || !tfoot) return;
+
+  tbody.innerHTML = '';
+
+  const isDaily = currentGranularity === 'DAY';
+  const rawList = isDaily ? getFilteredDailyData() : getFilteredWeeklyData();
+  const sortedList = sortData(rawList, isDaily);
+
+  if (countBadge) {
+    const periodLabel = isDaily ? (currentPeriodFilter === 'ALL' ? 'Toda la Campaña' : currentPeriodFilter) : '16 Semanas';
+    countBadge.innerText = 'Mostrando ' + sortedList.length + (isDaily ? ' días' : ' semanas') + ' (' + periodLabel + ')';
+  }
+
+  // BUILD THEAD
+  let headHtml = '<tr>';
+  const getSortIcon = function(ascKey, descKey) {
+    if (currentSortKey === ascKey) return ' <span class="sort-icon">▲</span>';
+    if (currentSortKey === descKey) return ' <span class="sort-icon">▼</span>';
+    return ' <span class="sort-icon">⇅</span>';
+  };
+
+  const getSortClass = function(ascKey, descKey) {
+    return (currentSortKey === ascKey || currentSortKey === descKey) ? 'sorted-active' : '';
+  };
+
+  if (isDaily) {
+    headHtml += 
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(\'DATE_ASC\')" style="width: 140px;">' +
+        'Fecha / Día' + getSortIcon('DATE_ASC', 'DATE_DESC') +
+      '</th>' +
+      '<th style="width: 200px;">Hito / Evento</th>' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(\'ORDERS_DESC\')" style="text-align: right; width: 140px;">' +
+        'Actividad Pedidos' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(\'ACTUAL_DESC\')" style="text-align: right; width: 130px;">' +
+        'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(\'MODEL_DESC\')" style="text-align: right; width: 130px;">' +
+        'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(\'DEFICIT_DESC\')" style="text-align: center; width: 140px;">' +
+        'Diferencia / Cobertura' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(\'CLIENTS_DESC\')" style="text-align: right; width: 140px;">' +
+        'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(\'WAIT_DESC\')" style="text-align: center; width: 120px;">' +
+        'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
+      '</th>';
+  } else {
+    // Weekly
+    headHtml += 
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(\'DATE_ASC\')" style="width: 140px;">' +
+        'Semana / Rango' + getSortIcon('DATE_ASC', 'DATE_DESC') +
+      '</th>' +
+      '<th style="width: 220px;">Hito Comercial</th>' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(\'ORDERS_DESC\')" style="text-align: right; width: 140px;">' +
+        'Actividad Pedidos' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(\'ACTUAL_DESC\')" style="text-align: right; width: 130px;">' +
+        'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(\'MODEL_DESC\')" style="text-align: right; width: 130px;">' +
+        'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(\'DEFICIT_DESC\')" style="text-align: center; width: 140px;">' +
+        'Diferencia / Cobertura' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(\'CLIENTS_DESC\')" style="text-align: right; width: 140px;">' +
+        'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
+      '</th>' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(\'WAIT_DESC\')" style="text-align: center; width: 120px;">' +
+        'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
+      '</th>';
+  }
+  headHtml += '</tr>';
+  thead.innerHTML = headHtml;
+
+  // Max orders for progress bar
+  const maxOrders = Math.max.apply(null, sortedList.map(function(d) { return d.actividad_total_pedidos || 1; })) || 1;
+
+  let totOrders = 0;
+  let totClients = 0;
+  let totCurH = 0;
+  let totModH = 0;
+
+  sortedList.forEach(function(row) {
+    totOrders += row.actividad_total_pedidos || 0;
+    totClients += row.clientes_front || 0;
+
+    const curH = isDaily ? getCurrentHoursDaily(row) : getCurrentHoursWeekly(row);
+    const modH = isDaily ? getModelHoursDaily(row) : getModelHoursWeekly(row);
+    totCurH += curH;
+    totModH += modH;
+
+    const curFTE = isDaily ? getCurrentFTEDaily(row) : getCurrentFTEWeekly(row);
+    const modFTE = isDaily ? getModelFTEDaily(row) : getModelFTEWeekly(row);
+
+    const curVal = currentUnit === 'FTE' ? curFTE : curH;
+    const modVal = currentUnit === 'FTE' ? modFTE : modH;
+    const diff = curVal - modVal;
+
+    const waitMax = isDaily ? row.tiempo_espera_max : row.t_espera_max;
+    const isCritical = waitMax > 100 || (diff < -5.0 && currentUnit === 'FTE') || (diff < -30.0 && currentUnit === 'HOURS');
+    const isPeak = (!isDaily && (row.semana === 48 || row.semana === 49 || row.semana === 51 || row.semana === 2)) ||
+                   (isDaily && (row.fecha === '2026-11-27' || row.fecha === '2026-11-30' || row.fecha === '2027-01-07'));
+
+    let trClass = '';
+    if (isCritical) trClass = 'highlight-critical';
+    else if (isPeak) trClass = 'highlight-peak';
+
+    const orderPct = (row.actividad_total_pedidos / maxOrders) * 100;
+    const orderBarClass = orderPct > 75 ? 'bar-fill high' : 'bar-fill';
+
+    let diffBadgeClass = 'diff-badge neutral';
+    let diffSign = diff >= 0 ? '+' : '';
+    if (diff < 0) {
+      diffBadgeClass = (diff < -5.0 && currentUnit === 'FTE') || (diff < -30.0 && currentUnit === 'HOURS') ? 'diff-badge deficit severe' : 'diff-badge deficit';
+    } else if (diff > 0) {
+      diffBadgeClass = 'diff-badge surplus';
+    }
+
+    const unitSuffix = currentUnit === 'FTE' ? ' FTE' : ' h';
+
+    let waitHtml = '<span style="font-size:12px; color:var(--text-muted)">' + (waitMax ? waitMax.toFixed(1) + ' m' : '0 m') + '</span>';
+    if (waitMax > 120) {
+      waitHtml = '<span style="color:var(--danger); font-weight:800; font-size:12px;">🚨 ' + waitMax.toFixed(0) + ' min</span>';
+    } else if (waitMax > 15) {
+      waitHtml = '<span style="color:var(--warning); font-weight:700; font-size:12px;">⚠️ ' + waitMax.toFixed(0) + ' min</span>';
+    }
+
+    const tr = document.createElement('tr');
+    tr.className = trClass;
+
+    if (isDaily) {
+      let milestoneHtml = '';
+      if (row.hito) {
+        let badgeType = 'badge-milestone';
+        if (row.hito.includes('💥') || row.hito.includes('🚀') || row.hito.includes('🚨')) badgeType += ' peak';
+        else if (row.hito.includes('🛍️') || row.hito.includes('👑')) badgeType += ' sales';
+        milestoneHtml = '<span class="' + badgeType + '">' + row.hito + '</span>';
+      }
+      if (row.cuadrante_proyectado) {
+        milestoneHtml += ' <span class="badge-milestone projected">Proyectado</span>';
+      }
+
+      tr.innerHTML = 
+        '<td class="cell-main">' +
+          row.label_full +
+          '<span class="cell-sub">Semana ' + (row.semana || '-') + '</span>' +
+        '</td>' +
+        '<td>' +
+          milestoneHtml +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + Math.round(row.actividad_total_pedidos).toLocaleString('es-ES') + '</strong>' +
+          '<span class="cell-sub">Pick: ' + Math.round(row.picking_dto) + ' | Ent: ' + Math.round(row.entregas_dto) + '</span>' +
+          '<div class="bar-container" style="margin-left:auto;">' +
+            '<div class="' + orderBarClass + '" style="width: ' + orderPct.toFixed(0) + '%;"></div>' +
+          '</div>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<input type="number" step="' + (currentUnit === 'FTE' ? '0.1' : '1') + '" class="input-cell" ' +
+            'value="' + curVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '" ' +
+            'onchange="updateDailyHours(\'' + row.fecha + '\', this.value)" ' +
+            'title="Haz clic para modificar la dotación de este día">' +
+          '<span class="cell-sub">' + (currentUnit === 'FTE' ? curH.toFixed(1) + ' h' : curFTE.toFixed(2) + ' FTE') + '</span>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + modVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '</strong>' + unitSuffix +
+          '<span class="cell-sub">' + (currentUnit === 'FTE' ? modH.toFixed(1) + ' h' : modFTE.toFixed(2) + ' FTE') + '</span>' +
+        '</td>' +
+        '<td style="text-align: center;">' +
+          '<span class="' + diffBadgeClass + '">' +
+            diffSign + diff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
+          '</span>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + Math.round(row.clientes_front).toLocaleString('es-ES') + '</strong>' +
+          '<span class="cell-sub">Puestos: ' + row.puestos_necesarios + ' / disp: 4</span>' +
+        '</td>' +
+        '<td style="text-align: center;">' +
+          waitHtml +
+        '</td>';
+    } else {
+      // Weekly row
+      let milestoneHtml = '<strong>' + row.hito + '</strong>';
+
+      tr.innerHTML = 
+        '<td class="cell-main">' +
+          'Semana ' + row.semana +
+          '<span class="cell-sub">' + formatDateRange(row.fecha_inicio, row.fecha_fin) + '</span>' +
+        '</td>' +
+        '<td>' +
+          milestoneHtml +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + Math.round(row.actividad_total_pedidos).toLocaleString('es-ES') + '</strong>' +
+          '<span class="cell-sub">Pick: ' + Math.round(row.picking_dto).toLocaleString('es-ES') + ' | Ent: ' + Math.round(row.entregas_dto).toLocaleString('es-ES') + '</span>' +
+          '<div class="bar-container" style="margin-left:auto;">' +
+            '<div class="' + orderBarClass + '" style="width: ' + orderPct.toFixed(0) + '%;"></div>' +
+          '</div>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<input type="number" step="' + (currentUnit === 'FTE' ? '0.1' : '1') + '" class="input-cell" ' +
+            'value="' + curVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '" ' +
+            'onchange="updateWeeklyHours(' + row.semana + ', this.value)" ' +
+            'title="Haz clic para modificar la dotación de esta semana">' +
+          '<span class="cell-sub">' + (currentUnit === 'FTE' ? curH.toFixed(1) + ' h' : curFTE.toFixed(2) + ' FTE') + '</span>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + modVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '</strong>' + unitSuffix +
+          '<span class="cell-sub">' + (currentUnit === 'FTE' ? modH.toFixed(1) + ' h' : modFTE.toFixed(2) + ' FTE') + '</span>' +
+        '</td>' +
+        '<td style="text-align: center;">' +
+          '<span class="' + diffBadgeClass + '">' +
+            diffSign + diff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
+          '</span>' +
+        '</td>' +
+        '<td style="text-align: right;">' +
+          '<strong>' + Math.round(row.clientes_front).toLocaleString('es-ES') + '</strong>' +
+          '<span class="cell-sub">Puestos: ' + row.puestos_necesarios_max + ' / disp: 4</span>' +
+        '</td>' +
+        '<td style="text-align: center;">' +
+          waitHtml +
+        '</td>';
+    }
+
+    tbody.appendChild(tr);
+  });
+
+  // TFOOT TOTALS
+  const totCurVal = isDaily ? 
+    (currentUnit === 'FTE' ? totCurH / getFteDivisorDaily() : totCurH) :
+    (currentUnit === 'FTE' ? totCurH / getFteDivisorWeekly() : totCurH);
+
+  const totModVal = isDaily ? 
+    (currentUnit === 'FTE' ? totModH / getFteDivisorDaily() : totModH) :
+    (currentUnit === 'FTE' ? totModH / getFteDivisorWeekly() : totModH);
+
+  const totDiff = totCurVal - totModVal;
+  const totDiffSign = totDiff >= 0 ? '+' : '';
+  const totDiffClass = totDiff < 0 ? 'diff-badge deficit severe' : 'diff-badge surplus';
+  const unitSuffix = currentUnit === 'FTE' ? (isDaily ? ' FTE·día' : ' FTE·sem') : ' h';
+
+  tfoot.innerHTML = 
+    '<tr>' +
+      '<td>TOTALES</td>' +
+      '<td>' + sortedList.length + (isDaily ? ' Días mostrados' : ' Semanas') + '</td>' +
+      '<td style="text-align: right;">' + Math.round(totOrders).toLocaleString('es-ES') + ' pedidos</td>' +
+      '<td style="text-align: right;">' + totCurVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
+      '<td style="text-align: right;">' + totModVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
+      '<td style="text-align: center;">' +
+        '<span class="' + totDiffClass + '">' + totDiffSign + totDiff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</span>' +
+      '</td>' +
+      '<td style="text-align: right;">' + Math.round(totClients).toLocaleString('es-ES') + ' clientes</td>' +
+      '<td style="text-align: center;">Pico: 163 min</td>' +
+    '</tr>';
+}
+
+function formatDateRange(ini, fin) {
+  if (!ini || !fin) return '';
+  const p1 = ini.split('-');
+  const p2 = fin.split('-');
+  return p1[2] + '/' + p1[1] + ' - ' + p2[2] + '/' + p2[1];
+}
+
+function updateKPIs() {
+  const modHours = WEEKLY_DATA.map(function(r) { return getModelHoursWeekly(r); });
+  const maxModH = Math.max.apply(null, modHours);
+  const maxIdx = modHours.indexOf(maxModH);
+  const maxRow = WEEKLY_DATA[maxIdx];
+
+  const peakFte = (maxModH / getFteDivisorWeekly()).toFixed(2);
+  const kpiPeak = document.getElementById('kpi-peak-fte');
+  const kpiSub = document.getElementById('kpi-peak-sub');
+  if (kpiPeak) {
+    kpiPeak.innerHTML = peakFte + ' <span style="font-size:14px; font-weight:600; color:var(--text-muted)">FTEs</span>';
+  }
+  if (kpiSub && maxRow) {
+    kpiSub.innerText = maxModH.toFixed(1) + ' h en Sem. ' + maxRow.semana + ' (' + maxRow.hito.split('/')[0].trim() + ')';
+  }
+
+  const totalModH = WEEKLY_DATA.reduce(function(acc, r) { return acc + getModelHoursWeekly(r); }, 0);
+  const totalCurH = WEEKLY_DATA.reduce(function(acc, r) { return acc + getCurrentHoursWeekly(r); }, 0);
+  const gapH = Math.round(totalCurH - totalModH);
+  const gapFTE = ((totalCurH - totalModH) / getFteDivisorWeekly()).toFixed(1);
+
+  const sign = gapH >= 0 ? '+' : '';
+  const gapCard = document.querySelector('.kpi-card.warning, .kpi-card.danger, .kpi-card.success');
+  if (gapCard) {
+    if (gapH < 0) gapCard.className = 'kpi-card danger';
+    else gapCard.className = 'kpi-card success';
+  }
+  const kpiGap = document.getElementById('kpi-gap-total');
+  if (kpiGap) {
+    kpiGap.innerHTML = sign + gapH.toLocaleString('es-ES') + ' <span style="font-size:14px; font-weight:600; color:var(--text-muted)">Horas (' + sign + gapFTE + ' FTEs)</span>';
+  }
+}
+
+// MAIN CHART
+function initMainChart() {
+  if (typeof Chart === 'undefined') return;
+  const el = document.getElementById('chartMainComparison');
+  if (!el) return;
+
+  const ctx = el.getContext('2d');
+  chartMain = new Chart(ctx, {
+    type: 'line',
+    data: { labels: [], datasets: [] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            footer: function(tooltipItems) {
+              if (currentGranularity === 'DAY') {
+                const idx = tooltipItems[0].dataIndex;
+                const dailySubset = getFilteredDailyData();
+                const item = dailySubset[idx];
+                if (item) {
+                  const difH = (item.horas_cuadrante || 0) - getModelHoursDaily(item);
+                  const difSign = difH >= 0 ? '+' : '';
+                  const hitoStr = item.hito ? '\nHito: ' + item.hito : '';
+                  return 'Demanda Pico: ' + item.demanda_pico + ' cl/15m\nEspera Máx: ' + item.tiempo_espera_max + ' min\nDiferencia: ' + difSign + difH.toFixed(1) + ' h' + hitoStr;
+                }
+              }
+              return '';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          beginAtZero: true,
+          title: { display: true, text: 'Plantilla (FTEs)' }
+        },
+        y1: {
+          type: 'linear',
+          display: false,
+          position: 'right',
+          title: { display: true, text: 'Volumen (Pedidos / Clientes)' },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+
+  updateMainChart();
+}
+
+function updateMainChart() {
+  if (!chartMain) return;
+
+  let labels = [];
+  let currentStaffing = [];
+  let modelStaffing = [];
+  let orders = [];
+  let clients = [];
+
+  const isFTE = currentUnit === 'FTE';
+  const unitLabel = isFTE ? 'FTEs' : 'Horas';
+
+  if (currentGranularity === 'WEEK') {
+    labels = WEEKLY_DATA.map(function(r) { return 'Sem ' + r.semana; });
+    currentStaffing = WEEKLY_DATA.map(function(r) { return isFTE ? getCurrentFTEWeekly(r) : getCurrentHoursWeekly(r); });
+    modelStaffing = WEEKLY_DATA.map(function(r) { return isFTE ? getModelFTEWeekly(r) : getModelHoursWeekly(r); });
+    orders = WEEKLY_DATA.map(function(r) { return r.actividad_total_pedidos; });
+    clients = WEEKLY_DATA.map(function(r) { return r.clientes_front; });
+  } else {
+    // Daily mode
+    const dailySubset = getFilteredDailyData();
+    labels = dailySubset.map(function(d) { return d.label_full; });
+    
+    currentStaffing = dailySubset.map(function(d) {
+      return isFTE ? getCurrentFTEDaily(d) : getCurrentHoursDaily(d);
+    });
+
+    modelStaffing = dailySubset.map(function(d) {
+      return isFTE ? getModelFTEDaily(d) : getModelHoursDaily(d);
+    });
+
+    orders = dailySubset.map(function(d) { return d.actividad_total_pedidos; });
+    clients = dailySubset.map(function(d) { return d.clientes_front; });
+
+    // Summary badge update
+    const sumOrders = orders.reduce(function(a,b){ return a+b; }, 0);
+    const sumClients = clients.reduce(function(a,b){ return a+b; }, 0);
+    const avgModelFte = modelStaffing.reduce(function(a,b){ return a+b; }, 0) / (modelStaffing.length || 1);
+    const badgeEl = document.getElementById('periodSummaryBadge');
+    if (badgeEl) {
+      badgeEl.innerHTML = '<strong>' + dailySubset.length + ' días</strong> | Pedidos: <strong>' + Math.round(sumOrders).toLocaleString('es-ES') + '</strong> | Clientes: <strong>' + Math.round(sumClients).toLocaleString('es-ES') + '</strong> | Media: <strong>' + avgModelFte.toFixed(1) + ' ' + unitLabel + '</strong>';
+    }
+  }
+
+  // Base datasets: Plantilla Actual vs Plantilla Necesaria
+  const datasets = [
+    {
+      label: '🔵 Plantilla Actual (Cuadrante)',
+      data: currentStaffing,
+      borderColor: '#2563eb',
+      backgroundColor: 'rgba(37, 99, 235, 0.12)',
+      borderWidth: 3,
+      pointRadius: currentGranularity === 'DAY' && labels.length > 30 ? 2 : 4,
+      pointBackgroundColor: '#2563eb',
+      fill: false,
+      tension: 0.2,
+      yAxisID: 'y'
+    },
+    {
+      label: '🟠 Plantilla Total Necesaria (Modelo)',
+      data: modelStaffing,
+      borderColor: '#ea580c',
+      backgroundColor: 'rgba(234, 88, 12, 0.08)',
+      borderDash: [5, 5],
+      borderWidth: 3,
+      pointRadius: currentGranularity === 'DAY' && labels.length > 30 ? 2 : 4,
+      pointBackgroundColor: '#ea580c',
+      fill: false,
+      tension: 0.2,
+      yAxisID: 'y'
+    }
+  ];
+
+  // If ALL_SERIES mode is active, include Activity (Orders & Clients)
+  if (chartDisplayMode === 'ALL_SERIES') {
+    datasets.push({
+      label: '📦 Actividad Total Pedidos (Venta)',
+      data: orders,
+      borderColor: '#0284c7',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 2,
+      tension: 0.2,
+      yAxisID: 'y1'
+    });
+    datasets.push({
+      label: '🟣 Clientes Front Office (P.O.)',
+      data: clients,
+      borderColor: '#9333ea',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 2,
+      tension: 0.2,
+      yAxisID: 'y1'
+    });
+    chartMain.options.scales.y1.display = true;
+  } else {
+    chartMain.options.scales.y1.display = false;
+  }
+
+  chartMain.data.labels = labels;
+  chartMain.data.datasets = datasets;
+  chartMain.options.scales.y.title.text = 'Plantilla (' + unitLabel + ')';
+  chartMain.update();
+}
+
+function exportToCSV() {
+  const isDaily = currentGranularity === 'DAY';
+  const rawList = isDaily ? getFilteredDailyData() : getFilteredWeeklyData();
+  const sortedList = sortData(rawList, isDaily);
+
+  let csv = '';
+  if (isDaily) {
+    csv = 'Fecha,Dia Semana,Semana,Hito,Actividad Pedidos Totales,Picking Dto,Entregas Dto,Recursos Actuales Horas,Recursos Actuales FTE,Recursos Modelo Horas,Recursos Modelo FTE,Diferencia Horas,Diferencia FTE,Clientes Front Office,Puestos Necesarios,Tiempo Espera Max (min)\n';
+    sortedList.forEach(function(d) {
+      const curH = getCurrentHoursDaily(d);
+      const modH = getModelHoursDaily(d);
+      const curF = getCurrentFTEDaily(d);
+      const modF = getModelFTEDaily(d);
+      csv += '"' + d.fecha + '","' + d.dia_semana + '","' + d.semana + '","' + (d.hito || '') + '",' +
+             d.actividad_total_pedidos + ',' + d.picking_dto + ',' + d.entregas_dto + ',' +
+             curH.toFixed(1) + ',' + curF.toFixed(2) + ',' + modH.toFixed(1) + ',' + modF.toFixed(2) + ',' +
+             (curH - modH).toFixed(1) + ',' + (curF - modF).toFixed(2) + ',' +
+             d.clientes_front + ',' + d.puestos_necesarios + ',' + d.tiempo_espera_max + '\n';
+    });
+  } else {
+    csv = 'Semana,Rango Fechas,Hito Comercial,Actividad Pedidos Totales,Picking Dto,Entregas Dto,Recursos Actuales Horas,Recursos Actuales FTE,Recursos Modelo Horas,Recursos Modelo FTE,Diferencia Horas,Diferencia FTE,Clientes Front Office,Tiempo Espera Max (min)\n';
+    sortedList.forEach(function(r) {
+      const curH = getCurrentHoursWeekly(r);
+      const modH = getModelHoursWeekly(r);
+      const curFte = getCurrentFTEWeekly(r);
+      const modFte = getModelFTEWeekly(r);
+      csv += '"' + r.semana + '","' + r.fecha_inicio + ' al ' + r.fecha_fin + '","' + r.hito + '",' + 
+             r.actividad_total_pedidos + ',' + r.picking_dto + ',' + r.entregas_dto + ',' + 
+             curH.toFixed(1) + ',' + curFte.toFixed(2) + ',' + modH.toFixed(1) + ',' + modFte.toFixed(2) + ',' + 
+             (curH - modH).toFixed(1) + ',' + (curFte - modFte).toFixed(2) + ',' +
+             r.clientes_front + ',' + r.t_espera_max + '\n';
+    });
+  }
+
+  const filename = isDaily ? 'Planificacion_Diaria_Omnicanal_Albacete.csv' : 'Planificacion_Semanal_Omnicanal_Albacete.csv';
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+
+</body>
+</html>
