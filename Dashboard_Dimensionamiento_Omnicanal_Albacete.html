@@ -1173,7 +1173,7 @@
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-size:12px; font-weight:700; color:var(--primary);">Ordenar por:</span>
           <select id="tableSortSelect" class="sort-select" onchange="handleSortSelectChange(this.value)">
-            <option value="DEFICIT_DESC">🚨 Mayor Brecha / Déficit primero (Actual < Modelo)</option>
+            <option value="DEFICIT_DESC">🚨 Mayor Brecha / Déficit con Propuesta (6,3 FTE)</option>
             <option value="DATE_ASC">📅 Cronológico (Por Fecha / Semana)</option>
             <option value="ORDERS_DESC">📦 Mayor Actividad de Pedidos</option>
             <option value="CLIENTS_DESC">🟣 Mayor Clientes Front Office</option>
@@ -1357,6 +1357,35 @@ let activeModalDate = null;
 
 function getFteDivisorWeekly() {
   return 1770.0 / fteBasis;
+}
+
+
+function getProposedHours(row, isDaily) {
+  if (isDaily) {
+    if (row.fecha >= '2026-11-23' && row.fecha <= '2027-02-28') {
+      return 50.4; // 6.3 FTE * 8h = 50.4 horas/día
+    }
+    return 0.0;
+  } else {
+    if (row.semana >= 48) {
+      return 6.3 * getFteDivisorWeekly(); // ~214.4 h/semana
+    }
+    return 0.0;
+  }
+}
+
+function getProposedFTE(row, isDaily) {
+  if (isDaily) {
+    if (row.fecha >= '2026-11-23' && row.fecha <= '2027-02-28') {
+      return 6.3;
+    }
+    return 0.0;
+  } else {
+    if (row.semana >= 48) {
+      return 6.3;
+    }
+    return 0.0;
+  }
 }
 
 function getFteDivisorDaily() {
@@ -1758,11 +1787,13 @@ function sortData(list, isDaily) {
   sorted.sort(function(a, b) {
     const curA = isDaily ? getCurrentHoursDaily(a) : getCurrentHoursWeekly(a);
     const modA = isDaily ? getModelHoursDaily(a) : getModelHoursWeekly(a);
-    const diffA = curA - modA;
+    const propA = getProposedHours(a, isDaily);
+    const diffA = (curA + propA) - modA;
 
     const curB = isDaily ? getCurrentHoursDaily(b) : getCurrentHoursWeekly(b);
     const modB = isDaily ? getModelHoursDaily(b) : getModelHoursWeekly(b);
-    const diffB = curB - modB;
+    const propB = getProposedHours(b, isDaily);
+    const diffB = (curB + propB) - modB;
 
     switch (currentSortKey) {
       case 'DEFICIT_DESC':
@@ -1833,81 +1864,95 @@ function renderTable() {
 
   if (isDaily) {
     headHtml += 
-      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(\'DATE_ASC\')" style="width: 140px;">' +
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort('DATE_ASC')" style="width: 135px;">' +
         'Fecha / Día' + getSortIcon('DATE_ASC', 'DATE_DESC') +
       '</th>' +
-      '<th style="width: 190px;">Hito / Evento</th>' +
-      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(\'ORDERS_DESC\')" style="text-align: right; width: 140px;">' +
+      '<th style="width: 165px;">Hito / Evento</th>' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort('ORDERS_DESC')" style="text-align: right; width: 140px;">' +
         'Actividad Pedidos (Picking)' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(\'ACTUAL_DESC\')" style="text-align: right; width: 155px;">' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort('ACTUAL_DESC')" style="text-align: right; width: 145px;">' +
         'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(\'MODEL_DESC\')" style="text-align: right; width: 130px;">' +
+      '<th style="text-align: center; width: 145px; background: rgba(16, 185, 129, 0.08); color:#065f46; font-weight:700;">' +
+        'Propuesta Contratación<br><span style="font-size:11px; font-weight:600; color:#059669;">+6,3 FTE (7p 92%)</span>' +
+      '</th>' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort('MODEL_DESC')" style="text-align: right; width: 130px;">' +
         'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(\'DEFICIT_DESC\')" style="text-align: center; width: 140px;">' +
-        'Diferencia / Cobertura' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort('DEFICIT_DESC')" style="text-align: center; width: 155px;">' +
+        'Diferencia con Propuesta' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(\'CLIENTS_DESC\')" style="text-align: right; width: 135px;">' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort('CLIENTS_DESC')" style="text-align: right; width: 125px;">' +
         'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(\'WAIT_DESC\')" style="text-align: center; width: 110px;">' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort('WAIT_DESC')" style="text-align: center; width: 105px;">' +
         'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
       '</th>';
   } else {
     headHtml += 
-      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(\'DATE_ASC\')" style="width: 140px;">' +
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort('DATE_ASC')" style="width: 135px;">' +
         'Semana / Rango' + getSortIcon('DATE_ASC', 'DATE_DESC') +
       '</th>' +
-      '<th style="width: 220px;">Hito Comercial</th>' +
-      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(\'ORDERS_DESC\')" style="text-align: right; width: 140px;">' +
+      '<th style="width: 195px;">Hito Comercial</th>' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort('ORDERS_DESC')" style="text-align: right; width: 140px;">' +
         'Actividad Pedidos (Picking)' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(\'ACTUAL_DESC\')" style="text-align: right; width: 130px;">' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort('ACTUAL_DESC')" style="text-align: right; width: 130px;">' +
         'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(\'MODEL_DESC\')" style="text-align: right; width: 130px;">' +
+      '<th style="text-align: center; width: 145px; background: rgba(16, 185, 129, 0.08); color:#065f46; font-weight:700;">' +
+        'Propuesta Contratación<br><span style="font-size:11px; font-weight:600; color:#059669;">+6,3 FTE (7p 92%)</span>' +
+      '</th>' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort('MODEL_DESC')" style="text-align: right; width: 130px;">' +
         'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(\'DEFICIT_DESC\')" style="text-align: center; width: 140px;">' +
-        'Diferencia / Cobertura' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort('DEFICIT_DESC')" style="text-align: center; width: 155px;">' +
+        'Diferencia con Propuesta' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(\'CLIENTS_DESC\')" style="text-align: right; width: 140px;">' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort('CLIENTS_DESC')" style="text-align: right; width: 130px;">' +
         'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(\'WAIT_DESC\')" style="text-align: center; width: 120px;">' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort('WAIT_DESC')" style="text-align: center; width: 110px;">' +
         'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
       '</th>';
   }
   headHtml += '</tr>';
   thead.innerHTML = headHtml;
 
-  const maxOrders = Math.max.apply(null, sortedList.map(function(d) { return d.actividad_total_pedidos || 1; })) || 1;
+  const maxOrders = Math.max.apply(null, sortedList.map(function(d) { return d.picking_dto || d.actividad_total_pedidos || 1; })) || 1;
 
   let totOrders = 0;
   let totClients = 0;
   let totCurH = 0;
   let totModH = 0;
+  let totPropH = 0;
 
   sortedList.forEach(function(row) {
-    totOrders += row.actividad_total_pedidos || 0;
+    totOrders += row.picking_dto || row.actividad_total_pedidos || 0;
     totClients += row.clientes_front || 0;
 
     const curH = isDaily ? getCurrentHoursDaily(row) : getCurrentHoursWeekly(row);
     const modH = isDaily ? getModelHoursDaily(row) : getModelHoursWeekly(row);
+    const propH = getProposedHours(row, isDaily);
+    const propFTE = getProposedFTE(row, isDaily);
+
     totCurH += curH;
     totModH += modH;
+    totPropH += propH;
 
     const curFTE = isDaily ? getCurrentFTEDaily(row) : getCurrentFTEWeekly(row);
     const modFTE = isDaily ? getModelFTEDaily(row) : getModelFTEWeekly(row);
 
     const curVal = currentUnit === 'FTE' ? curFTE : curH;
     const modVal = currentUnit === 'FTE' ? modFTE : modH;
-    const diff = curVal - modVal;
+    const propVal = currentUnit === 'FTE' ? propFTE : propH;
+
+    const diffWithProp = (curVal + propVal) - modVal;
+    const rawDiff = curVal - modVal;
 
     const waitMax = isDaily ? row.tiempo_espera_max : row.t_espera_max;
-    const isCritical = waitMax > 100 || (diff < -5.0 && currentUnit === 'FTE') || (diff < -30.0 && currentUnit === 'HOURS');
+    const isCritical = waitMax > 100 || (diffWithProp < -3.0 && currentUnit === 'FTE') || (diffWithProp < -24.0 && currentUnit === 'HOURS');
     const isPeak = (!isDaily && (row.semana === 48 || row.semana === 49 || row.semana === 51 || row.semana === 2)) ||
                    (isDaily && (row.fecha === '2026-11-27' || row.fecha === '2026-11-30' || row.fecha === '2027-01-07'));
 
@@ -1915,14 +1960,14 @@ function renderTable() {
     if (isCritical) trClass = 'highlight-critical';
     else if (isPeak) trClass = 'highlight-peak';
 
-    const orderPct = (row.actividad_total_pedidos / maxOrders) * 100;
+    const orderPct = ((row.picking_dto || row.actividad_total_pedidos || 0) / maxOrders) * 100;
     const orderBarClass = orderPct > 75 ? 'bar-fill high' : 'bar-fill';
 
     let diffBadgeClass = 'diff-badge neutral';
-    let diffSign = diff >= 0 ? '+' : '';
-    if (diff < 0) {
-      diffBadgeClass = (diff < -5.0 && currentUnit === 'FTE') || (diff < -30.0 && currentUnit === 'HOURS') ? 'diff-badge deficit severe' : 'diff-badge deficit';
-    } else if (diff > 0) {
+    let diffSign = diffWithProp >= 0 ? '+' : '';
+    if (diffWithProp < 0) {
+      diffBadgeClass = (diffWithProp < -3.0 && currentUnit === 'FTE') || (diffWithProp < -24.0 && currentUnit === 'HOURS') ? 'diff-badge deficit severe' : 'diff-badge deficit';
+    } else if (diffWithProp > 0) {
       diffBadgeClass = 'diff-badge surplus';
     }
 
@@ -1950,12 +1995,11 @@ function renderTable() {
         milestoneHtml += ' <span class="badge-milestone projected">Proyectado</span>';
       }
 
-      // Check worker roster info for this day
       const rosterInfo = WORKERS_DATA[row.fecha];
       const workingCount = rosterInfo ? rosterInfo.total_trabajando : (row.personas_cuadrante || 0);
 
       tr.innerHTML = 
-        '<td class="cell-main" onclick="openRosterModal(\'' + row.fecha + '\')" title="Clic para ver trabajadores y curva horaria">' +
+        '<td class="cell-main" onclick="openRosterModal('' + row.fecha + '')" title="Clic para ver trabajadores y curva horaria">' +
           row.label_full +
           '<span class="cell-sub">Semana ' + (row.semana || '-') + '</span>' +
         '</td>' +
@@ -1973,13 +2017,19 @@ function renderTable() {
           '<div style="display:flex; align-items:center; justify-content:flex-end;">' +
             '<input type="number" step="' + (currentUnit === 'FTE' ? '0.1' : '1') + '" class="input-cell" ' +
               'value="' + curVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '" ' +
-              'onchange="updateDailyHours(\'' + row.fecha + '\', this.value)" ' +
+              'onchange="updateDailyHours('' + row.fecha + '', this.value)" ' +
               'title="Modificar dotación de este día">' +
-            '<button class="btn-roster-view" onclick="openRosterModal(\'' + row.fecha + '\')" title="Ver plantilla, turnos y gráfico por horas">' +
+            '<button class="btn-roster-view" onclick="openRosterModal('' + row.fecha + '')" title="Ver plantilla, turnos y gráfico por horas">' +
               '👥 ' + workingCount + 'p' +
             '</button>' +
           '</div>' +
           '<span class="cell-sub">' + (currentUnit === 'FTE' ? curH.toFixed(1) + ' h' : curFTE.toFixed(2) + ' FTE') + '</span>' +
+        '</td>' +
+        '<td style="text-align: center; background: rgba(16, 185, 129, 0.04);">' +
+          (propVal > 0 ? 
+            '<span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:3px 7px; border-radius:6px; font-weight:700; font-size:12px;">+' + propVal.toFixed(currentUnit === 'FTE' ? 1 : 0) + unitSuffix + '</span>' +
+            '<span class="cell-sub" style="color:#059669; font-size:11px;">7p al 92% (' + propH.toFixed(1) + ' h)</span>' :
+            '<span style="color:var(--text-muted); font-size:13px;">-</span>') +
         '</td>' +
         '<td style="text-align: right;">' +
           '<strong>' + modVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '</strong>' + unitSuffix +
@@ -1987,11 +2037,11 @@ function renderTable() {
         '</td>' +
         '<td style="text-align: center;">' +
           '<span class="' + diffBadgeClass + '">' +
-            diffSign + diff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
+            diffSign + diffWithProp.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
           '</span>' +
-          (showScenario7FTE && row.fecha >= '2026-11-23' ?
-            '<span class="cell-sub" style="display:block; margin-top:3px; font-weight:700; color:' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) < 0 ? '#dc2626' : '#16a34a') + ';">' +
-              'Con 6,3 FTE: ' + ((diff + (currentUnit === 'FTE' ? 6.3 : 50.4)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 6.3 : 50.4)).toFixed(1) + unitSuffix +
+          (propVal > 0 ?
+            '<span class="cell-sub" style="display:block; margin-top:2px; font-size:11px; color:#64748b;">' +
+              'Sin refuerzo: ' + (rawDiff >= 0 ? '+' : '') + rawDiff.toFixed(1) + unitSuffix +
             '</span>' : '') +
         '</td>' +
         '<td style="text-align: right;">' +
@@ -2027,17 +2077,23 @@ function renderTable() {
             'title="Modificar dotación de esta semana">' +
           '<span class="cell-sub">' + (currentUnit === 'FTE' ? curH.toFixed(1) + ' h' : curFTE.toFixed(2) + ' FTE') + '</span>' +
         '</td>' +
+        '<td style="text-align: center; background: rgba(16, 185, 129, 0.04);">' +
+          (propVal > 0 ? 
+            '<span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:3px 7px; border-radius:6px; font-weight:700; font-size:12px;">+' + propVal.toFixed(currentUnit === 'FTE' ? 1 : 0) + unitSuffix + '</span>' +
+            '<span class="cell-sub" style="color:#059669; font-size:11px;">7p al 92% (' + propH.toFixed(1) + ' h)</span>' :
+            '<span style="color:var(--text-muted); font-size:13px;">-</span>') +
+        '</td>' +
         '<td style="text-align: right;">' +
           '<strong>' + modVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '</strong>' + unitSuffix +
           '<span class="cell-sub">' + (currentUnit === 'FTE' ? modH.toFixed(1) + ' h' : modFTE.toFixed(2) + ' FTE') + '</span>' +
         '</td>' +
         '<td style="text-align: center;">' +
           '<span class="' + diffBadgeClass + '">' +
-            diffSign + diff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
+            diffSign + diffWithProp.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix +
           '</span>' +
-          (showScenario7FTE && row.fecha >= '2026-11-23' ?
-            '<span class="cell-sub" style="display:block; margin-top:3px; font-weight:700; color:' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) < 0 ? '#dc2626' : '#16a34a') + ';">' +
-              'Con 6,3 FTE: ' + ((diff + (currentUnit === 'FTE' ? 6.3 : 50.4)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 6.3 : 50.4)).toFixed(1) + unitSuffix +
+          (propVal > 0 ?
+            '<span class="cell-sub" style="display:block; margin-top:2px; font-size:11px; color:#64748b;">' +
+              'Sin refuerzo: ' + (rawDiff >= 0 ? '+' : '') + rawDiff.toFixed(1) + unitSuffix +
             '</span>' : '') +
         '</td>' +
         '<td style="text-align: right;">' +
@@ -2061,9 +2117,15 @@ function renderTable() {
     (currentUnit === 'FTE' ? totModH / getFteDivisorDaily() : totModH) :
     (currentUnit === 'FTE' ? totModH / getFteDivisorWeekly() : totModH);
 
-  const totDiff = totCurVal - totModVal;
-  const totDiffSign = totDiff >= 0 ? '+' : '';
-  const totDiffClass = totDiff < 0 ? 'diff-badge deficit severe' : 'diff-badge surplus';
+  const totPropVal = isDaily ?
+    (currentUnit === 'FTE' ? totPropH / getFteDivisorDaily() : totPropH) :
+    (currentUnit === 'FTE' ? totPropH / getFteDivisorWeekly() : totPropH);
+
+  const totTotalWithProp = totCurVal + totPropVal;
+  const totDiffWithProp = totTotalWithProp - totModVal;
+  const totRawDiff = totCurVal - totModVal;
+  const totDiffSign = totDiffWithProp >= 0 ? '+' : '';
+  const totDiffClass = totDiffWithProp < 0 ? 'diff-badge deficit severe' : 'diff-badge surplus';
   const unitSuffix = currentUnit === 'FTE' ? (isDaily ? ' FTE·día' : ' FTE·sem') : ' h';
 
   tfoot.innerHTML = 
@@ -2072,9 +2134,11 @@ function renderTable() {
       '<td>' + sortedList.length + (isDaily ? (hideClosedDays ? ' Días operativos' : ' Días mostrados') : ' Semanas') + '</td>' +
       '<td style="text-align: right;">' + Math.round(totOrders).toLocaleString('es-ES') + ' pedidos</td>' +
       '<td style="text-align: right;">' + totCurVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
+      '<td style="text-align: center; color:#065f46; font-weight:700; background:rgba(16, 185, 129, 0.08);">' + (totPropVal > 0 ? '+' + totPropVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix : '-') + '</td>' +
       '<td style="text-align: right;">' + totModVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</td>' +
       '<td style="text-align: center;">' +
-        '<span class="' + totDiffClass + '">' + totDiffSign + totDiff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</span>' +
+        '<span class="' + totDiffClass + '">' + totDiffSign + totDiffWithProp.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</span>' +
+        '<span class="cell-sub" style="display:block; margin-top:2px;">Sin refuerzo: ' + (totRawDiff >= 0 ? '+' : '') + totRawDiff.toFixed(currentUnit === 'FTE' ? 2 : 1) + unitSuffix + '</span>' +
       '</td>' +
       '<td style="text-align: right;">' + Math.round(totClients).toLocaleString('es-ES') + ' clientes</td>' +
       '<td style="text-align: center;">Pico: 163 min</td>' +
