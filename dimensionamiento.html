@@ -1132,6 +1132,9 @@
         <button id="pill-rebajas" class="period-pill" onclick="setPeriodFilter('REBAJAS')">
           4. Rebajas (7 Ene - 28 Feb)
         </button>
+        <button id="pill-refuerzo" class="period-pill" onclick="setPeriodFilter('REFUERZO')" style="border-color: #10b981; color: #065f46; font-weight: 700;">
+          ✨ Refuerzo (23 Nov - 28 Feb)
+        </button>
         <button id="pill-all" class="period-pill" onclick="setPeriodFilter('ALL')">
           Toda la Campaña
         </button>
@@ -1162,12 +1165,50 @@
       </div>
     </div>
 
+    <!-- BARRA DE BOTONES PARA FILTRAR PERÍODOS EN LA TABLA -->
+    <div class="period-selector-row" style="background: #f8fafc; border-bottom: 1px solid var(--border); padding: 10px 24px; gap: 8px;">
+      <span class="period-label" style="font-size: 12px;">Filtrar Período:</span>
+      <button id="tbl-pill-all" class="period-pill" onclick="setPeriodFilter('ALL')">
+        📅 Toda la Campaña
+      </button>
+      <button id="tbl-pill-refuerzo" class="period-pill" onclick="setPeriodFilter('REFUERZO')" style="border-color: #10b981; color: #065f46; font-weight: 700;">
+        ✨ Refuerzo (23 Nov - 28 Feb)
+      </button>
+      <button id="tbl-pill-antes-bf" class="period-pill" onclick="setPeriodFilter('ANTES_BF')">
+        1. Antes BF (&lt; 26 Nov)
+      </button>
+      <button id="tbl-pill-bf" class="period-pill active" onclick="setPeriodFilter('BF')">
+        2. BF (26 Nov - 18 Dic)
+      </button>
+      <button id="tbl-pill-navidad" class="period-pill" onclick="setPeriodFilter('NAVIDAD')">
+        3. Navidad y Reyes (19 Dic - 5 Ene)
+      </button>
+      <button id="tbl-pill-rebajas" class="period-pill" onclick="setPeriodFilter('REBAJAS')">
+        4. Rebajas (7 Ene - 28 Feb)
+      </button>
+      <button id="tbl-btn-toggle-closed" class="period-pill danger active" onclick="toggleClosedDays()" style="margin-left: auto;">
+        🚫 Sin Días Cerrados
+      </button>
+    </div>
+
     <!-- TABLE TOOLBAR -->
     <div class="table-toolbar">
       <div class="table-toolbar-left">
         <div class="segmented-control">
           <button id="btn-table-gran-day" class="segmented-btn active" onclick="setGranularity('DAY')">📅 Vista por Días</button>
           <button id="btn-table-gran-week" class="segmented-btn" onclick="setGranularity('WEEK')">📊 Vista por Semanas</button>
+        </div>
+
+                <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:12px; font-weight:700; color:var(--primary);">Período:</span>
+          <select id="tablePeriodSelect" class="sort-select" onchange="setPeriodFilter(this.value)" style="border-color: #2563eb; color: #1e40af; font-weight: 700; background: #eff6ff;">
+            <option value="ALL">📅 Toda la Campaña (Completo)</option>
+            <option value="REFUERZO">✨ Refuerzo (23 Nov - 28 Feb)</option>
+            <option value="ANTES_BF">1. Antes Black Friday (&lt; 26 Nov)</option>
+            <option value="BF" selected>2. Black Friday / Cyber (26 Nov - 18 Dic)</option>
+            <option value="NAVIDAD">3. Navidad y Reyes (19 Dic - 5 Ene)</option>
+            <option value="REBAJAS">4. Rebajas (7 Ene - 28 Feb)</option>
+          </select>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
@@ -1486,18 +1527,44 @@ function setPeriodFilter(period) {
 }
 
 function updatePeriodUI() {
-  const pills = {
+  const topPills = {
     'ANTES_BF': 'pill-antes-bf',
     'BF': 'pill-bf',
     'NAVIDAD': 'pill-navidad',
     'REBAJAS': 'pill-rebajas',
-    'ALL': 'pill-all'
+    'ALL': 'pill-all',
+    'REFUERZO': 'pill-refuerzo'
   };
 
-  for (const [key, id] of Object.entries(pills)) {
+  const tblPills = {
+    'ANTES_BF': 'tbl-pill-antes-bf',
+    'BF': 'tbl-pill-bf',
+    'NAVIDAD': 'tbl-pill-navidad',
+    'REBAJAS': 'tbl-pill-rebajas',
+    'ALL': 'tbl-pill-all',
+    'REFUERZO': 'tbl-pill-refuerzo'
+  };
+
+  for (const [key, id] of Object.entries(topPills)) {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('active', key === currentPeriodFilter);
   }
+
+  for (const [key, id] of Object.entries(tblPills)) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', key === currentPeriodFilter);
+  }
+
+  const tableSelect = document.getElementById('tablePeriodSelect');
+  if (tableSelect) {
+    tableSelect.value = currentPeriodFilter;
+  }
+
+  const topClosed = document.getElementById('btn-toggle-closed');
+  if (topClosed) topClosed.classList.toggle('active', hideClosedDays);
+
+  const tblClosed = document.getElementById('tbl-btn-toggle-closed');
+  if (tblClosed) tblClosed.classList.toggle('active', hideClosedDays);
 }
 
 function handleSortSelectChange(val) {
@@ -1538,6 +1605,8 @@ function getFilteredDailyData() {
     list = DAILY_DATA.filter(function(d) { return d.fecha >= '2026-12-19' && d.fecha <= '2027-01-05'; });
   } else if (currentPeriodFilter === 'REBAJAS') {
     list = DAILY_DATA.filter(function(d) { return d.fecha >= '2027-01-07' && d.fecha <= '2027-02-28'; });
+  } else if (currentPeriodFilter === 'REFUERZO') {
+    list = DAILY_DATA.filter(function(d) { return d.fecha >= '2026-11-23' && d.fecha <= '2027-02-28'; });
   } else {
     list = DAILY_DATA;
   }
@@ -1559,6 +1628,18 @@ function getFilteredDailyData() {
 
 function getFilteredWeeklyData() {
   let list = WEEKLY_DATA;
+  if (currentPeriodFilter === 'ANTES_BF') {
+    list = WEEKLY_DATA.filter(function(w) { return w.semana <= 47; });
+  } else if (currentPeriodFilter === 'BF') {
+    list = WEEKLY_DATA.filter(function(w) { return w.semana >= 48 && w.semana <= 51; });
+  } else if (currentPeriodFilter === 'NAVIDAD') {
+    list = WEEKLY_DATA.filter(function(w) { return w.semana === 52 || w.semana === 1; });
+  } else if (currentPeriodFilter === 'REBAJAS') {
+    list = WEEKLY_DATA.filter(function(w) { return w.semana >= 2 && w.semana <= 9; });
+  } else if (currentPeriodFilter === 'REFUERZO') {
+    list = WEEKLY_DATA.filter(function(w) { return w.semana >= 48; });
+  }
+
   if (tableSearchQuery) {
     list = list.filter(function(w) {
       const txt = ('semana ' + w.semana + ' ' + w.hito + ' ' + w.fecha_inicio + ' ' + w.fecha_fin).toLowerCase();
@@ -1847,7 +1928,12 @@ function renderTable() {
   const sortedList = sortData(rawList, isDaily);
 
   if (countBadge) {
-    const periodLabel = isDaily ? (currentPeriodFilter === 'ALL' ? 'Toda la Campaña' : currentPeriodFilter) : '16 Semanas';
+    let periodLabel = 'Toda la Campaña';
+    if (currentPeriodFilter === 'ANTES_BF') periodLabel = 'Antes BF';
+    else if (currentPeriodFilter === 'BF') periodLabel = 'Black Friday';
+    else if (currentPeriodFilter === 'NAVIDAD') periodLabel = 'Navidad y Reyes';
+    else if (currentPeriodFilter === 'REBAJAS') periodLabel = 'Rebajas';
+    else if (currentPeriodFilter === 'REFUERZO') periodLabel = 'Refuerzo (23 Nov - 28 Feb)';
     countBadge.innerText = 'Mostrando ' + sortedList.length + (isDaily ? (hideClosedDays ? ' días operativos' : ' días') : ' semanas') + ' (' + periodLabel + ')';
   }
 
