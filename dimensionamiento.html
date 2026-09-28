@@ -1138,8 +1138,8 @@
         <button id="btnToggleClosed" class="period-pill active" onclick="toggleClosedDays()" title="Ocultar o mostrar días con el centro cerrado para evitar picos de sierra" style="border-left:2px solid #cbd5e1; margin-left:4px;">
           🚫 Sin Días Cerrados (25 Dic, 1 y 6 Ene)
         </button>
-        <button id="btnToggleScenario7" class="period-pill active" onclick="toggleScenario7FTE()" title="Simular contratación de +7 FTE desde el 23 de noviembre" style="background:#10b981; color:white; font-weight:700; border:1px solid #059669; box-shadow:0 1px 3px rgba(0,0,0,0.12); margin-left:6px;">
-          ✨ Escenario: Refuerzo +7 FTE (desde 23 Nov)
+        <button id="btnToggleScenario7" class="period-pill active" onclick="toggleScenario7FTE()" title="Simular contratación de 7 personas al 92% (6,3 FTE) desde el 23 de noviembre" style="background:#10b981; color:white; font-weight:700; border:1px solid #059669; box-shadow:0 1px 3px rgba(0,0,0,0.12); margin-left:6px;">
+          ✨ Escenario: 7 pers. al 92% (6,3 FTE desde 23 Nov)
         </button>
         <span id="periodSummaryBadge" class="period-summary-badge"></span>
       </div>
@@ -1316,7 +1316,7 @@ let currentGranularity = 'DAY'; // 'DAY' or 'WEEK'
 let chartDisplayMode = 'STAFFING_ONLY'; // 'STAFFING_ONLY' or 'ALL_SERIES'
 let currentPeriodFilter = 'BF'; // 'ANTES_BF', 'BF', 'NAVIDAD', 'REBAJAS', 'ALL'
 let hideClosedDays = true; // Exclude days when center is closed (25 Dec, 1 Jan, 6 Jan, closed Sundays) to prevent sawtooth spikes
-let showScenario7FTE = true; // Simulación de refuerzo +7 FTE a partir del 23 de noviembre
+let showScenario7FTE = true; // Simulación de refuerzo: 7 personas al 92% = 6,3 FTE (50,4 h/día) a partir del 23 de noviembre
 
 function toggleScenario7FTE() {
   showScenario7FTE = !showScenario7FTE;
@@ -1991,7 +1991,7 @@ function renderTable() {
           '</span>' +
           (showScenario7FTE && row.fecha >= '2026-11-23' ?
             '<span class="cell-sub" style="display:block; margin-top:3px; font-weight:700; color:' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) < 0 ? '#dc2626' : '#16a34a') + ';">' +
-              'Con +7: ' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 7.0 : 56.0)).toFixed(1) + unitSuffix +
+              'Con 6,3 FTE: ' + ((diff + (currentUnit === 'FTE' ? 6.3 : 50.4)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 6.3 : 50.4)).toFixed(1) + unitSuffix +
             '</span>' : '') +
         '</td>' +
         '<td style="text-align: right;">' +
@@ -2037,7 +2037,7 @@ function renderTable() {
           '</span>' +
           (showScenario7FTE && row.fecha >= '2026-11-23' ?
             '<span class="cell-sub" style="display:block; margin-top:3px; font-weight:700; color:' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) < 0 ? '#dc2626' : '#16a34a') + ';">' +
-              'Con +7: ' + ((diff + (currentUnit === 'FTE' ? 7.0 : 56.0)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 7.0 : 56.0)).toFixed(1) + unitSuffix +
+              'Con 6,3 FTE: ' + ((diff + (currentUnit === 'FTE' ? 6.3 : 50.4)) >= 0 ? '+' : '') + (diff + (currentUnit === 'FTE' ? 6.3 : 50.4)).toFixed(1) + unitSuffix +
             '</span>' : '') +
         '</td>' +
         '<td style="text-align: right;">' +
@@ -2228,10 +2228,10 @@ function updateMainChart() {
       if (showScenario7FTE) {
         const avgScenario = currentStaffing.reduce(function(acc, val, i){
           const d = dailySubset[i];
-          const add = (d && d.fecha >= '2026-11-23') ? (isFTE ? 7.0 : 56.0) : 0;
+          const add = (d && d.fecha >= '2026-11-23') ? (isFTE ? 6.3 : 50.4) : 0;
           return acc + val + add;
         }, 0) / (dailySubset.length || 1);
-        scenarioBadge = ' | Con +7 FTE: <strong>' + avgScenario.toFixed(1) + ' ' + unitLabel + '</strong>';
+        scenarioBadge = ' | Con 6,3 FTE (7p al 92%): <strong>' + avgScenario.toFixed(1) + ' ' + unitLabel + '</strong>';
       }
       badgeEl.innerHTML = '<strong>' + dailySubset.length + (hideClosedDays ? ' días operativos' : ' días') + '</strong> | Pedidos Picking: <strong>' + Math.round(sumOrders).toLocaleString('es-ES') + '</strong> | Clientes: <strong>' + Math.round(sumClients).toLocaleString('es-ES') + '</strong> | Media: <strong>' + avgModelFte.toFixed(1) + ' ' + unitLabel + '</strong>' + scenarioBadge;
     }
@@ -2243,7 +2243,7 @@ function updateMainChart() {
       scenarioStaffing = WEEKLY_DATA.map(function(r) {
         const cur = isFTE ? getCurrentFTEWeekly(r) : getCurrentHoursWeekly(r);
         if (r.semana >= 48) {
-          const add = isFTE ? 7.0 : (7.0 * getFteDivisorWeekly());
+          const add = isFTE ? 6.3 : (6.3 * getFteDivisorWeekly());
           return cur + add;
         }
         return cur;
@@ -2253,7 +2253,7 @@ function updateMainChart() {
       scenarioStaffing = dailySubset.map(function(d) {
         const cur = isFTE ? getCurrentFTEDaily(d) : getCurrentHoursDaily(d);
         if (d.fecha >= '2026-11-23') {
-          const add = isFTE ? 7.0 : 56.0;
+          const add = isFTE ? 6.3 : 50.4;
           return cur + add;
         }
         return cur;
@@ -2291,7 +2291,7 @@ function updateMainChart() {
 
   if (showScenario7FTE) {
     datasets.push({
-      label: '✨ Con Refuerzo (+7 FTE desde 23 Nov)',
+      label: '✨ Con Refuerzo (7 pers. al 92% = 6,3 FTE)',
       data: scenarioStaffing,
       borderColor: '#10b981',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -2382,13 +2382,13 @@ function openRosterModal(dateStr) {
       '<span class="modal-stat-pill" style="background:#fef3c7; color:#92400e;">📦 Picking Planta: <strong>' + Math.round(dayDaily.picking_dto || 0) + ' pedidos</strong></span>' +
       '<span class="modal-stat-pill" style="background:#f1f5f9; color:#334155;">🚶 Clientes Front: <strong>' + Math.round(dayDaily.clientes_front || 0) + '</strong></span>' +
       (dateStr >= '2026-11-23' ? (function(){
-        const scFte = (parseFloat(curFte) + 7.0).toFixed(1);
-        const resFte = (parseFloat(diffFte) + 7.0).toFixed(1);
-        const resH = (diffH + 56.0).toFixed(1);
+        const scFte = (parseFloat(curFte) + 6.3).toFixed(1);
+        const resFte = (parseFloat(diffFte) + 6.3).toFixed(1);
+        const resH = (diffH + 50.4).toFixed(1);
         const resSign = resFte >= 0 ? '+' : '';
         const resColor = resFte < 0 ? '#b91c1c' : '#15803d';
         const resBg = resFte < 0 ? '#fee2e2' : '#dcfce7';
-        return '<span class="modal-stat-pill" style="background:' + resBg + '; color:' + resColor + '; border:1px solid ' + resColor + ';">✨ Con +7 FTE: <strong>' + scFte + ' FTE</strong> (Brecha: <strong>' + resSign + resFte + ' FTE / ' + resSign + resH + ' h</strong>)</span>';
+        return '<span class="modal-stat-pill" style="background:' + resBg + '; color:' + resColor + '; border:1px solid ' + resColor + ';">✨ Con 7 pers. al 92% (6,3 FTE): <strong>' + scFte + ' FTE</strong> (Brecha: <strong>' + resSign + resFte + ' FTE / ' + resSign + resH + ' h</strong>)</span>';
       })() : '') +
       (dayDaily.tiempo_espera_max > 15 ? '<span class="modal-stat-pill danger">🚨 Espera: <strong>' + dayDaily.tiempo_espera_max + ' min</strong></span>' : '');
   }
