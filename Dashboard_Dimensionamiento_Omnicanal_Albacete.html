@@ -1864,56 +1864,56 @@ function renderTable() {
 
   if (isDaily) {
     headHtml += 
-      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort('DATE_ASC')" style="width: 135px;">' +
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(&quot;DATE_ASC&quot;)" style="width: 135px;">' +
         'Fecha / Día' + getSortIcon('DATE_ASC', 'DATE_DESC') +
       '</th>' +
       '<th style="width: 165px;">Hito / Evento</th>' +
-      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort('ORDERS_DESC')" style="text-align: right; width: 140px;">' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(&quot;ORDERS_DESC&quot;)" style="text-align: right; width: 140px;">' +
         'Actividad Pedidos (Picking)' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort('ACTUAL_DESC')" style="text-align: right; width: 145px;">' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(&quot;ACTUAL_DESC&quot;)" style="text-align: right; width: 145px;">' +
         'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
       '</th>' +
       '<th style="text-align: center; width: 145px; background: rgba(16, 185, 129, 0.08); color:#065f46; font-weight:700;">' +
         'Propuesta Contratación<br><span style="font-size:11px; font-weight:600; color:#059669;">+6,3 FTE (7p 92%)</span>' +
       '</th>' +
-      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort('MODEL_DESC')" style="text-align: right; width: 130px;">' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(&quot;MODEL_DESC&quot;)" style="text-align: right; width: 130px;">' +
         'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort('DEFICIT_DESC')" style="text-align: center; width: 155px;">' +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(&quot;DEFICIT_DESC&quot;)" style="text-align: center; width: 155px;">' +
         'Diferencia con Propuesta' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort('CLIENTS_DESC')" style="text-align: right; width: 125px;">' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(&quot;CLIENTS_DESC&quot;)" style="text-align: right; width: 125px;">' +
         'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort('WAIT_DESC')" style="text-align: center; width: 105px;">' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(&quot;WAIT_DESC&quot;)" style="text-align: center; width: 105px;">' +
         'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
       '</th>';
   } else {
     headHtml += 
-      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort('DATE_ASC')" style="width: 135px;">' +
+      '<th class="' + getSortClass('DATE_ASC', 'DATE_DESC') + '" onclick="toggleHeaderSort(&quot;DATE_ASC&quot;)" style="width: 135px;">' +
         'Semana / Rango' + getSortIcon('DATE_ASC', 'DATE_DESC') +
       '</th>' +
       '<th style="width: 195px;">Hito Comercial</th>' +
-      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort('ORDERS_DESC')" style="text-align: right; width: 140px;">' +
+      '<th class="' + getSortClass('ORDERS_ASC', 'ORDERS_DESC') + '" onclick="toggleHeaderSort(&quot;ORDERS_DESC&quot;)" style="text-align: right; width: 140px;">' +
         'Actividad Pedidos (Picking)' + getSortIcon('ORDERS_ASC', 'ORDERS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort('ACTUAL_DESC')" style="text-align: right; width: 130px;">' +
+      '<th class="' + getSortClass('ACTUAL_ASC', 'ACTUAL_DESC') + '" onclick="toggleHeaderSort(&quot;ACTUAL_DESC&quot;)" style="text-align: right; width: 130px;">' +
         'Recursos Actuales ✏️' + getSortIcon('ACTUAL_ASC', 'ACTUAL_DESC') +
       '</th>' +
       '<th style="text-align: center; width: 145px; background: rgba(16, 185, 129, 0.08); color:#065f46; font-weight:700;">' +
         'Propuesta Contratación<br><span style="font-size:11px; font-weight:600; color:#059669;">+6,3 FTE (7p 92%)</span>' +
       '</th>' +
-      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort('MODEL_DESC')" style="text-align: right; width: 130px;">' +
+      '<th class="' + getSortClass('MODEL_ASC', 'MODEL_DESC') + '" onclick="toggleHeaderSort(&quot;MODEL_DESC&quot;)" style="text-align: right; width: 130px;">' +
         'Recursos Modelo' + getSortIcon('MODEL_ASC', 'MODEL_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort('DEFICIT_DESC')" style="text-align: center; width: 155px;">' +
+      '<th class="' + getSortClass('DEFICIT_DESC', 'SURPLUS_DESC') + '" onclick="toggleHeaderSort(&quot;DEFICIT_DESC&quot;)" style="text-align: center; width: 155px;">' +
         'Diferencia con Propuesta' + getSortIcon('DEFICIT_DESC', 'SURPLUS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort('CLIENTS_DESC')" style="text-align: right; width: 130px;">' +
+      '<th class="' + getSortClass('CLIENTS_ASC', 'CLIENTS_DESC') + '" onclick="toggleHeaderSort(&quot;CLIENTS_DESC&quot;)" style="text-align: right; width: 130px;">' +
         'Clientes Front' + getSortIcon('CLIENTS_ASC', 'CLIENTS_DESC') +
       '</th>' +
-      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort('WAIT_DESC')" style="text-align: center; width: 110px;">' +
+      '<th class="' + getSortClass('WAIT_ASC', 'WAIT_DESC') + '" onclick="toggleHeaderSort(&quot;WAIT_DESC&quot;)" style="text-align: center; width: 110px;">' +
         'Espera Máx.' + getSortIcon('WAIT_ASC', 'WAIT_DESC') +
       '</th>';
   }
@@ -1999,7 +1999,7 @@ function renderTable() {
       const workingCount = rosterInfo ? rosterInfo.total_trabajando : (row.personas_cuadrante || 0);
 
       tr.innerHTML = 
-        '<td class="cell-main" onclick="openRosterModal('' + row.fecha + '')" title="Clic para ver trabajadores y curva horaria">' +
+        '<td class="cell-main" onclick="openRosterModal(&quot;\' + row.fecha + \'&quot;)" title="Clic para ver trabajadores y curva horaria">' +
           row.label_full +
           '<span class="cell-sub">Semana ' + (row.semana || '-') + '</span>' +
         '</td>' +
@@ -2017,9 +2017,9 @@ function renderTable() {
           '<div style="display:flex; align-items:center; justify-content:flex-end;">' +
             '<input type="number" step="' + (currentUnit === 'FTE' ? '0.1' : '1') + '" class="input-cell" ' +
               'value="' + curVal.toFixed(currentUnit === 'FTE' ? 2 : 1) + '" ' +
-              'onchange="updateDailyHours('' + row.fecha + '', this.value)" ' +
+              'onchange="updateDailyHours(&quot;\' + row.fecha + \'&quot;, this.value)" ' +
               'title="Modificar dotación de este día">' +
-            '<button class="btn-roster-view" onclick="openRosterModal('' + row.fecha + '')" title="Ver plantilla, turnos y gráfico por horas">' +
+            '<button class="btn-roster-view" onclick="openRosterModal(&quot;\' + row.fecha + \'&quot;)" title="Ver plantilla, turnos y gráfico por horas">' +
               '👥 ' + workingCount + 'p' +
             '</button>' +
           '</div>' +
