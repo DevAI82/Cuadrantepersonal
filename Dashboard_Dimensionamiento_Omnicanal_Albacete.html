@@ -1153,6 +1153,48 @@
     </div>
   </div>
 
+  <!-- CUADRO RESUMEN EJECUTIVO: PROMEDIOS DIARIOS Y PICOS POR PERÍODO (JUSTO DEBAJO DEL GRÁFICO) -->
+  <div class="card" id="periodAveragesCard" style="margin-bottom: 24px; padding: 20px 24px; background: white; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+          📊 Resumen Ejecutivo: Promedios Diarios y Necesidades por Período
+        </h3>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">
+          Comparativa de volumen medio diario, plantilla actual, modelo RRHH (1 FTE = 8,0 h/día) y picos máximos de déficit. Haz clic en cualquier fila para filtrar la tabla detallada inferior.
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 5px 12px; border-radius: 8px; font-weight: 700; font-size: 12px;">
+          ✨ Escenario Refuerzo: 7 personas al 92% (+6,3 FTE / 50,4 h/día)
+        </span>
+      </div>
+    </div>
+
+    <div class="table-responsive" style="border: 1px solid var(--border); border-radius: 8px; overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+        <thead>
+          <tr style="background: #f8fafc; border-bottom: 2px solid var(--border);">
+            <th style="padding: 11px 14px; font-weight: 700; color: #334155;">Período de Campaña</th>
+            <th style="padding: 11px 8px; text-align: center; font-weight: 700; color: #334155;">Días Op.</th>
+            <th style="padding: 11px 12px; text-align: right; font-weight: 700; color: #334155;">Picking Medio/d</th>
+            <th style="padding: 11px 12px; text-align: right; font-weight: 700; color: #334155;">Clientes Front/d</th>
+            <th style="padding: 11px 12px; text-align: right; font-weight: 700; color: #334155;">Cuadrante Actual</th>
+            <th style="padding: 11px 12px; text-align: center; font-weight: 700; color: #065f46; background: rgba(16, 185, 129, 0.08);">Propuesta (+6,3 FTE)</th>
+            <th style="padding: 11px 12px; text-align: right; font-weight: 700; color: #334155;">Modelo RRHH</th>
+            <th style="padding: 11px 10px; text-align: center; font-weight: 700; color: #b91c1c;">Déficit L-S (Punta)</th>
+            <th style="padding: 11px 10px; text-align: center; font-weight: 700; color: #dc2626; background: #fef2f2;">Pico Máx. Falta</th>
+            <th style="padding: 11px 12px; text-align: center; font-weight: 700; color: #065f46;">Balance Con Propuesta</th>
+            <th style="padding: 11px 8px; text-align: center; font-weight: 700; color: #334155;">Filtrar</th>
+          </tr>
+        </thead>
+        <tbody id="periodAveragesBody">
+          <!-- Rendered dynamically via renderPeriodAveragesTable() -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- MAIN INTERACTIVE TABLE -->
   <div class="table-card">
     <div class="table-header">
@@ -1192,42 +1234,6 @@
       <button id="tbl-btn-toggle-closed" class="period-pill danger active" onclick="toggleClosedDays()" style="margin-left: auto;">
         🚫 Sin Días Cerrados
       </button>
-    </div>
-
-    <!-- CONTENEDOR COLAPSABLE: RESUMEN DE PROMEDIOS DIARIOS POR PERÍODO -->
-    <div id="periodAveragesContainer" style="display: none; padding: 16px 24px; background: #f0fdf4; border-bottom: 2px solid #86efac;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <div>
-          <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
-            📊 Cuadro Comparativo de Promedios Diarios por Período de Campaña
-          </h4>
-          <p style="margin: 2px 0 0 0; font-size: 12px; color: #15803d;">
-            Medias diarias por jornada operativa (1 FTE = 8,0 h/día). Haz clic en cualquier fila para filtrar la tabla detallada.
-          </p>
-        </div>
-        <button class="pill-btn" onclick="togglePeriodAverages()" style="font-size: 11px; padding: 4px 10px;">✕ Cerrar Resumen</button>
-      </div>
-      <div class="table-responsive" style="background: white; border-radius: 8px; border: 1px solid #bbf7d0; box-shadow: var(--shadow-sm);">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-          <thead>
-            <tr style="background: #f8fafc; border-bottom: 2px solid var(--border);">
-              <th style="padding: 10px 12px; font-weight: 700; color: #334155;">Período Campaña</th>
-              <th style="padding: 10px 8px; text-align: center; font-weight: 700; color: #334155;">Días Op.</th>
-              <th style="padding: 10px 12px; text-align: right; font-weight: 700; color: #334155;">Picking Medio/d</th>
-              <th style="padding: 10px 12px; text-align: right; font-weight: 700; color: #334155;">Clientes Front/d</th>
-              <th style="padding: 10px 12px; text-align: right; font-weight: 700; color: #334155;">Cuadrante Actual</th>
-              <th style="padding: 10px 10px; text-align: center; font-weight: 700; color: #065f46; background: rgba(16, 185, 129, 0.08);">Propuesta Refuerzo</th>
-              <th style="padding: 10px 12px; text-align: right; font-weight: 700; color: #334155;">Modelo RRHH</th>
-              <th style="padding: 10px 10px; text-align: center; font-weight: 700; color: #b91c1c;">Déficit Sin Refuerzo</th>
-              <th style="padding: 10px 10px; text-align: center; font-weight: 700; color: #065f46;">Balance Con Propuesta</th>
-              <th style="padding: 10px 8px; text-align: center; font-weight: 700; color: #334155;">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="periodAveragesBody">
-            <!-- Dynamic rows rendered via JS -->
-          </tbody>
-        </table>
-      </div>
     </div>
 
     <!-- TABLE TOOLBAR -->
@@ -1409,6 +1415,7 @@ function toggleScenario7FTE() {
   }
   updateMainChart();
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function isDayClosed(d) {
@@ -1426,6 +1433,7 @@ function toggleClosedDays() {
   }
   updateMainChart();
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 let currentSortKey = 'DEFICIT_DESC';
@@ -1549,6 +1557,7 @@ function setGranularity(granularity) {
 
   updateMainChart();
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function setChartDisplayMode(mode) {
@@ -1563,6 +1572,7 @@ function setPeriodFilter(period) {
   updatePeriodUI();
   updateMainChart();
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function updatePeriodUI() {
@@ -1609,11 +1619,13 @@ function updatePeriodUI() {
 function handleSortSelectChange(val) {
   currentSortKey = val;
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function handleSearch(query) {
   tableSearchQuery = query.toLowerCase().trim();
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function toggleHeaderSort(sortKey) {
@@ -1632,6 +1644,7 @@ function toggleHeaderSort(sortKey) {
     select.value = currentSortKey;
   }
   renderTable();
+  renderPeriodAveragesTable();
 }
 
 function getFilteredDailyData() {
@@ -2816,7 +2829,7 @@ function renderPeriodAveragesTable() {
   const body = document.getElementById('periodAveragesBody');
   if (!body) return;
 
-  const closedDates = ['2026-12-25', '2027-01-01', '2027-01-06'];
+  const closedDates = ['2026-12-08', '2026-12-25', '2027-01-01', '2027-01-06'];
 
   const periodsDef = [
     {
@@ -2845,7 +2858,7 @@ function renderPeriodAveragesTable() {
     },
     {
       key: 'REFUERZO',
-      name: '✨ Período Completo de Refuerzo',
+      name: '✨ Período Completo Refuerzo',
       dates: '23 Nov - 28 Feb',
       filterFn: function(d) { return d.fecha >= '2026-11-23' && d.fecha <= '2027-02-28'; }
     },
@@ -2861,9 +2874,13 @@ function renderPeriodAveragesTable() {
 
   periodsDef.forEach(function(p) {
     let subset = DAILY_DATA.filter(p.filterFn);
-    if (hideClosedDays) {
-      subset = subset.filter(function(d) { return !closedDates.includes(d.fecha); });
-    }
+    
+    // Filter closed days (both model and quad 0, or official holiday)
+    subset = subset.filter(function(d) {
+      if (closedDates.includes(d.fecha)) return false;
+      if ((!d.horas_totales_rrhh || d.horas_totales_rrhh === 0) && (!d.horas_cuadrante || d.horas_cuadrante === 0)) return false;
+      return true;
+    });
 
     const n = subset.length;
     if (n === 0) return;
@@ -2886,21 +2903,39 @@ function renderPeriodAveragesTable() {
     const avgPropH = totPropH / n;
     const avgPropFTE = avgPropH / getFteDivisorDaily();
 
-    const avgDiffRawFTE = avgCurFTE - avgModFTE;
-    const avgDiffWithPropFTE = (avgCurFTE + avgPropFTE) - avgModFTE;
+    // Weekdays Monday-Saturday (excluding Sundays for real operational pressure)
+    const weekdays = subset.filter(function(d) { return d.dia_semana && d.dia_semana.toLowerCase() !== 'domingo'; });
+    const nWd = weekdays.length || 1;
+    const totCurH_wd = weekdays.reduce(function(acc, d) { return acc + getCurrentHoursDaily(d); }, 0);
+    const totModH_wd = weekdays.reduce(function(acc, d) { return acc + getModelHoursDaily(d); }, 0);
+    const avgDiffWdFTE = (totCurH_wd - totModH_wd) / nWd / getFteDivisorDaily();
 
+    // Worst peak deficit day
+    let maxDeficitFTE = 0;
+    let maxDeficitDate = '';
+    subset.forEach(function(d) {
+      const cur = getCurrentHoursDaily(d) / getFteDivisorDaily();
+      const mod = getModelHoursDaily(d) / getFteDivisorDaily();
+      const def = mod - cur;
+      if (def > maxDeficitFTE) {
+        maxDeficitFTE = def;
+        maxDeficitDate = d.label_short || d.fecha;
+      }
+    });
+
+    const avgDiffWithPropFTE = (avgCurFTE + avgPropFTE) - avgModFTE;
     const netHours = (totCurH + totPropH) - totModH;
 
     const isCurrentActive = currentPeriodFilter === p.key;
     const rowBg = isCurrentActive ? 'background: #eff6ff; font-weight: 700;' : '';
 
     const diffBadge = avgDiffWithPropFTE >= 0 ? 
-      '<span class="diff-badge surplus" style="font-size:12px;">+' + avgDiffWithPropFTE.toFixed(2) + ' FTE/d</span>' :
-      '<span class="diff-badge deficit" style="font-size:12px;">' + avgDiffWithPropFTE.toFixed(2) + ' FTE/d</span>';
+      '<span class="diff-badge surplus" style="font-size:12px; font-weight:800;">+' + avgDiffWithPropFTE.toFixed(2) + ' FTE/d</span>' :
+      '<span class="diff-badge deficit" style="font-size:12px; font-weight:800;">' + avgDiffWithPropFTE.toFixed(2) + ' FTE/d</span>';
 
     rowsHtml += 
-      '<tr style="' + rowBg + ' border-bottom: 1px solid var(--border); cursor: pointer;" onclick="setPeriodFilter(&quot;' + p.key + '&quot;)" title="Clic para filtrar la tabla por este período">' +
-        '<td style="padding: 10px 12px;">' +
+      '<tr style="' + rowBg + ' border-bottom: 1px solid var(--border); cursor: pointer;" onclick="setPeriodFilter(&quot;' + p.key + '&quot;)" title="Clic para filtrar la tabla inferior por este período">' +
+        '<td style="padding: 10px 14px;">' +
           '<strong>' + p.name + '</strong>' +
           '<span class="cell-sub">' + p.dates + '</span>' +
         '</td>' +
@@ -2913,8 +2948,8 @@ function renderPeriodAveragesTable() {
         '</td>' +
         '<td style="text-align: center; padding: 10px 10px; background: rgba(16, 185, 129, 0.05);">' +
           (avgPropFTE > 0 ? 
-            '<span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:2px 6px; border-radius:6px; font-weight:700; font-size:12px;">+' + avgPropFTE.toFixed(1) + ' FTE</span>' +
-            '<span class="cell-sub" style="color:#059669;">+' + avgPropH.toFixed(1) + ' h/d</span>' :
+            '<span style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800; font-size:12px;">+' + avgPropFTE.toFixed(1) + ' FTE</span>' +
+            '<span class="cell-sub" style="color:#059669; font-weight:600;">+' + avgPropH.toFixed(1) + ' h/d</span>' :
             '<span style="color:#94a3b8;">-</span>') +
         '</td>' +
         '<td style="text-align: right; padding: 10px 12px;">' +
@@ -2922,17 +2957,21 @@ function renderPeriodAveragesTable() {
           '<span class="cell-sub">' + avgModH.toFixed(1) + ' h/d</span>' +
         '</td>' +
         '<td style="text-align: center; padding: 10px 10px;">' +
-          '<span class="diff-badge deficit" style="font-size:11px;">' + avgDiffRawFTE.toFixed(2) + ' FTE/d</span>' +
-          '<span class="cell-sub">Tot: ' + Math.round(totCurH - totModH) + ' h</span>' +
+          '<span class="diff-badge deficit severe" style="font-size:12px; font-weight:800;">' + avgDiffWdFTE.toFixed(2) + ' FTE/d</span>' +
+          '<span class="cell-sub">Media L-S (' + nWd + 'd)</span>' +
+        '</td>' +
+        '<td style="text-align: center; padding: 10px 10px; background: #fff5f5;">' +
+          '<strong style="color:#dc2626; font-size:13px;">-' + maxDeficitFTE.toFixed(1) + ' FTE</strong>' +
+          '<span class="cell-sub" style="color:#b91c1c;">Pico: ' + maxDeficitDate + '</span>' +
         '</td>' +
         '<td style="text-align: center; padding: 10px 10px;">' +
           diffBadge +
-          '<span class="cell-sub">Balance: ' + (netHours >= 0 ? '+' : '') + Math.round(netHours) + ' h</span>' +
+          '<span class="cell-sub">Neto: ' + (netHours >= 0 ? '+' : '') + Math.round(netHours) + ' h</span>' +
         '</td>' +
         '<td style="text-align: center; padding: 10px 8px;">' +
           (isCurrentActive ? 
             '<span style="color:#2563eb; font-weight:800; font-size:12px;">✓ Activo</span>' :
-            '<button class="pill-btn" style="padding:3px 8px; font-size:11px;" onclick="event.stopPropagation(); setPeriodFilter(&quot;' + p.key + '&quot;)">Filtrar</button>') +
+            '<button class="period-pill" style="padding:3px 9px; font-size:11px;" onclick="event.stopPropagation(); setPeriodFilter(&quot;' + p.key + '&quot;)">Ver</button>') +
         '</td>' +
       '</tr>';
   });
